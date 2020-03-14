@@ -307,17 +307,48 @@ class MainWindow(QWidget):
         self.selected_port = self.ports[i]
         print("Main selected port changed:")
         print(self.selected_port)
+        self.equal_x_and_y()
         self.open_serial()
 
     def selected_baud_changed(self, i):
         self.selected_baudrate = self.baudrates[i]
         print("Main selected baud index changed:")
         print(self.selected_baudrate)
+        self.equal_x_and_y()
         self.open_serial()
+
+    def equal_x_and_y(self):
+        if self.plot_exist:
+            print("\t eqaul_x_and_y !!!")
+            # mitu y joont on?
+            for i in range(self.number_of_lines):
+                if len(self.plot.x) > len(self.plot.ynew[i]):
+                    print("\t x on suurem kui y[{}]".format(i))
+                    while len(self.plot.x) > len(self.plot.ynew[i]):
+                        # Remove the first element on list
+                        self.plot.x = self.plot.x[1:]
+                if len(self.plot.ynew[i]) > len(self.plot.x):
+                    print("\t y[{i}] on suurem kui x".format(i))
+                    while len(self.plot.ynew[i]) > len(self.plot.x):
+                        # Remove the first element on list
+                        self.plot.ynew[i] = self.plot.ynew[i][1:]
+            '''
+            if len(self.plot.x) > len(self.plot.ynew[0]):
+                print("\t x on suurem kui y")
+                while len(self.plot.x) > len(self.plot.ynew[0]):
+                    # Remove the first element on list
+                    self.plot.x = self.plot.x[1:]
+            elif len(self.plot.ynew[0]) > len(self.plot.x):
+                s = len(self.plot.ynew[0]) - len(self.plot.x)
+                print("\t y on suurem kui x: {}".format(s))
+            else:
+                print("\t x == y")
+            '''
     
     # Button Connect
     def connect(self):
         print('Connect Button')
+        # TODO peaks kontrolima uuesti mitu ploti on 
         if not self.plot_exist:
             self.number_of_lines = self.how_many_lines()
             if self.number_of_lines is not None:
@@ -327,9 +358,9 @@ class MainWindow(QWidget):
                 self.plot_exist = True
                 self.timer.timeout.connect(self.read_serial_data)
             else:
-                print("connect: number_of_lines is None!")
+                print("connect: None!")
         else:
-            #self.plot.clear()
+            self.equal_x_and_y()
             self.open_serial()
 
     # Button Reset
@@ -374,24 +405,26 @@ class MainWindow(QWidget):
        
     def read_serial_data(self):
         if self.ser.is_open:
-            #try:
-            incoming_data = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
-            if incoming_data:
-                print("Incoming data {}".format(incoming_data))
-                numbers = self.get_numbers(incoming_data)
+            try:
+                incoming_data = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
+                if incoming_data:
+                    print("Incoming data {}".format(incoming_data))
+                    numbers = self.get_numbers(incoming_data)
 
-                # mitu data punkti tuleb sisse?
-                while len(numbers) > len(self.plot.ynew):
-                    self.plot.ynew.append([0])
+                    # mitu data punkti tuleb sisse?
+                    while len(numbers) > len(self.plot.ynew):
+                        self.plot.ynew.append([0])
                 
-                for i in range(len(numbers)):
-                    self.add_numbers(i, numbers[i], plot_data_size)
+                    for i in range(len(numbers)):
+                        self.add_numbers(i, numbers[i], plot_data_size)
 
-                self.add_time(plot_data_size) # x axis
+                    self.add_time(plot_data_size) # x axis
 
-                for i in range(self.number_of_lines):
-                    self.plot.data_lines[i].setData(self.plot.x, self.plot.ynew[i])
-            
+                    for i in range(self.number_of_lines):
+                        self.plot.data_lines[i].setData(self.plot.x, self.plot.ynew[i])
+            except:
+                print("Error read_serial_data!!!")
+                self.equal_x_and_y()
 
     # How many data point gome in
     # eg. --454-45-454- == 3
@@ -399,22 +432,23 @@ class MainWindow(QWidget):
         print("how_many_lines")
         self.open_serial()
         if self.ser.is_open:
-
             try:
-                # TODO How to ignore firts line ?
-                # it may be misreading
-                ignore = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
-                print("ignore {}".format(ignore))
                 incoming_data = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
+                i = 0
+                while not incoming_data:
+                    incoming_data = self.ser.readline()[:-2].decode('ascii')
+                    i = i+1
                 if incoming_data:
                     print("Incoming data {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
                     print("Leidsin {}".format(len(numbers)))
                     return len(numbers)
+                #else:
+                    #return 0
             except:
                 print("Error")
                 self.ser.close()
-        self.ser.close()
+        #self.ser.close()
 
     # Tuleviku tarbeks
     def keyPressEvent(self, event):
