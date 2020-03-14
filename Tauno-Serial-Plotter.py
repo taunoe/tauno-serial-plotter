@@ -31,7 +31,9 @@ import types
 # TODO: user can config plot time scale
 # TODO diffrent plot types
 # Scatter plot https://www.youtube.com/watch?v=H4QQwWnFiEk
+
 plot_data_size = 100
+left_side_width = 150
 
 # GUI colors
 colors =  {
@@ -64,8 +66,6 @@ plot_colors = [
 
 # STYLING
 fontsize = 16
-
-brushes = { k: pg.mkBrush(c) for k, c in colors.items() }
 
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', colors['dark'])
@@ -140,6 +140,10 @@ class Plot(pg.GraphicsWindow):
 
         self.number_of_plots = number_of_plots
 
+        if self.number_of_plots is None:
+            print("number_of_plots is None")
+            pass
+
         print("Init Plot class. With {} plots".format(self.number_of_plots))
 
         # Create plot
@@ -174,7 +178,7 @@ class Controls(QWidget):
 
         self.verticalLayout = QVBoxLayout(self)
  
-        self.control_width = 120
+        self.control_width = left_side_width
         
         # DropDown: Select Port
         self.menu_1 = QVBoxLayout()
@@ -239,15 +243,15 @@ class MainWindow(QWidget):
         # Timer
         self.timer = QtCore.QTimer()
         self.timer.setInterval(10)
-        self.timer.timeout.connect(self.read_serial_data)
+        #self.timer.timeout.connect(self.read_serial_data)
         self.timer.start()
         
         self.ser = serial.Serial()
 
         self.plot_exist = False
 
-        self.ports = [] # list of avablie devices
-        self.selected_port = '/dev/ttyACM0'
+        self.ports = [' '] # list of avablie devices
+        self.selected_port = self.ports[0]#'/dev/ttyACM0'
         self.baudrates = ['300','1200','2400','4800','9600','19200','38400','57600',
                         '74880','115200','230400','250000','500000','1000000','2000000']
         self.selected_baudrate = self.baudrates[4]
@@ -289,7 +293,7 @@ class MainWindow(QWidget):
             #print(p[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
             self.ports.append(port[0]) # add devices to list
         self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
-        self.controls.select_port.setCurrentIndex(1)
+        #self.controls.select_port.setCurrentIndex(1)
         #self.controls.select_port.currentIndex
 
     def init_baudrates(self):
@@ -314,20 +318,24 @@ class MainWindow(QWidget):
         print('Connect Button')
         if not self.plot_exist:
             self.number_of_lines = self.how_many_lines()
-            self.plot = Plot(self.number_of_lines) # TODO data punktide arv!!!!
-            self.horizontalLayout.addWidget(self.plot)
-            self.open_serial()
-            self.plot_exist = True
+            if self.number_of_lines is not None:
+                self.plot = Plot(self.number_of_lines) # TODO data punktide arv!!!!
+                self.horizontalLayout.addWidget(self.plot)
+                self.open_serial()
+                self.plot_exist = True
+                self.timer.timeout.connect(self.read_serial_data)
+            else:
+                print("connect: number_of_lines is None!")
         else:
+            #self.plot.clear()
             self.open_serial()
 
     # Button Reset
     def reset(self):
         print('Reset Button')
-        #self.GraphicsWindow.clear()#?
-        self.serialplot.clear()                 # deletes plot
-                                                # Clear data?
-        self.draw_plot(self.x, self.y, 'r')     # start new plott
+        #self.plot.clear()
+        #self.plot_exist = False
+        #self.connect()
 
     # Function to extract all the numbers from the given string 
     def get_numbers(self, str): 
@@ -355,6 +363,7 @@ class MainWindow(QWidget):
                         
     # Serial functions
     def open_serial(self):
+        print("Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
         if self.ser.is_open:
             self.ser.close()
         self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
@@ -384,6 +393,7 @@ class MainWindow(QWidget):
     # How many data point gome in
     # eg. --454-45-454- == 3
     def how_many_lines(self):
+        print("how_many_lines")
         self.open_serial()
         if self.ser.is_open:
             try:
