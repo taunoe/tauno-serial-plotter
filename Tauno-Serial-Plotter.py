@@ -250,8 +250,8 @@ class MainWindow(QWidget):
 
         self.plot_exist = False
 
-        self.ports = [' '] # list of avablie devices
-        self.selected_port = self.ports[0]#'/dev/ttyACM0'
+        self.ports = [''] # list of avablie devices
+        self.selected_port = self.ports[0] # '/dev/ttyACM0'
         self.baudrates = ['300','1200','2400','4800','9600','19200','38400','57600',
                         '74880','115200','230400','250000','500000','1000000','2000000']
         self.selected_baudrate = self.baudrates[4]
@@ -288,12 +288,14 @@ class MainWindow(QWidget):
         self.ports.clear() # clear the devices list
         ports = list(serial.tools.list_ports.comports())
         for port in ports:
-            #print(p[0]) # /dev/ttyACM0
-            #print(p[1]) # USB2.0-Serial
-            #print(p[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
+            #print(port[0]) # /dev/ttyACM0
+            #print(port[1]) # USB2.0-Serial
+            #print(port[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
             self.ports.append(port[0]) # add devices to list
         self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
-        #self.controls.select_port.setCurrentIndex(1)
+        if len(ports) > 0:
+            self.controls.select_port.setCurrentIndex(0)
+            self.selected_port = self.ports[0]
         #self.controls.select_port.currentIndex
 
     def init_baudrates(self):
