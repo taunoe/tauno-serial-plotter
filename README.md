@@ -1,12 +1,14 @@
 # Tauno Serial Plotter
 Serial Plotter for Arduino and other embedded devices.
 
-Incoming data should be string. Ending with new line character.
+Incoming data should be string. Ending with new line character. Number can be separated with almost any character.
 Like:
 
-    label2la15be17el28-31/42-54 78
+    label2la15be17el28/31/42/54 78
 
 or
+
+But not with **-** unless it is a negative number:
 
     5-10-22-33-40-55-62-75
 

@@ -341,7 +341,8 @@ class MainWindow(QWidget):
 
     # Function to extract all the numbers from the given string 
     def get_numbers(self, str): 
-        numbers = re.findall(r'[0-9]+', str) 
+        # numbers = re.findall(r'[0-9]+', str) # only detsimal
+        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', str) # https://www.regular-expressions.info/floatingpoint.html
         return numbers
 
     # y-axis
@@ -351,7 +352,7 @@ class MainWindow(QWidget):
             # Remove the first element on list
             self.plot.ynew[i] = self.plot.ynew[i][1:]
         # Before adding newone
-        self.plot.ynew[i].append(int(number))
+        self.plot.ynew[i].append(float(number))
     
     # x-axis
     def add_time(self, plot_data_size):
@@ -398,6 +399,7 @@ class MainWindow(QWidget):
         print("how_many_lines")
         self.open_serial()
         if self.ser.is_open:
+
             try:
                 # TODO How to ignore firts line ?
                 # it may be misreading
