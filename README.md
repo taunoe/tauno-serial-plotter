@@ -8,6 +8,8 @@ Like:
 
 or
 
+    a2b1.5c1.7d2.8/3.1/4.2/5.4 7.8
+
 But not with **-** unless it is a negative number:
 
     5-10-22-33-40-55-62-75
@@ -24,7 +26,7 @@ Tested on Ubuntu.
     $ sudo apt install python3-pip
 
 * Python3
-* Qt5
+* PyQt5
 * pyserial 3.4 ($ pip3 install pyserial)
 * pyqtgraph 0.10.0 ($ pip3 install pyqtgraph)
 

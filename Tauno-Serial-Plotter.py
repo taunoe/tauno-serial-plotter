@@ -19,7 +19,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QSizePolicy, QWidget, QDesktopWidget,
-                            QSlider, QSpacerItem)
+                            QSlider, QSpacerItem, QMessageBox)
 
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget, plot
@@ -153,8 +153,7 @@ class Plot(pg.GraphicsWindow):
         self.serialplot.showGrid(x=True, y=True)
 
         # Place to hold data
-        self.x = [0]  # Time
-        #self.y = [0]  
+        self.x = [0]  # Time 
         # generate list of lists, incoming data
         self.ynew = [[0] for i in range(number_of_plots)] # Datas
 
@@ -299,12 +298,10 @@ class MainWindow(QWidget):
         if len(ports) > 0:
             self.controls.select_port.setCurrentIndex(0)
             self.selected_port = self.ports[0]
-        #self.controls.select_port.currentIndex
 
     def init_baudrates(self):
         self.controls.select_baud.addItems(self.baudrates)
         self.controls.select_baud.setCurrentIndex(4)
-    # Controll fuctions
 
     def selected_port_changed(self, i):
         self.selected_port = self.ports[i]
@@ -335,18 +332,6 @@ class MainWindow(QWidget):
                     while len(self.plot.ynew[i]) > len(self.plot.x):
                         # Remove the first element on list
                         self.plot.ynew[i] = self.plot.ynew[i][1:]
-            '''
-            if len(self.plot.x) > len(self.plot.ynew[0]):
-                print("\t x on suurem kui y")
-                while len(self.plot.x) > len(self.plot.ynew[0]):
-                    # Remove the first element on list
-                    self.plot.x = self.plot.x[1:]
-            elif len(self.plot.ynew[0]) > len(self.plot.x):
-                s = len(self.plot.ynew[0]) - len(self.plot.x)
-                print("\t y on suurem kui x: {}".format(s))
-            else:
-                print("\t x == y")
-            '''
     
     # Button Connect
     def connect(self):
@@ -366,17 +351,18 @@ class MainWindow(QWidget):
             self.equal_x_and_y()
             self.open_serial()
 
-    # Button about
+    # Button About
     def about(self):
         print('About Button')
-        #self.plot.clear()
-        #self.plot_exist = False
-        #self.connect()
+        self.msg = QMessageBox()
+        self.msg.setWindowTitle("About")
+        self.msg.setText("Tauno Serial Plotter<br/><br/>Author: Tauno Erik<br/><a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>2020")
+        self.aboutbox = self.msg.exec_()
 
     # Function to extract all the numbers from the given string 
     def get_numbers(self, str): 
-        # numbers = re.findall(r'[0-9]+', str) # only detsimal
-        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', str) # https://www.regular-expressions.info/floatingpoint.html
+        # https://www.regular-expressions.info/floatingpoint.html
+        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', str) 
         return numbers
 
     # y-axis
@@ -437,14 +423,14 @@ class MainWindow(QWidget):
         if self.ser.is_open:
             try:
                 incoming_data = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
-                i = 0
+                #i = 0
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
-                    i = i+1
+                    #i = i+1
                 if incoming_data:
                     print("Incoming data {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
-                    print("Leidsin {}".format(len(numbers)))
+                    print("Found: {} lines".format(len(numbers)))
                     return len(numbers)
                 #else:
                     #return 0
@@ -454,6 +440,7 @@ class MainWindow(QWidget):
         #self.ser.close()
 
     # Tuleviku tarbeks
+    '''
     def keyPressEvent(self, event):
         if event.key() == 32: # Space
             print("Space")
@@ -461,7 +448,7 @@ class MainWindow(QWidget):
             print("Backspace")
         else:
             print(f'Unknown keypress: {event.key()}, "{event.text()}"')
-
+    '''
     #def mouseClickEvent(self, event):
         #print("clicked")
 
