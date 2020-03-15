@@ -99,6 +99,23 @@ QLabel{{
 }}
 """
 
+QCheckBox_style = f"""
+QCheckBox{{
+    background-color: transparent;
+    color: {colors['hall']};
+    padding:5px;
+}}
+QCheckBox::indicator:unchecked{{
+    background-color: {colors['hall']};
+    padding:5px;
+}}
+
+QCheckBox::indicator:checked{{
+    background-color: {colors['sinakas']};
+    padding:5px;
+}}
+"""
+
 QComboBox_style = f"""
 QComboBox:editable, QComboBox{{
     background-color: {colors['hall']};
@@ -203,6 +220,18 @@ class Controls(QWidget):
         self.menu_1.addWidget(self.select_baud)
         self.select_baud.setStyleSheet(QComboBox_style)
         self.select_baud.setFixedWidth(self.control_width)
+        # Select line or dot
+        '''
+        self.line_box = QtWidgets.QCheckBox('Line plot', parent=self)
+        self.menu_1.addWidget(self.line_box)
+        self.line_box.setChecked(1)
+        self.line_box.setStyleSheet(QCheckBox_style)
+
+        self.dot_box = QtWidgets.QCheckBox('Dot plot', parent=self)
+        self.menu_1.addWidget(self.dot_box)
+        self.dot_box.setChecked(0)
+        self.dot_box.setStyleSheet(QCheckBox_style)
+        '''
         # Button
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
         self.menu_1.addWidget(self.connect) # funk
@@ -235,6 +264,7 @@ class MainWindow(QWidget):
         
         self.app = app
         self.plot_exist = False
+        self.is_fullscreen = False
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
@@ -246,6 +276,7 @@ class MainWindow(QWidget):
 
         self.init_ui()
         self.center_mainwindow()
+
         self.init_timer()
         self.ser = serial.Serial()
 
@@ -439,16 +470,33 @@ class MainWindow(QWidget):
                 self.ser.close()
         #self.ser.close()
 
-    # Tuleviku tarbeks
-    '''
+    # Keyboard
+
+    def fullscreen(self):
+        if not self.is_fullscreen:
+            self.showFullScreen()
+            self.is_fullscreen = True
+        else:
+            self.showNormal()
+            self.is_fullscreen = False
+    
+    def esc(self):
+        if self.is_fullscreen:
+            self.showNormal()
+            self.is_fullscreen = False
+    
     def keyPressEvent(self, event):
         if event.key() == 32: # Space
             print("Space")
         elif event.key() == 16777219: # Backspace
             print("Backspace")
+        elif event.key() == 16777274: # F11
+            self.fullscreen()
+        elif event.key() == 16777216: # Esc
+            self.esc()
         else:
             print(f'Unknown keypress: {event.key()}, "{event.text()}"')
-    '''
+    
     #def mouseClickEvent(self, event):
         #print("clicked")
 
