@@ -18,7 +18,7 @@ import re
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
-                            QLabel, QSizePolicy, QWidget,
+                            QLabel, QSizePolicy, QWidget, QDesktopWidget,
                             QSlider, QSpacerItem)
 
 import pyqtgraph as pg
@@ -213,13 +213,13 @@ class Controls(QWidget):
         self.verticalLayout.addLayout(self.menu_1)
         # Grpup 1 ends
 
-        # Button: Reset
+        # Button: About
         self.menu_3 = QVBoxLayout()
         self.menu_3.setAlignment(Qt.AlignBottom)
-        self.reset = QtWidgets.QPushButton('Reset', parent=self)
-        self.menu_3.addWidget(self.reset) # funk
-        self.reset.setFixedWidth(self.control_width)
-        self.reset.setStyleSheet(QPushButton_style)
+        self.about = QtWidgets.QPushButton('About', parent=self)
+        self.menu_3.addWidget(self.about) # funk
+        self.about.setFixedWidth(self.control_width)
+        self.about.setStyleSheet(QPushButton_style)
         self.verticalLayout.addLayout(self.menu_3)
 
     # ?
@@ -235,19 +235,6 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__(parent=parent)
         
         self.app = app
-        self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
-        self.setWindowTitle("Tauno Serial Plotter")
-        self.setWindowIcon(QtGui.QIcon('./img/tauno-plotter.svg'))
-        self.setMinimumSize(500,250)
-
-        # Timer
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(10)
-        #self.timer.timeout.connect(self.read_serial_data)
-        self.timer.start()
-        
-        self.ser = serial.Serial()
-
         self.plot_exist = False
 
         self.ports = [''] # list of avablie devices
@@ -257,7 +244,12 @@ class MainWindow(QWidget):
         self.selected_baudrate = self.baudrates[4]
 
         self.number_of_lines = 0
-       
+
+        self.init_ui()
+        self.center_mainwindow()
+        self.init_timer()
+        self.ser = serial.Serial()
+
         self.horizontalLayout = QHBoxLayout(self)
 
         # Controlls
@@ -267,22 +259,33 @@ class MainWindow(QWidget):
         self.find_ports()       # Ports on dropdown menu
         self.init_baudrates()   # Baud Rates on dropdown menu
 
-        # Plot
-        # tuvasta data joonte arv
-       # self.graafikute_arv = self.graafikute_arv()
-
-        #self.plot = Plot(2) # TODO data punktide arv!!!!
-        #self.horizontalLayout.addWidget(self.plot)
-
         #self.open_serial()
          
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
-        self.controls.reset.pressed.connect(self.reset) # Töötab
+        self.controls.about.pressed.connect(self.about) 
         self.controls.connect.pressed.connect(self.connect)
     
     # Init functions
+
+    def init_timer(self):
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(10)
+        #self.timer.timeout.connect(self.read_serial_data)
+        self.timer.start()
+
+    def init_ui(self):
+        self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
+        self.setWindowTitle("Tauno Serial Plotter")
+        self.setWindowIcon(QtGui.QIcon('./img/tauno-plotter.svg'))
+        self.setMinimumSize(800,450)
+
+    def center_mainwindow(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def find_ports(self):
         self.ports.clear() # clear the devices list
@@ -363,9 +366,9 @@ class MainWindow(QWidget):
             self.equal_x_and_y()
             self.open_serial()
 
-    # Button Reset
-    def reset(self):
-        print('Reset Button')
+    # Button about
+    def about(self):
+        print('About Button')
         #self.plot.clear()
         #self.plot_exist = False
         #self.connect()
@@ -453,10 +456,8 @@ class MainWindow(QWidget):
     # Tuleviku tarbeks
     def keyPressEvent(self, event):
         if event.key() == 32: # Space
-            #self.animate_toggle()
             print("Space")
         elif event.key() == 16777219: # Backspace
-            #self.reset()
             print("Backspace")
         else:
             print(f'Unknown keypress: {event.key()}, "{event.text()}"')
