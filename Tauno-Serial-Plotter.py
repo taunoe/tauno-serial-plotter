@@ -156,10 +156,11 @@ QComboBox::down-arrow {{
 # PLOT
 class Plot(pg.GraphicsWindow):
 
-    def __init__(self, number_of_plots='1', parent=None):
+    def __init__(self, number_of_plots='1', scatter_plot = False, parent=None):
         super(Plot,self).__init__(parent=None)
 
         self.number_of_plots = number_of_plots
+        self.scatter_plot = scatter_plot
 
         if self.number_of_plots is None:
             print("number_of_plots is None")
@@ -182,7 +183,10 @@ class Plot(pg.GraphicsWindow):
         self.data_lines = []
         
         for i in range(self.number_of_plots):
-            pen = pg.mkPen(color=(plot_colors[i]))
+            if self.scatter_plot:  # Dotts
+                pen = None
+            else:                  # Lines
+                pen = pg.mkPen(color=(plot_colors[i]))
             brush = pg.mkBrush(color=(plot_colors[i]))
             line = self.serialplot.plot(x=self.x, y=self.ynew[i], pen=pen, symbol='o', symbolBrush=brush, symbolSize=5)
             self.data_lines.append(line)
@@ -225,7 +229,7 @@ class Controls(QWidget):
         self.select_baud.setStyleSheet(QComboBox_style)
         self.select_baud.setFixedWidth(self.control_width)
         # Select line or dot
-        '''
+        
         self.line_box = QtWidgets.QCheckBox('Line plot', parent=self)
         self.menu_1.addWidget(self.line_box)
         self.line_box.setChecked(1)
@@ -235,7 +239,7 @@ class Controls(QWidget):
         self.menu_1.addWidget(self.dot_box)
         self.dot_box.setChecked(0)
         self.dot_box.setStyleSheet(QCheckBox_style)
-        '''
+        
         # Button
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
         self.menu_1.addWidget(self.connect) # funk
@@ -269,6 +273,7 @@ class MainWindow(QWidget):
         self.app = app
         self.plot_exist = False
         self.is_fullscreen = False
+        
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
@@ -277,6 +282,7 @@ class MainWindow(QWidget):
         self.selected_baudrate = self.baudrates[4]
 
         self.number_of_lines = 0
+        self.scatter_plot = False
 
         self.init_ui()
         self.center_mainwindow()
@@ -300,6 +306,9 @@ class MainWindow(QWidget):
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
         self.controls.about.pressed.connect(self.about) 
         self.controls.connect.pressed.connect(self.connect)
+
+        self.controls.dot_box.pressed.connect(self.selected_dot)
+        self.controls.line_box.pressed.connect(self.selected_line)
     
     # Init functions
 
@@ -367,7 +376,21 @@ class MainWindow(QWidget):
                     while len(self.plot.ynew[i]) > len(self.plot.x):
                         # Remove the first element on list
                         self.plot.ynew[i] = self.plot.ynew[i][1:]
-    
+
+
+    def selected_dot(self):
+        print("Selected dot pot")
+        if not self.plot_exist:
+            self.controls.line_box.setChecked(0)
+            self.scatter_plot = True
+
+
+    def selected_line(self):
+        print("Selected line pot")
+        if not self.plot_exist:
+            self.controls.dot_box.setChecked(0)
+            self.scatter_plot = False
+
     # Button Connect
     def connect(self):
         print('Connect Button')
@@ -375,11 +398,13 @@ class MainWindow(QWidget):
         if not self.plot_exist:
             self.number_of_lines = self.how_many_lines()
             if self.number_of_lines is not None:
-                self.plot = Plot(self.number_of_lines) # TODO data punktide arv!!!!
+                self.plot = Plot(self.number_of_lines, self.scatter_plot) # TODO data punktide arv!!!!
                 self.horizontalLayout.addWidget(self.plot)
                 self.open_serial()
                 self.plot_exist = True
                 self.timer.timeout.connect(self.read_serial_data)
+                self.controls.dot_box.setEnabled(False)
+                self.controls.line_box.setEnabled(False)
             else:
                 print("connect: None!")
         else:
@@ -446,6 +471,7 @@ class MainWindow(QWidget):
 
                     for i in range(self.number_of_lines):
                         self.plot.data_lines[i].setData(self.plot.x, self.plot.ynew[i])
+
             except:
                 print("Error read_serial_data!!!")
                 self.equal_x_and_y()
