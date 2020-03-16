@@ -25,7 +25,7 @@ Tested on Ubuntu.
 
     $ sudo apt install python3-pip
 
-* Python3
+* Python 3.7
 * PyQt5
 * pyserial 3.4 ($ pip3 install pyserial)
 * pyqtgraph 0.10.0 ($ pip3 install pyqtgraph)
