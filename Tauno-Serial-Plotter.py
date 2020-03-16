@@ -27,6 +27,10 @@ from random import randint
 from time import time
 import types
 
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
+
+
 # Config
 # TODO: user can config plot time scale
 # TODO diffrent plot types
