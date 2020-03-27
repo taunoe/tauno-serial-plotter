@@ -249,13 +249,22 @@ class Controls(QWidget):
         self.verticalLayout.addLayout(self.menu_1)
         # Grpup 1 ends
 
-        # Button: About
+        # Button goup 2
         self.menu_3 = QVBoxLayout()
         self.menu_3.setAlignment(Qt.AlignBottom)
+
+        # Button: Clear data
+        self.clear_data = QtWidgets.QPushButton('Clear data', parent=self)
+        self.menu_3.addWidget(self.clear_data) # funk
+        self.clear_data.setFixedWidth(self.control_width)
+        self.clear_data.setStyleSheet(QPushButton_style)
+
+        # Button: About
         self.about = QtWidgets.QPushButton('About', parent=self)
         self.menu_3.addWidget(self.about) # funk
         self.about.setFixedWidth(self.control_width)
         self.about.setStyleSheet(QPushButton_style)
+
         self.verticalLayout.addLayout(self.menu_3)
 
     # ?
@@ -304,8 +313,10 @@ class MainWindow(QWidget):
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
-        self.controls.about.pressed.connect(self.about) 
         self.controls.connect.pressed.connect(self.connect)
+        self.controls.clear_data.pressed.connect(self.clear_data)
+        self.controls.about.pressed.connect(self.about) 
+        
 
         self.controls.dot_box.pressed.connect(self.selected_dot)
         self.controls.line_box.pressed.connect(self.selected_line)
@@ -410,6 +421,16 @@ class MainWindow(QWidget):
         else:
             self.equal_x_and_y()
             self.open_serial()
+
+    # Button clear data
+    def clear_data(self):
+        print('Clear data')
+        # delete existing data
+        size = len(self.plot.x)
+        print(size)
+        del self.plot.x[0:(size-1)]
+        for i in range(self.number_of_lines):
+            del self.plot.ynew[i][0:(size-1)]
 
     # Button About
     def about(self):
