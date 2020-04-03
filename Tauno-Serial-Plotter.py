@@ -27,25 +27,16 @@ from random import randint
 from time import time
 import types
 
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
-
-
-# Config
-# TODO: user can config plot time scale
-# TODO diffrent plot types
-# Scatter plot https://www.youtube.com/watch?v=H4QQwWnFiEk
-
-plot_data_size = 100
-left_side_width = 150
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)    # enable highdpi scaling
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)       # use highdpi icons
 
 # GUI colors
 colors =  {
-            'oranz' :"#FF6F00",
-            'sinakas' :"#4589b2",  # sinine
-            'dark'    :"#263238",  # sinakas
-            'hall'    :"#546E7A",
-	        'black'   :"#212121"
+            'oranz'  :"#FF6F00",
+            'sinakas':"#9CCC65", # tegelikult rohekas 
+            'dark'   :"#263238",  
+            'hall'   :"#B0BEC5",
+	        'black'  :"#212121"
 }
 
 # PLOT colors
@@ -125,7 +116,7 @@ QComboBox:editable, QComboBox{{
     background-color: {colors['hall']};
     color: {colors['black']};
     border: 1px solid {colors['black']};
-    padding: 5px;
+    padding: 5px 25p 5px 5px;
     font: {fontsize}px;
 }}
 
@@ -143,14 +134,63 @@ QComboBox:editable:on, QComboBox:on {{ /* shift the text when the popup opens */
 QComboBox::drop-down {{ /* shift the text when the popup opens */
     background-color: {colors['dark']}; /* noole tagune */
     color: {colors['sinakas']};
+    width: 24px;
 }}
 
 QComboBox::down-arrow {{
     background-color: {colors['dark']};/* nool */
-    image: url(./img/downarrow.png);
+    image: url(./img/arrow_down.svg);
+    width: 24px;
+    height: 24px;
+}}
+"""
+
+QDoubleSpinBox_style = f"""
+QDoubleSpinBox{{
+    background-color: {colors['hall']};
+    color: {colors['black']};
+    border: 1px solid {colors['black']};
+    padding: 5px 25px 5px 25px; 
+    font: {fontsize}px;
+}}
+
+QDoubleSpinBox::hover{{
+	background-color: {colors['sinakas']};
+    color: {colors['black']}; /* tekst*/
+}}
+
+QDoubleSpinBox::up-button{{
+    /*subcontrol-origin: border;*/
+    subcontrol-position: top right;
+    background-color: {colors['dark']};
+    width: 25px;
+    /*border-width: 1px;*/
+    height:32px;
+}}
+
+QDoubleSpinBox::up-arrow {{
+    image: url(./img/plus.svg);
+    width: 24px;
+    height: 24px;
+}}
+
+QDoubleSpinBox::down-button{{
+    /*subcontrol-origin: border;*/
+    background-color: {colors['dark']};
+    subcontrol-position: top left;
+    width: 25px;
+    /*border-width: 1px;*/
+    height:32px;
+}}
+
+QDoubleSpinBox::down-arrow {{
+    image: url(./img/minus.svg);
+    width: 24px;
+    height: 24px;
 }}
 
 """
+
 # https://stackoverflow.com/questions/40577104/how-to-plot-two-real-time-data-in-one-single-plot-in-pyqtgraph
 # https://www.youtube.com/watch?v=IEEhzQoKtQU&t=800s
 # PLOT
@@ -200,9 +240,15 @@ class Controls(QWidget):
     def __init__(self, variable='', parent=None):
         super(Controls, self).__init__(parent=parent)
 
+        # Plot time scale == data size
+        self.plot_timescale = 100 # default
+        self.plot_timescale_min = 50 
+        self.plot_timescale_max = 500
+
         self.verticalLayout = QVBoxLayout(self)
  
-        self.control_width = left_side_width
+        # Menu width:
+        self.control_width = 150
         
         # DropDown: Select Port
         self.menu_1 = QVBoxLayout()
@@ -228,8 +274,8 @@ class Controls(QWidget):
         self.menu_1.addWidget(self.select_baud)
         self.select_baud.setStyleSheet(QComboBox_style)
         self.select_baud.setFixedWidth(self.control_width)
+
         # Select line or dot
-        
         self.line_box = QtWidgets.QCheckBox('Line plot', parent=self)
         self.menu_1.addWidget(self.line_box)
         self.line_box.setChecked(1)
@@ -239,8 +285,26 @@ class Controls(QWidget):
         self.menu_1.addWidget(self.dot_box)
         self.dot_box.setChecked(0)
         self.dot_box.setStyleSheet(QCheckBox_style)
+
+        # Select Time scale size
         
-        # Button
+        ## Time scale txt
+        self.time_scale_txt = QLabel(self)
+        self.menu_1.addWidget(self.time_scale_txt)
+        #self.time_scale_txt.setAlignment(Qt.AlignHCenter)
+        self.time_scale_txt.setText("Timescale:")
+        self.time_scale_txt.setStyleSheet(QLabel_style)
+        ## SpinBox
+        self.time_scale_spin = QtWidgets.QDoubleSpinBox()
+        self.time_scale_spin.setSingleStep(1)
+        self.time_scale_spin.setDecimals(0)
+        self.time_scale_spin.setMaximum(self.plot_timescale_max)
+        self.time_scale_spin.setMinimum(self.plot_timescale_min)
+        self.time_scale_spin.setValue(self.plot_timescale)
+        self.menu_1.addWidget(self.time_scale_spin)
+        self.time_scale_spin.setStyleSheet(QDoubleSpinBox_style)
+
+        # Button Connect
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
         self.menu_1.addWidget(self.connect) # funk
         self.connect.setFixedWidth(self.control_width)
@@ -267,6 +331,8 @@ class Controls(QWidget):
 
         self.verticalLayout.addLayout(self.menu_3)
 
+    def update_timescale(self, new_value):
+        self.plot_timescale = new_value
     # ?
     def resizeEvent(self, event):
         super(Controls, self).resizeEvent(event)
@@ -282,6 +348,9 @@ class MainWindow(QWidget):
         self.app = app
         self.plot_exist = False
         self.is_fullscreen = False
+
+        # Plot time scale == data size
+        self.plot_data_size = 100 # default  
         
 
         self.ports = [''] # list of avablie devices
@@ -313,6 +382,7 @@ class MainWindow(QWidget):
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
+        self.controls.time_scale_spin.valueChanged.connect(self.time_scale_changed)
         self.controls.connect.pressed.connect(self.connect)
         self.controls.clear_data.pressed.connect(self.clear_data)
         self.controls.about.pressed.connect(self.about) 
@@ -390,17 +460,44 @@ class MainWindow(QWidget):
 
 
     def selected_dot(self):
-        print("Selected dot pot")
+        print("Selected dot plot")
         if not self.plot_exist:
             self.controls.line_box.setChecked(0)
             self.scatter_plot = True
 
 
     def selected_line(self):
-        print("Selected line pot")
+        print("Selected line plot")
         if not self.plot_exist:
             self.controls.dot_box.setChecked(0)
             self.scatter_plot = False
+
+    def time_scale_changed(self):
+        print("Timescale changed!")
+        new_value = int(self.controls.time_scale_spin.value())
+        old_value = self.plot_data_size
+
+        # update timescale value
+        self.controls.update_timescale(new_value)
+        #print("New Timescale value = {}".format(self.controls.plot_timescale))
+
+        # update data size value
+        self.update_data_size(new_value)
+        #print("New data size value = {}".format(self.plot_data_size))
+
+        if new_value < old_value:
+            if self.plot_exist:
+                real_size = len(self.plot.x)
+                difference = real_size - new_value
+                # shrink data size
+                if difference > 1:
+                    del self.plot.x[0:difference]
+                    for i in range(self.number_of_lines):
+                        del self.plot.ynew[i][0:difference]
+
+
+    def update_data_size(self, new_value):
+        self.plot_data_size = new_value
 
     # Button Connect
     def connect(self):
@@ -486,9 +583,9 @@ class MainWindow(QWidget):
                         self.plot.ynew.append([0])
                 
                     for i in range(len(numbers)):
-                        self.add_numbers(i, numbers[i], plot_data_size)
+                        self.add_numbers(i, numbers[i], self.plot_data_size)
 
-                    self.add_time(plot_data_size) # x axis
+                    self.add_time(self.plot_data_size) # x axis
 
                     for i in range(self.number_of_lines):
                         self.plot.data_lines[i].setData(self.plot.x, self.plot.ynew[i])

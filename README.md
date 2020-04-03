@@ -19,7 +19,7 @@ Script will extracts all numbers and generate graph.
 Tested on Ubuntu 19.10.
 
 
-![Screenshot on ubuntu](https://github.com/taunoe/tauno-serial-plotter/blob/master/img/screenshot.png)
+![Screenshot on ubuntu](https://github.com/taunoe/tauno-serial-plotter/blob/master/img/screenshot.jpg)
 
 ## Requirements
 
