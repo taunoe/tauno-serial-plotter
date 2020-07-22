@@ -58,7 +58,7 @@ or
 
     fbs startproject
 
-But sourcecode in ./src/main/python/main.py file
+But sourcecode in ./src/main/python/main.py file. (And also 'img' folder https://github.com/taunoe/tauno-serial-plotter/issues/5)
 
     fbs run
 
