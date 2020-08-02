@@ -23,12 +23,13 @@ Tested on Ubuntu 19.10.
 
 ## Requirements
 
-    $ sudo apt install python3-pip
+Python 3.7, PyQt5, pyserial, pyqtgraph
 
-* Python 3.7
-* PyQt5
-* pyserial 3.4 ($ pip3 install pyserial)
-* pyqtgraph 0.10.0 ($ pip3 install pyqtgraph)
+    $ sudo apt install python3-pip python3-pyqt5
+
+    $ pip3 install pyserial pyqtgraph
+
+
 
 ## udev.rules
 
