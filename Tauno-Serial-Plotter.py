@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
     Tauno Erik
-    Started:  07.03.2020
+    Started:    07.03.2020
+    Edited:     29.12.2020
 """
 # https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
 
 #from concurrent import futures  # The futures module makes it possible to run operations in parallel using different executors.
 
+import sys
+import re
 import serial # pip3 install pyserial
 import serial.tools.list_ports
-import sys
-import os
-import re
+#import os
 #from pathlib import Path
 #from time import time
 #import types
@@ -22,19 +23,21 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QSlider, QSpacerItem, QMessageBox)
 
 import pyqtgraph as pg
-from pyqtgraph import PlotWidget, plot
+from pyqtgraph import plot #PlotWidget,
 from random import randint
 from time import time
 import types
 
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)    # enable highdpi scaling
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)       # use highdpi icons
+# Enable highdpi scaling:
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+# Use highdpi icons:
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
-# GUI colors
+# GUI colours
 colors =  {
             'oranz'  :"#FF6F00",
-            'sinakas':"#9CCC65", # tegelikult rohekas 
-            'dark'   :"#263238",  
+            'sinakas':"#9CCC65",
+            'dark'   :"#263238",
             'hall'   :"#B0BEC5",
 	        'black'  :"#212121"
 }
@@ -60,7 +63,7 @@ plot_colors = [
     ]
 
 # STYLING
-fontsize = 16
+FONTSIZE = 16
 
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', colors['dark'])
@@ -73,7 +76,7 @@ QPushButton{{
 	border: 1px solid {colors['black']};
 	padding: 5px;
     margin-top: 5px;
-    font: {fontsize}px;
+    font: {FONTSIZE}px;
 }}
 
 QPushButton::hover{{
@@ -89,7 +92,7 @@ QPushButton::pressed{{
 QLabel_style = f"""
 QLabel{{
     color: {colors['hall']};
-    font: {fontsize}px;
+    font: {FONTSIZE}px;
     margin-top: 5px;
 }}
 """
@@ -117,7 +120,7 @@ QComboBox:editable, QComboBox{{
     color: {colors['black']};
     border: 1px solid {colors['black']};
     padding: 5px 25p 5px 5px;
-    font: {fontsize}px;
+    font: {FONTSIZE}px;
 }}
 
 QComboBox::hover{{
@@ -151,7 +154,7 @@ QDoubleSpinBox{{
     color: {colors['black']};
     border: 1px solid {colors['black']};
     padding: 5px 25px 5px 25px; 
-    font: {fontsize}px;
+    font: {FONTSIZE}px;
 }}
 
 QDoubleSpinBox::hover{{
@@ -204,7 +207,7 @@ class Plot(pg.GraphicsWindow):
 
         if self.number_of_plots is None:
             print("number_of_plots is None")
-            pass
+            #pass
 
         print("Init Plot class. With {} plots".format(self.number_of_plots))
 
@@ -221,14 +224,20 @@ class Plot(pg.GraphicsWindow):
 
         # List of all data lines
         self.data_lines = []
-        
+
         for i in range(self.number_of_plots):
             if self.scatter_plot:  # Dotts
                 pen = None
             else:                  # Lines
-                pen = pg.mkPen(color=(plot_colors[i]))
-            brush = pg.mkBrush(color=(plot_colors[i]))
-            line = self.serialplot.plot(x=self.x, y=self.ynew[i], pen=pen, symbol='o', symbolBrush=brush, symbolSize=5)
+                # Kui on lines rohkem, kui värve
+                if i >= len(plot_colors):
+                    color_i = i - len(plot_colors)
+                else:
+                    color_i = i
+            pen = pg.mkPen(color=(plot_colors[color_i]))
+            brush = pg.mkBrush(color=(plot_colors[color_i]))
+            line = self.serialplot.plot(x=self.x, y=self.ynew[i], pen=pen, 
+                                symbol='o', symbolBrush=brush, symbolSize=5)
             self.data_lines.append(line)
 
 # END of class Plot ------------------------------------------------------
@@ -246,10 +255,10 @@ class Controls(QWidget):
         self.plot_timescale_max = 500
 
         self.verticalLayout = QVBoxLayout(self)
- 
+
         # Menu width:
         self.control_width = 150
-        
+
         # DropDown: Select Port
         self.menu_1 = QVBoxLayout()
         # Grpup 1 starts
@@ -287,7 +296,7 @@ class Controls(QWidget):
         self.dot_box.setStyleSheet(QCheckBox_style)
 
         # Select Time scale size
-        
+
         ## Time scale txt
         self.time_scale_txt = QLabel(self)
         self.menu_1.addWidget(self.time_scale_txt)
@@ -344,14 +353,13 @@ class MainWindow(QWidget):
 
     def __init__(self, app, parent=None):
         super(MainWindow, self).__init__(parent=parent)
-        
+
         self.app = app
         self.plot_exist = False
         self.is_fullscreen = False
 
         # Plot time scale == data size
-        self.plot_data_size = 100 # default  
-        
+        self.plot_data_size = 100 # default
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
@@ -368,29 +376,28 @@ class MainWindow(QWidget):
         self.init_timer()
         self.ser = serial.Serial()
 
-        self.horizontalLayout = QHBoxLayout(self)
+        self.horizontal_layout = QHBoxLayout(self)
 
         # Controlls
         self.controls = Controls(parent=self)
-        self.horizontalLayout.addWidget(self.controls)
+        self.horizontal_layout.addWidget(self.controls)
 
         self.find_ports()       # Ports on dropdown menu
         self.init_baudrates()   # Baud Rates on dropdown menu
 
         #self.open_serial()
-         
+
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
         self.controls.time_scale_spin.valueChanged.connect(self.time_scale_changed)
         self.controls.connect.pressed.connect(self.connect)
         self.controls.clear_data.pressed.connect(self.clear_data)
-        self.controls.about.pressed.connect(self.about) 
-        
+        self.controls.about.pressed.connect(self.about)
 
         self.controls.dot_box.pressed.connect(self.selected_dot)
         self.controls.line_box.pressed.connect(self.selected_line)
-    
+
     # Init functions
 
     def init_timer(self):
@@ -506,8 +513,9 @@ class MainWindow(QWidget):
         if not self.plot_exist:
             self.number_of_lines = self.how_many_lines()
             if self.number_of_lines is not None:
-                self.plot = Plot(self.number_of_lines, self.scatter_plot) # TODO data punktide arv!!!!
-                self.horizontalLayout.addWidget(self.plot)
+                self.plot = Plot(self.number_of_lines, self.scatter_plot)
+                # TODO data punktide arv!!!!
+                self.horizontal_layout.addWidget(self.plot)
                 self.open_serial()
                 self.plot_exist = True
                 self.timer.timeout.connect(self.read_serial_data)
@@ -537,10 +545,10 @@ class MainWindow(QWidget):
         self.msg.setText("Tauno Serial Plotter<br/><br/>Author: Tauno Erik<br/><a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>2020")
         self.aboutbox = self.msg.exec_()
 
-    # Function to extract all the numbers from the given string 
+    # Function to extract all the numbers from the given string
     def get_numbers(self, str): 
         # https://www.regular-expressions.info/floatingpoint.html
-        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', str) 
+        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', str)
         return numbers
 
     # y-axis
@@ -551,7 +559,7 @@ class MainWindow(QWidget):
             self.plot.ynew[i] = self.plot.ynew[i][1:]
         # Before adding newone
         self.plot.ynew[i].append(float(number))
-    
+ 
     # x-axis
     def add_time(self, plot_data_size):
         # If list is full
@@ -559,9 +567,9 @@ class MainWindow(QWidget):
             # Remove the first element on list
             self.plot.x = self.plot.x[1:]
         # Add a new value 1 higher than the last to end
-        self.plot.x.append(self.plot.x[-1] + 1)  
-                         
-                        
+        self.plot.x.append(self.plot.x[-1] + 1)
+                      
+                  
     # Serial functions
     def open_serial(self):
         print("Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
@@ -569,19 +577,20 @@ class MainWindow(QWidget):
             self.ser.close()
         self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
         print("Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
-       
+
     def read_serial_data(self):
         if self.ser.is_open:
             try:
-                incoming_data = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
+                incoming_data = self.ser.readline()[:-2].decode('ascii')
+                # [:-2] gets rid of the new-line chars
                 if incoming_data:
-                    print("Incoming data {}".format(incoming_data))
+                    print("Incoming data: {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
 
                     # mitu data punkti tuleb sisse?
                     while len(numbers) > len(self.plot.ynew):
                         self.plot.ynew.append([0])
-                
+   
                     for i in range(len(numbers)):
                         self.add_numbers(i, numbers[i], self.plot_data_size)
 
@@ -601,7 +610,8 @@ class MainWindow(QWidget):
         self.open_serial()
         if self.ser.is_open:
             try:
-                incoming_data = self.ser.readline()[:-2].decode('ascii') # [:-2] gets rid of the new-line chars
+                incoming_data = self.ser.readline()[:-2].decode('ascii')
+                # [:-2] gets rid of the new-line chars
                 #i = 0
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
@@ -611,8 +621,6 @@ class MainWindow(QWidget):
                     numbers = self.get_numbers(incoming_data)
                     print("Found: {} lines".format(len(numbers)))
                     return len(numbers)
-                #else:
-                    #return 0
             except:
                 print("Error")
                 self.ser.close()
@@ -627,12 +635,12 @@ class MainWindow(QWidget):
         else:
             self.showNormal()
             self.is_fullscreen = False
-    
+
     def esc(self):
         if self.is_fullscreen:
             self.showNormal()
             self.is_fullscreen = False
-    
+
     def keyPressEvent(self, event):
         if event.key() == 32: # Space
             print("Space")
@@ -644,7 +652,7 @@ class MainWindow(QWidget):
             self.esc()
         else:
             print(f'Unknown keypress: {event.key()}, "{event.text()}"')
-    
+
     #def mouseClickEvent(self, event):
         #print("clicked")
 
