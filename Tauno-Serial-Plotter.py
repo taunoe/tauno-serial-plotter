@@ -1,49 +1,43 @@
 #!/usr/bin/env python3
 """
-    Tauno Erik
+    Tauno-Serial-Plotter.py
+    Author: Tauno Erik
     Started:    07.03.2020
-    Edited:     29.12.2020
-"""
-# https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
+    Edited:     01.01.2021
 
-#from concurrent import futures  # The futures module makes it possible to run operations in parallel using different executors.
+    Useful links:
+    - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
+    - https://www.materialui.co/colors
+    - https://stackoverflow.com/questions/40577104/how-to-plot-two-real-time-data-in-one-single-plot-in-pyqtgraph
+    - https://www.youtube.com/watch?v=IEEhzQoKtQU&t=800s
+
+"""
 
 import sys
 import re
 import serial # pip3 install pyserial
 import serial.tools.list_ports
-#import os
-#from pathlib import Path
-#from time import time
-#import types
-from PyQt5 import QtWidgets, QtCore, QtGui, uic
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
-                            QLabel, QSizePolicy, QWidget, QDesktopWidget,
-                            QSlider, QSpacerItem, QMessageBox)
-
+                            QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
-from pyqtgraph import plot #PlotWidget,
-from random import randint
-from time import time
-import types
 
 # Enable highdpi scaling:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 # Use highdpi icons:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
-# GUI colours
+# Define GUI colours
 colors =  {
-            'oranz'  :"#FF6F00",
-            'sinakas':"#9CCC65",
-            'dark'   :"#263238",
-            'hall'   :"#B0BEC5",
-	        'black'  :"#212121"
+            'oranz':"#FF6F00",
+            'green':"#9CCC65",
+            'dark' :"#263238",
+            'hall' :"#B0BEC5",
+	        'black':"#212121"
 }
 
-# PLOT colors
-# https://www.materialui.co/colors
+# Define PLOT colors
 plot_colors = [
     "#ba8310", # Kollane
     "#00BCD4", # syan
@@ -80,7 +74,7 @@ QPushButton{{
 }}
 
 QPushButton::hover{{
-	background-color: {colors['sinakas']};
+	background-color: {colors['green']};
     color: {colors['black']};
 }}
 
@@ -109,7 +103,7 @@ QCheckBox::indicator:unchecked{{
 }}
 
 QCheckBox::indicator:checked{{
-    background-color: {colors['sinakas']};
+    background-color: {colors['green']};
     padding:5px;
 }}
 """
@@ -124,19 +118,19 @@ QComboBox:editable, QComboBox{{
 }}
 
 QComboBox::hover{{
-	background-color: {colors['sinakas']};
+	background-color: {colors['green']};
     color: {colors['black']}; /* tekst*/
 }}
 
 QComboBox:editable:on, QComboBox:on {{ /* shift the text when the popup opens */
     padding-left: 10px;
-    background-color: {colors['sinakas']};
+    background-color: {colors['green']};
     color: {colors['dark']};
 }}
 
 QComboBox::drop-down {{ /* shift the text when the popup opens */
     background-color: {colors['dark']}; /* noole tagune */
-    color: {colors['sinakas']};
+    color: {colors['green']};
     width: 24px;
 }}
 
@@ -148,6 +142,48 @@ QComboBox::down-arrow {{
 }}
 """
 
+
+QCheckBox_style = f"""
+QCheckBox{{
+    background-color: transparent;
+    color: {colors['hall']};
+    padding:5px;
+}}
+QCheckBox::indicator:unchecked{{
+    background-color: {colors['hall']};
+    padding:5px;
+}}
+
+QCheckBox::indicator:checked{{
+    background-color: {colors['green']};
+    padding:5px;
+}}
+"""
+
+QComboBox_disabled_style = f"""
+QComboBox:editable, QComboBox{{
+    background-color: {colors['dark']};
+    color: {colors['black']};
+    border: 1px solid {colors['black']};
+    padding: 5px 25p 5px 5px;
+    font: {FONTSIZE}px;
+}}
+
+QComboBox::drop-down {{ /* shift the text when the popup opens */
+    background-color: {colors['dark']}; /* noole tagune */
+    color: {colors['green']};
+    width: 24px;
+}}
+
+QComboBox::down-arrow {{
+    background-color: {colors['dark']};/* nool */
+    image: url(./img/arrow_down.svg);
+    width: 24px;
+    height: 24px;
+}}
+"""
+
+
 QDoubleSpinBox_style = f"""
 QDoubleSpinBox{{
     background-color: {colors['hall']};
@@ -158,7 +194,7 @@ QDoubleSpinBox{{
 }}
 
 QDoubleSpinBox::hover{{
-	background-color: {colors['sinakas']};
+	background-color: {colors['green']};
     color: {colors['black']}; /* tekst*/
 }}
 
@@ -194,22 +230,20 @@ QDoubleSpinBox::down-arrow {{
 
 """
 
-# https://stackoverflow.com/questions/40577104/how-to-plot-two-real-time-data-in-one-single-plot-in-pyqtgraph
-# https://www.youtube.com/watch?v=IEEhzQoKtQU&t=800s
-# PLOT
 class Plot(pg.GraphicsWindow):
-
-    def __init__(self, number_of_plots='1', scatter_plot = False, parent=None):
+    """
+    Define Plot
+    """
+    def __init__(self, nr_plot_lines='1', scatter_plot=False):
         super(Plot,self).__init__(parent=None)
 
-        self.number_of_plots = number_of_plots
+        self.nr_plot_lines = nr_plot_lines
         self.scatter_plot = scatter_plot
 
-        if self.number_of_plots is None:
-            print("number_of_plots is None")
-            #pass
+        if self.nr_plot_lines is None:
+            print("nr_plot_lines is None!")
 
-        print("Init Plot class. With {} plots".format(self.number_of_plots))
+        print("Init Plot class. With {} plot lines.".format(self.nr_plot_lines))
 
         # Create plot
         self.serialplot = self.addPlot()
@@ -218,43 +252,43 @@ class Plot(pg.GraphicsWindow):
         self.serialplot.showGrid(x=True, y=True)
 
         # Place to hold data
-        self.x = [0]  # Time 
+        self.x_axis = [0]  # Time
         # generate list of lists, incoming data
-        self.ynew = [[0] for i in range(number_of_plots)] # Datas
+        self.y_axis = [[0] for i in range(nr_plot_lines)] # Datas
 
         # List of all data lines
         self.data_lines = []
 
-        for i in range(self.number_of_plots):
+        for i in range(self.nr_plot_lines):
             if self.scatter_plot:  # Dotts
                 pen = None
             else:                  # Lines
-                # Kui on lines rohkem, kui värve
                 if i >= len(plot_colors):
+                    # If we have more data than colors
                     color_i = i - len(plot_colors)
                 else:
                     color_i = i
             pen = pg.mkPen(color=(plot_colors[color_i]))
             brush = pg.mkBrush(color=(plot_colors[color_i]))
-            line = self.serialplot.plot(x=self.x, y=self.ynew[i], pen=pen, 
+            line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], pen=pen,
                                 symbol='o', symbolBrush=brush, symbolSize=5)
             self.data_lines.append(line)
 
 # END of class Plot ------------------------------------------------------
 
-
-# Controls Design
 class Controls(QWidget):
-
-    def __init__(self, variable='', parent=None):
+    """
+    Define controls and menus design.
+    """
+    def __init__(self, parent=None):
         super(Controls, self).__init__(parent=parent)
 
         # Plot time scale == data size
         self.plot_timescale = 100 # default
-        self.plot_timescale_min = 50 
+        self.plot_timescale_min = 50
         self.plot_timescale_max = 500
 
-        self.verticalLayout = QVBoxLayout(self)
+        self.vertical_layout = QVBoxLayout(self)
 
         # Menu width:
         self.control_width = 150
@@ -296,11 +330,9 @@ class Controls(QWidget):
         self.dot_box.setStyleSheet(QCheckBox_style)
 
         # Select Time scale size
-
         ## Time scale txt
         self.time_scale_txt = QLabel(self)
         self.menu_1.addWidget(self.time_scale_txt)
-        #self.time_scale_txt.setAlignment(Qt.AlignHCenter)
         self.time_scale_txt.setText("Timescale:")
         self.time_scale_txt.setStyleSheet(QLabel_style)
         ## SpinBox
@@ -315,11 +347,11 @@ class Controls(QWidget):
 
         # Button Connect
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
-        self.menu_1.addWidget(self.connect) # funk
+        self.menu_1.addWidget(self.connect)
         self.connect.setFixedWidth(self.control_width)
         self.connect.setStyleSheet(QPushButton_style)
 
-        self.verticalLayout.addLayout(self.menu_1)
+        self.vertical_layout.addLayout(self.menu_1)
         # Grpup 1 ends
 
         # Button goup 2
@@ -328,38 +360,39 @@ class Controls(QWidget):
 
         # Button: Clear data
         self.clear_data = QtWidgets.QPushButton('Clear data', parent=self)
-        self.menu_3.addWidget(self.clear_data) # funk
+        self.menu_3.addWidget(self.clear_data)
         self.clear_data.setFixedWidth(self.control_width)
         self.clear_data.setStyleSheet(QPushButton_style)
 
         # Button: About
         self.about = QtWidgets.QPushButton('About', parent=self)
-        self.menu_3.addWidget(self.about) # funk
+        self.menu_3.addWidget(self.about)
         self.about.setFixedWidth(self.control_width)
         self.about.setStyleSheet(QPushButton_style)
 
-        self.verticalLayout.addLayout(self.menu_3)
+        self.vertical_layout.addLayout(self.menu_3)
 
     def update_timescale(self, new_value):
+        """ Assign new value. """
         self.plot_timescale = new_value
-    # ?
+
     def resizeEvent(self, event):
+        """ If we resize main window. """
         super(Controls, self).resizeEvent(event)
 
 # END of class Controls ----------------------------------------
 
 
 class MainWindow(QWidget):
-
+    """
+    Define MainWindow
+    """
     def __init__(self, app, parent=None):
         super(MainWindow, self).__init__(parent=parent)
 
         self.app = app
         self.plot_exist = False
         self.is_fullscreen = False
-
-        # Plot time scale == data size
-        self.plot_data_size = 100 # default
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
@@ -368,7 +401,10 @@ class MainWindow(QWidget):
         self.selected_baudrate = self.baudrates[4]
 
         self.number_of_lines = 0
+        self.error_counter = 0
+        self.plot_data_size = 100
         self.scatter_plot = False
+        self.is_button_connected = False
 
         self.init_ui()
         self.center_mainwindow()
@@ -385,13 +421,11 @@ class MainWindow(QWidget):
         self.find_ports()       # Ports on dropdown menu
         self.init_baudrates()   # Baud Rates on dropdown menu
 
-        #self.open_serial()
-
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
         self.controls.time_scale_spin.valueChanged.connect(self.time_scale_changed)
-        self.controls.connect.pressed.connect(self.connect)
+        self.controls.connect.pressed.connect(self.connect_stop)
         self.controls.clear_data.pressed.connect(self.clear_data)
         self.controls.about.pressed.connect(self.about)
 
@@ -403,22 +437,25 @@ class MainWindow(QWidget):
     def init_timer(self):
         self.timer = QtCore.QTimer()
         self.timer.setInterval(10)
-        #self.timer.timeout.connect(self.read_serial_data)
         self.timer.start()
 
     def init_ui(self):
         self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
         self.setWindowTitle("Tauno Serial Plotter")
         self.setWindowIcon(QtGui.QIcon('./img/tauno-plotter.svg'))
-        self.setMinimumSize(800,450)
+        self.setMinimumSize(900,550)
 
     def center_mainwindow(self):
+        """ Center window on startup. """
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
     def find_ports(self):
+        """
+        Find avaible ports/devices and add to self.ports
+        """
         self.ports.clear() # clear the devices list
         ports = list(serial.tools.list_ports.comports())
         for port in ports:
@@ -452,29 +489,34 @@ class MainWindow(QWidget):
     def equal_x_and_y(self):
         if self.plot_exist:
             print("\t eqaul_x_and_y !!!")
-            # mitu y joont on?
-            for i in range(self.number_of_lines):
-                if len(self.plot.x) > len(self.plot.ynew[i]):
-                    print("\t x on suurem kui y[{}]".format(i))
-                    while len(self.plot.x) > len(self.plot.ynew[i]):
-                        # Remove the first element on list
-                        self.plot.x = self.plot.x[1:]
-                if len(self.plot.ynew[i]) > len(self.plot.x):
-                    print("\t y[{i}] on suurem kui x".format(i))
-                    while len(self.plot.ynew[i]) > len(self.plot.x):
-                        # Remove the first element on list
-                        self.plot.ynew[i] = self.plot.ynew[i][1:]
+            try:
+                print("equal_x_and_y try")
+                for i in range(self.number_of_lines):
+                    if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
+                        print("\t x on suurem kui y[{}]".format(i))
+                        while len(self.plot.x_axis) > len(self.plot.y_axis[i]):
+                            # Remove the first element on list
+                            self.plot.x_axis = self.plot.x_axis[1:]
+                    if len(self.plot.y_axis[i]) > len(self.plot.x_axis):
+                        print("\t y[{i}] on suurem kui x_axis".format(i))
+                        while len(self.plot.y_axis[i]) > len(self.plot.x_axis):
+                            # Remove the first element on list
+                            self.plot.y_axis[i] = self.plot.y_axis[i][1:]
+            except:
+                print(sys.exc_info())
+                self.error_counter += 1
+                self.error_status()
 
 
     def selected_dot(self):
-        print("Selected dot plot")
+        print("Selected dot plot.")
         if not self.plot_exist:
             self.controls.line_box.setChecked(0)
             self.scatter_plot = True
 
 
     def selected_line(self):
-        print("Selected line plot")
+        print("Selected line plot.")
         if not self.plot_exist:
             self.controls.dot_box.setChecked(0)
             self.scatter_plot = False
@@ -484,37 +526,54 @@ class MainWindow(QWidget):
         new_value = int(self.controls.time_scale_spin.value())
         old_value = self.plot_data_size
 
-        # update timescale value
         self.controls.update_timescale(new_value)
         #print("New Timescale value = {}".format(self.controls.plot_timescale))
 
-        # update data size value
         self.update_data_size(new_value)
         #print("New data size value = {}".format(self.plot_data_size))
 
         if new_value < old_value:
             if self.plot_exist:
-                real_size = len(self.plot.x)
+                real_size = len(self.plot.x_axis)
                 difference = real_size - new_value
                 # shrink data size
                 if difference > 1:
-                    del self.plot.x[0:difference]
+                    del self.plot.x_axis[0:difference]
                     for i in range(self.number_of_lines):
-                        del self.plot.ynew[i][0:difference]
+                        del self.plot.y_axis[i][0:difference]
 
 
     def update_data_size(self, new_value):
         self.plot_data_size = new_value
 
-    # Button Connect
+    def connect_stop(self):
+        """ Connected or Pause button press? """
+        if not self.is_button_connected:
+            self.is_button_connected = True
+            print('--> Connect Button.')
+            self.connect()
+        else:
+            self.is_button_connected = False
+            print('--> Pause Button.')
+            self.disconnect()
+
+    
     def connect(self):
-        print('Connect Button')
-        # TODO peaks kontrolima uuesti mitu ploti on 
+        """ When we press button Connect. """
+        # Change button txt
+        self.controls.connect.setText('Pause')
+        # Disable button
+        self.controls.select_port.setEnabled(False)
+        self.controls.select_baud.setEnabled(False)
+        # Change button style
+        self.controls.select_port.setStyleSheet(QComboBox_disabled_style)
+        self.controls.select_baud.setStyleSheet(QComboBox_disabled_style)
+        
         if not self.plot_exist:
+            print("connect: create plot")
             self.number_of_lines = self.how_many_lines()
             if self.number_of_lines is not None:
                 self.plot = Plot(self.number_of_lines, self.scatter_plot)
-                # TODO data punktide arv!!!!
                 self.horizontal_layout.addWidget(self.plot)
                 self.open_serial()
                 self.plot_exist = True
@@ -524,59 +583,94 @@ class MainWindow(QWidget):
             else:
                 print("connect: None!")
         else:
-            self.equal_x_and_y()
+            #self.equal_x_and_y()
             self.open_serial()
 
-    # Button clear data
-    def clear_data(self):
-        print('Clear data')
-        # delete existing data
-        size = len(self.plot.x)
-        print(size)
-        del self.plot.x[0:(size-1)]
-        for i in range(self.number_of_lines):
-            del self.plot.ynew[i][0:(size-1)]
+    def disconnect(self):
+        """ When we press Pause button """
+        self.close_serial()
+        #self.clear_data() # ??
+        # Change button txt
+        self.controls.connect.setText('Resume')
+        # Enable buttons
+        self.controls.select_port.setEnabled(True)
+        self.controls.select_baud.setEnabled(True)
+        # Change button style
+        self.controls.select_port.setStyleSheet(QComboBox_style)
+        self.controls.select_baud.setStyleSheet(QComboBox_style)
 
-    # Button About
+    def clear_data(self):
+        """ Button clear data """
+        print('--> Clear data Button.')
+        # delete existing data
+        size = len(self.plot.x_axis)
+        print("x_axis: {}".format(size))
+        del self.plot.x_axis[0:(size-1)]
+        for i in range(self.number_of_lines):
+            del self.plot.y_axis[i][0:(size-1)]
+
     def about(self):
-        print('About Button')
+        """ Button About """
+        print('--> About Button.')
         self.msg = QMessageBox()
         self.msg.setWindowTitle("About")
-        self.msg.setText("Tauno Serial Plotter<br/><br/>Author: Tauno Erik<br/><a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>2020")
+        self.msg.setText("Tauno Serial Plotter<br/><br/>Author: Tauno Erik<br/><a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>2021")
         self.aboutbox = self.msg.exec_()
 
-    # Function to extract all the numbers from the given string
-    def get_numbers(self, str): 
-        # https://www.regular-expressions.info/floatingpoint.html
-        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', str)
+    def get_numbers(self, string):
+        """
+        Function to extract all the numbers from the given string
+        https://www.regular-expressions.info/floatingpoint.html
+        """
+        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)
         return numbers
 
-    # y-axis
     def add_numbers(self, i, number, plot_data_size):
+        """
+        y-axis
+        """
+        print("add_numbers y-axis")
         # If list is full
-        if len(self.plot.ynew[i]) > plot_data_size:
+        if len(self.plot.y_axis[i]) > plot_data_size:
             # Remove the first element on list
-            self.plot.ynew[i] = self.plot.ynew[i][1:]
+            self.plot.y_axis[i] = self.plot.y_axis[i][1:]
         # Before adding newone
-        self.plot.ynew[i].append(float(number))
+        self.plot.y_axis[i].append(float(number))
  
-    # x-axis
     def add_time(self, plot_data_size):
+        """
+        x-axis
+        """
+        print("add_time x-axis")
         # If list is full
-        if len(self.plot.x) > plot_data_size:
+        if len(self.plot.x_axis) > plot_data_size:
             # Remove the first element on list
-            self.plot.x = self.plot.x[1:]
+            self.plot.x_axis = self.plot.x_axis[1:]
         # Add a new value 1 higher than the last to end
-        self.plot.x.append(self.plot.x[-1] + 1)
-                      
-                  
-    # Serial functions
+        self.plot.x_axis.append(self.plot.x_axis[-1] + 1)
+
     def open_serial(self):
-        print("Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
+        print("0 Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
         if self.ser.is_open:
             self.ser.close()
         self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
-        print("Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
+        print("1 Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
+
+    def close_serial(self):
+        """ Close serial connection. """
+        print("Close serial.")
+        self.ser.close()
+
+    def error_status(self):
+        """
+        If we have to many errors close serial connection.
+        Example:
+            self.error_counter += 1
+            self.error_status()
+        """
+        if self.error_counter > 9:
+            self.close_serial()
+            self.error_counter = 0
 
     def read_serial_data(self):
         if self.ser.is_open:
@@ -586,47 +680,75 @@ class MainWindow(QWidget):
                 if incoming_data:
                     print("Incoming data: {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
+                    print("numbers: {}".format(len(numbers)))
 
                     # mitu data punkti tuleb sisse?
-                    while len(numbers) > len(self.plot.ynew):
-                        self.plot.ynew.append([0])
-   
-                    for i in range(len(numbers)):
-                        self.add_numbers(i, numbers[i], self.plot_data_size)
+                    while len(numbers) > len(self.plot.y_axis):
+                        self.plot.y_axis.append([0])
+
+                    for count, value in enumerate(numbers):
+                        self.add_numbers(count, value, self.plot_data_size)
 
                     self.add_time(self.plot_data_size) # x axis
 
                     for i in range(self.number_of_lines):
-                        self.plot.data_lines[i].setData(self.plot.x, self.plot.ynew[i])
+                        print("for loop {}".format(i))
+                        print("plot.x_axis {}".format(self.plot.x_axis))
+                        print("plot.y_axis[i] {}".format(self.plot.y_axis[i]))
+                        # TODO: !!! siin on probleem !!!
+                        # plot.x_axis [8, 9]
+                        # plot.y_axis[i] [333.0]
+                        if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
+                            # At beginning append 0.0 
+                            self.plot.y_axis[i].insert(0, 0.0)
+                        self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
 
             except:
+                print(sys.exc_info())
                 print("Error read_serial_data!!!")
+                self.error_counter += 1
+                self.error_status()
                 self.equal_x_and_y()
 
-    # How many data point gome in
-    # eg. --454-45-454- == 3
+    
     def how_many_lines(self):
-        print("how_many_lines")
+        """
+            Return number of different incoming data lines.
+            Example: --454-45-454- == 3
+        """
+        print("How_many_lines?")
         self.open_serial()
         if self.ser.is_open:
             try:
                 incoming_data = self.ser.readline()[:-2].decode('ascii')
-                # [:-2] gets rid of the new-line chars
-                #i = 0
+                # [:-2] removes new-line chars
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
-                    #i = i+1
                 if incoming_data:
                     print("Incoming data {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
                     print("Found: {} lines".format(len(numbers)))
                     return len(numbers)
             except:
-                print("Error")
+                print(sys.exc_info())
+                print("Error how_many_lines")
                 self.ser.close()
-        #self.ser.close()
 
-    # Keyboard
+    # Keyboard functions:
+    def keyPressEvent(self, event):
+        """
+            Detect keypress and run function
+        """
+        if event.key() == 32: # Space
+            print("Space")
+        elif event.key() == 16777219: # Backspace
+            print("Backspace")
+        elif event.key() == 16777274: # F11
+            self.fullscreen()
+        elif event.key() == 16777216: # Esc
+            self.esc()
+        else:
+            print(f'Unknown keypress: {event.key()}, "{event.text()}"')
 
     def fullscreen(self):
         if not self.is_fullscreen:
@@ -641,18 +763,6 @@ class MainWindow(QWidget):
             self.showNormal()
             self.is_fullscreen = False
 
-    def keyPressEvent(self, event):
-        if event.key() == 32: # Space
-            print("Space")
-        elif event.key() == 16777219: # Backspace
-            print("Backspace")
-        elif event.key() == 16777274: # F11
-            self.fullscreen()
-        elif event.key() == 16777216: # Esc
-            self.esc()
-        else:
-            print(f'Unknown keypress: {event.key()}, "{event.text()}"')
-
     #def mouseClickEvent(self, event):
         #print("clicked")
 
@@ -660,6 +770,6 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    w = MainWindow(app)
-    w.show()
+    window = MainWindow(app)
+    window.show()
     sys.exit(app.exec_())
