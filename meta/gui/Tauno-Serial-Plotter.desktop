@@ -1,16 +1,10 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=tauno-serial-plotter
+Name=Tauno-serial-plotter
 Comment=Simple serial plotter!
-TryExec=tauno-serial-plotter
-Exec=tauno-serial-plotter %F
+Exec=/app/bin/tauno-serial-plotter
+#TryExec=tauno-serial-plotter
+#Exec=tauno-serial-plotter %F
 Icon=img/tauno-plotter
 MimeType=image/x-svg;
-Actions=Open;
-
-
-[Desktop Action Open]
-Exec=tauno-serial-plotter
-Name=Open
-Icon=img/tauno-plotter

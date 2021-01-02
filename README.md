@@ -60,4 +60,5 @@ or
 
  - [Build with fbs](Build-fbs.md) (Windows, Linux)
  - [Build with snapcraft](Build-snap.md) (Linux)
+ - [Build with flatpak](flaypak.md) (Linux)
 

@@ -1,0 +1,50 @@
+app-id: org.flatpak.Tauno-serial-plotter
+runtime: org.kde.Platform
+runtime-version: '5.15'
+sdk: org.kde.Sdk
+command: tauno-serial-plotter.py
+
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=x11
+  - --share=network #?
+  - --device=all
+
+#cleanup:
+#  - /arduino-random-number-generator
+
+modules:
+  #  python3 flatpak-pip-generator --requirements-file=requirements.txt
+  - python3-requirements.json
+
+  - name: tauno-serial-plotter
+    buildsystem: simple
+    build-commands:
+      - install -D tauno-serial-plotter.py /app/bin/tauno-serial-plotter.py
+      - install -d /app/share/applications
+      - install -m644 Tauno-Serial-Plotter.desktop /app/share/applications/Tauno-Serial-Plotter.desktop
+    sources:
+      - type: file
+        path: tauno-serial-plotter.py
+      - type: file
+        path: meta/gui/Tauno-Serial-Plotter.desktop
+
+      
+   
+  - name: icons
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 tauno-plotter.svg /app/img/tauno-plotter.svg
+      - install -Dm644 arrow_down.svg /app/img/arrow_down.svg
+      - install -Dm644 minus.svg /app/img/minus.svg
+      - install -Dm644 plus.svg /app/img/plus.svg
+    sources:
+      - type: file
+        path: img/tauno-plotter.svg
+      - type: file
+        path: img/arrow_down.svg
+      - type: file
+        path: img/minus.svg
+      - type: file
+        path: img/plus.svg
