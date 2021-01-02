@@ -1,0 +1,56 @@
+name: tauno-serial-plotter # you probably want to 'snapcraft register <name>'
+base: core18 # the base snap is the execution environment for this snap
+version: '1.0' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Simple serial plotter # 79 char long summary
+description: |
+  Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
+
+grade: stable # 'devel', must be 'stable' to release into candidate/stable channels
+confinement: strict # 'devmode' or 'strict' to release into candidate/stable channels
+
+parts:
+  tauno-serial-plotter:
+    # See 'snapcraft plugins'
+    source: .
+    plugin: python
+    requirements: ['requirements.txt']
+    stage-packages:
+      - python3-pyqt5
+    after: [desktop-qt5]
+  
+  desktop-qt5:
+    build-packages:
+      - build-essential
+      - qtbase5-dev
+      - dpkg-dev
+    make-parameters:
+      - FLAVOR=qt5
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    stage-packages:
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - libqt5svg5
+      - try: [appmenu-qt5] # not available on core18
+      - locales-all
+      - xdg-user-dirs
+      - fcitx-frontend-qt5
+    
+  launcher:
+    plugin: nil
+    source: .
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cp -av tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
+
+apps:
+  tauno-serial-plotter:
+    command: bin/desktop-launch tauno-serial-plotter.py

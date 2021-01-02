@@ -1,7 +1,10 @@
 # Tauno Serial Plotter
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tauno-serial-plotter)
+
 Serial Plotter for Arduino and other embedded devices.
 
-Incoming data should be string. Ending with new line character. Number can be separated with almost any character.
+Incoming data should be string. Ending with new line character. Numbers (int and float) can be separated with almost any character.
 Like:
 
     label2la15be17el28/31/42/54 78
@@ -19,7 +22,7 @@ Script will extracts all numbers and generate graph.
 Tested on Ubuntu 19.10.
 
 
-![Screenshot on ubuntu](https://github.com/taunoe/tauno-serial-plotter/blob/master/img/screenshot.png)
+![Screenshot on ubuntu](./img/screenshot.png)
 
 ## Requirements
 
@@ -44,44 +47,17 @@ Restart “udev” management tool:
 More info: https://docs.platformio.org/en/latest/faq.html#faq-udev-rules
 
 ## Run
-    $ chmod +x Tauno-Serial-Plotter.py
+    $ chmod +x tauno-serial-plotter.py
 
-    $ ./Tauno-Serial-Plotter.py
+    $ ./tauno-serial-plotter.py
 
 or 
 
-    $ python3 ./Tauno-Serial-Plotter.py
+    $ python3 ./tauno-serial-plotter.py
 
 
-## Build with fbs
+## Diffrent ways to build
 
-    pip3 install fbs
-
-    fbs startproject
-
-But sourcecode in ./src/main/python/main.py file. (And also 'img' folder https://github.com/taunoe/tauno-serial-plotter/issues/5)
-
-    fbs run
-
-Turn it into a standalone executable:
-
-    fbs freeze
-
-This places a self-contained binary in the target/MyApp/ folder of your current directory.
-
-### Create installer:
-
-On Ubuntu first install fbm: https://fpm.readthedocs.io/en/latest/installing.html
-
-    sudo apt install ruby ruby-dev rubygems build-essential
-
-    gem install --no-document fpm
-
-Now create installer (deb filne on Ubuntu):
-
-    fbs installer
-
-If you are on Windows, you first need to install NSIS and place it on your PATH.
-https://github.com/mherrmann/fbs-tutorial
-
+ - [Build with fbs](Build-fbs.md) (Windows, Linux)
+ - [Build with snapcraft](Build-snap.md) (Linux)
 
