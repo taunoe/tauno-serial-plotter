@@ -6,32 +6,40 @@
     $ python3 -m pip install --user --upgrade setuptools wheel
     $ sudo apt install snapcraft
 
-This command creates a snap folder in the current directory. The snap folder has a single file called **snapcraft.yaml**.
+This command creates a snap/ folder in the current directory. The snap folder has a single file called **snap/snapcraft.yaml**.
 
     $ snapcraft init
 
 ## Build
 
+For local testing check those lines in file snap/snapcraft.yaml:
+
+    grade: devel # 'devel', must be 'stable' to release into candidate/stable channels
+    confinement: devmode # 'devmode' or 'strict' to release into candidate/stable channels
+
+Build:
+
+    $ snapcraft clean
     $ snapcraft
-    sudo snap install --devmode snap-file-name
+    $ sudo snap install --devmode snap-file-name
 
 ## Publishing
 
-    snapcraft login
-    snapcraft register snap-name
+    $ snapcraft login
+    $ snapcraft register snap-name
 
 After that we need to set the grade to stable and confinement to strict in **snapcraft.yaml**. Next we need to rebuild the snap. Release can be edge, candidate or stable.
 
-    snapcraft clean
+    $ snapcraft clean
 
-    snapcraft
-    snapcraft upload snap-file-name --release=candidate
+    $ snapcraft
+    $ snapcraft upload snap-file-name --release=candidate
 
-    sudo snap install snap-name --channel=candidate
+    $ sudo snap install snap-name --channel=candidate
 
 Uninstall:
 
-    sudo snap remove snap-name
+    $ sudo snap remove snap-name
 
 ## Links
 
