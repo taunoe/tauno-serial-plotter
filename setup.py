@@ -1,3 +1,7 @@
+"""
+For building the snap.
+"""
+
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:

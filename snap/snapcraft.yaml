@@ -1,5 +1,5 @@
 name: tauno-serial-plotter # you probably want to 'snapcraft register <name>'
-base: core18 # the base snap is the execution environment for this snap
+base: core18 
 version: '1.1'
 summary: Simple serial plotter # 79 char long summary
 description: |
@@ -52,7 +52,7 @@ parts:
     source: .
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      cp -av tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
+      cp -av tauno-serial-plotter/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
 
 #  desktop-gui:
 #    plugin: dump
@@ -66,7 +66,7 @@ parts:
 
 apps:
   tauno-serial-plotter:
-    command: bin/desktop-launch tauno-serial-plotter.py
+    command: bin/desktop-launch tauno-serial-plotter.py #$SNAP/
     plugs: 
     - desktop
     - desktop-legacy
