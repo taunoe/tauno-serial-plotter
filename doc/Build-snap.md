@@ -23,6 +23,13 @@ Build:
     $ snapcraft
     $ sudo snap install --devmode snap-file-name
 
+    $ snapcraft --debug
+    $ snapcraft prime --shell
+
+Run:
+
+    $ /snap/bin/tauno-serial-plotter
+
 ## Publishing
 
     $ snapcraft login

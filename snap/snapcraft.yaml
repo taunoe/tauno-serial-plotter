@@ -54,15 +54,25 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp -av tauno-serial-plotter/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
 
-#  desktop-gui:
-#    plugin: dump
-#    source: icons/
+  # copy icons to snap
+  desktop-gui:
+    plugin: dump
+    source: ./tauno-serial-plotter/icons/
+    organize:
+      '*.svg' : bin/icons/
+    stage:
+      - bin/icons/
+      #mkdir -p $SNAPCRAFT_PART_INSTALL/bin/icons
+      #arrow_down.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
+      #minus.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
+      #plus.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
+      #tauno-plotter.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
 #    organize:
 #      #"data/file-name.desktop": /usr/share/applications/file-name.desktop
-#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/arrow_down.svg.svg
-#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/minus.svg.svg
-#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/plus.svg.svg
-#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/tauno-plotter.svg
+#      "arrow_down.svg": $SNAP/icons/arrow_down.svg #$SNAPCRAFT_PRIME
+#      "minus.svg": $SNAP/icons/minus.svg
+#      "plus.svg": $SNAP/icons/plus.svg
+#      "tauno-plotter.svg": $SNAP_PRIME_INSTALL/icons/tauno-plotter.svg
 
 apps:
   tauno-serial-plotter:
