@@ -5,8 +5,8 @@ summary: Simple serial plotter # 79 char long summary
 description: |
   Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
 
-grade: devel #stable # 'devel', must be 'stable' to release into candidate/stable channels
-confinement: devmode # strict # 'devmode' or 'strict' to release into candidate/stable channels
+grade: stable #stable # 'devel', must be 'stable' to release into candidate/stable channels
+confinement: strict # strict # 'devmode' or 'strict' to release into candidate/stable channels
 architectures:
   - build-on: [arm64, amd64, i386]
     run-on: [arm64, amd64, i386]
