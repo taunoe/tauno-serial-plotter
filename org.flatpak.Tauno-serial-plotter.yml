@@ -28,23 +28,23 @@ modules:
       - type: file
         path: tauno-serial-plotter.py
       - type: file
-        path: meta/gui/Tauno-Serial-Plotter.desktop
+        path: meta/gui/Tauno-Serial-Plotter.desktop #?
 
       
    
   - name: icons
     buildsystem: simple
     build-commands:
-      - install -Dm644 tauno-plotter.svg /app/img/tauno-plotter.svg
-      - install -Dm644 arrow_down.svg /app/img/arrow_down.svg
-      - install -Dm644 minus.svg /app/img/minus.svg
-      - install -Dm644 plus.svg /app/img/plus.svg
+      - install -Dm644 tauno-plotter.svg /app/icons/tauno-plotter.svg
+      - install -Dm644 arrow_down.svg /app/icons/arrow_down.svg
+      - install -Dm644 minus.svg /app/icons/minus.svg
+      - install -Dm644 plus.svg /app/icons/plus.svg
     sources:
       - type: file
-        path: img/tauno-plotter.svg
+        path: icons/tauno-plotter.svg
       - type: file
-        path: img/arrow_down.svg
+        path: icons/arrow_down.svg
       - type: file
-        path: img/minus.svg
+        path: icons/minus.svg
       - type: file
-        path: img/plus.svg
+        path: icons/plus.svg

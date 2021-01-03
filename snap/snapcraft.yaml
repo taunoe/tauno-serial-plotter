@@ -5,8 +5,11 @@ summary: Simple serial plotter # 79 char long summary
 description: |
   Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
 
-grade: stable # 'devel', must be 'stable' to release into candidate/stable channels
-confinement: strict # 'devmode' or 'strict' to release into candidate/stable channels
+grade: devel #stable # 'devel', must be 'stable' to release into candidate/stable channels
+confinement: devmode # strict # 'devmode' or 'strict' to release into candidate/stable channels
+architectures:
+  - build-on: [arm64, amd64, i386]
+    run-on: [arm64, amd64, i386]
 
 parts:
   tauno-serial-plotter:
@@ -51,6 +54,16 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp -av tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
 
+#  desktop-gui:
+#    plugin: dump
+#    source: icons/
+#    organize:
+#      #"data/file-name.desktop": /usr/share/applications/file-name.desktop
+#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/arrow_down.svg.svg
+#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/minus.svg.svg
+#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/plus.svg.svg
+#      "data/app-icon.svg": $SNAPCRAFT_PRIME/img/tauno-plotter.svg
+
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
@@ -61,3 +74,5 @@ apps:
     - unity7
     - wayland
     - opengl
+    - network
+    - network-bind

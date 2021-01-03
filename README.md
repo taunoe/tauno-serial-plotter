@@ -47,6 +47,8 @@ Restart “udev” management tool:
 More info: https://docs.platformio.org/en/latest/faq.html#faq-udev-rules
 
 ## Run
+    $ cd tauno-serial-plotter
+    
     $ chmod +x tauno-serial-plotter.py
 
     $ ./tauno-serial-plotter.py

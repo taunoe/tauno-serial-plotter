@@ -3,7 +3,7 @@
     Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:    07.03.2020
-    Edited:     01.01.2021
+    Edited:     03.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -136,7 +136,7 @@ QComboBox::drop-down {{ /* shift the text when the popup opens */
 
 QComboBox::down-arrow {{
     background-color: {colors['dark']};/* nool */
-    image: url(./img/arrow_down.svg);
+    image: url(icons/arrow_down.svg);
     width: 24px;
     height: 24px;
 }}
@@ -177,7 +177,7 @@ QComboBox::drop-down {{ /* shift the text when the popup opens */
 
 QComboBox::down-arrow {{
     background-color: {colors['dark']};/* nool */
-    image: url(./img/arrow_down.svg);
+    image: url(icons/arrow_down.svg);
     width: 24px;
     height: 24px;
 }}
@@ -208,7 +208,7 @@ QDoubleSpinBox::up-button{{
 }}
 
 QDoubleSpinBox::up-arrow {{
-    image: url(./img/plus.svg);
+    image: url(icons/plus.svg);
     width: 24px;
     height: 24px;
 }}
@@ -223,7 +223,7 @@ QDoubleSpinBox::down-button{{
 }}
 
 QDoubleSpinBox::down-arrow {{
-    image: url(./img/minus.svg);
+    image: url(icons/minus.svg);
     width: 24px;
     height: 24px;
 }}
@@ -442,7 +442,7 @@ class MainWindow(QWidget):
     def init_ui(self):
         self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
         self.setWindowTitle("Tauno Serial Plotter")
-        self.setWindowIcon(QtGui.QIcon('./img/tauno-plotter.svg'))
+        self.setWindowIcon(QtGui.QIcon('icons/tauno-plotter.svg'))
         self.setMinimumSize(900,550)
 
     def center_mainwindow(self):

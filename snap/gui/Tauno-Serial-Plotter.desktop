@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Tauno-serial-plotter
+Comment=Simple serial plotter!
+TryExec=tauno-serial-plotter
+Exec=tauno-serial-plotter  %F
+Icon=${SNAP}/meta/gui/tauno-plotter.svg
+MimeType=image/x-svg;
