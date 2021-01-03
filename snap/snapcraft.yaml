@@ -53,7 +53,8 @@ parts:
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp -av tauno-serial-plotter/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
-
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
+      cp -f tauno-serial-plotter/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
   # copy icons to snap
   desktop-gui:
     plugin: dump
