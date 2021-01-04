@@ -8,11 +8,8 @@ finish-args:
   - --share=ipc
   - --socket=wayland
   - --socket=x11
-  - --share=network #?
+  - --share=network
   - --device=all
-
-#cleanup:
-#  - /arduino-random-number-generator
 
 modules:
   #  python3 flatpak-pip-generator --requirements-file=requirements.txt
@@ -26,25 +23,26 @@ modules:
       - install -m644 Tauno-Serial-Plotter.desktop /app/share/applications/Tauno-Serial-Plotter.desktop
     sources:
       - type: file
-        path: tauno-serial-plotter.py
+        path: tauno-serial-plotter/tauno-serial-plotter.py
       - type: file
-        path: meta/gui/Tauno-Serial-Plotter.desktop #?
+        path: Tauno-Serial-Plotter.desktop #?
 
+  #-name appmenu-gtk3-module
       
-   
   - name: icons
     buildsystem: simple
     build-commands:
-      - install -Dm644 tauno-plotter.svg /app/icons/tauno-plotter.svg
-      - install -Dm644 arrow_down.svg /app/icons/arrow_down.svg
-      - install -Dm644 minus.svg /app/icons/minus.svg
-      - install -Dm644 plus.svg /app/icons/plus.svg
+      #- install -Dm644 tauno-plotter.svg /usr/share/icons/tauno-plotter.svg # desktop file
+      - install -Dm644 tauno-plotter.svg /app/bin/icons/tauno-plotter.svg # app icon
+      - install -Dm644 arrow_down.svg /app/bin/icons/arrow_down.svg
+      - install -Dm644 minus.svg /app/bin/icons/minus.svg
+      - install -Dm644 plus.svg /app/bin/icons/plus.svg
     sources:
       - type: file
-        path: icons/tauno-plotter.svg
+        path: tauno-serial-plotter/icons/tauno-plotter.svg
       - type: file
-        path: icons/arrow_down.svg
+        path: tauno-serial-plotter/icons/arrow_down.svg
       - type: file
-        path: icons/minus.svg
+        path: tauno-serial-plotter/icons/minus.svg
       - type: file
-        path: icons/plus.svg
+        path: tauno-serial-plotter/icons/plus.svg

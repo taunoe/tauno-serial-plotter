@@ -13,7 +13,6 @@ confinement: strict # strict # 'devmode' or 'strict' to release into candidate/s
 
 parts:
   tauno-serial-plotter:
-    # See 'snapcraft plugins'
     source: .
     plugin: python
     requirements: ['requirements.txt']
@@ -63,17 +62,6 @@ parts:
       '*.svg' : bin/icons/
     stage:
       - bin/icons/
-      #mkdir -p $SNAPCRAFT_PART_INSTALL/bin/icons
-      #arrow_down.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
-      #minus.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
-      #plus.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
-      #tauno-plotter.svg : $SNAPCRAFT_PART_INSTALL/bin/icons
-#    organize:
-#      #"data/file-name.desktop": /usr/share/applications/file-name.desktop
-#      "arrow_down.svg": $SNAP/icons/arrow_down.svg #$SNAPCRAFT_PRIME
-#      "minus.svg": $SNAP/icons/minus.svg
-#      "plus.svg": $SNAP/icons/plus.svg
-#      "tauno-plotter.svg": $SNAP_PRIME_INSTALL/icons/tauno-plotter.svg
 
 apps:
   tauno-serial-plotter:

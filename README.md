@@ -62,5 +62,5 @@ or
 
  - [Build with fbs](doc/Build-fbs.md) (Windows, Linux)
  - [Build with snapcraft](doc/Build-snap.md) (Linux)
- - [Build with flatpak](doc/flaypak.md) (Linux)
+ - [Build with flatpak](doc/Build-flatpak.md) (Linux)
  - [Build with PyInstaller](doc/pyinstaller.md) (Windows, Linux, Mac)

@@ -197,7 +197,7 @@ QDoubleSpinBox{{
     background-color: {colors['hall']};
     color: {colors['black']};
     border: 1px solid {colors['black']};
-    padding: 5px 25px 5px 25px; 
+    padding: 5px 25px 0px 25px; 
     font: {FONTSIZE}px;
 }}
 
@@ -212,13 +212,8 @@ QDoubleSpinBox::up-button{{
     background-color: {colors['dark']};
     width: 25px;
     /*border-width: 1px;*/
-    height:32px;
-}}
-
-QDoubleSpinBox::up-arrow {{
-    image: url({icon_plus});
-    width: 24px;
-    height: 24px;
+    height:27px;
+    padding-bottom: 4px;
 }}
 
 QDoubleSpinBox::down-button{{
@@ -227,7 +222,14 @@ QDoubleSpinBox::down-button{{
     subcontrol-position: top left;
     width: 25px;
     /*border-width: 1px;*/
-    height:32px;
+    height:27px;
+    padding-bottom: 4px;
+}}
+
+QDoubleSpinBox::up-arrow {{
+    image: url({icon_plus});
+    width: 24px;
+    height: 24px;
 }}
 
 QDoubleSpinBox::down-arrow {{
@@ -622,7 +624,12 @@ class MainWindow(QWidget):
         print('--> About Button.')
         self.msg = QMessageBox()
         self.msg.setWindowTitle("About")
-        self.msg.setText("Tauno Serial Plotter<br/><br/>Linux users have to install 99-platformio-udev.rules to accesse serial devices. More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>Author: Tauno Erik<br/><br/><br/>2021")
+        self.msg.setText("Tauno Serial Plotter<br/><br/>\
+            Linux users have to install 99-platformio-udev.rules to accesse serial devices.\
+            More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
+            github.com/taunoe/tauno-serial-plotter</a>\
+            <br/><br/>Author: Tauno Erik\
+            <br/><br/><br/>2021")
         self.aboutbox = self.msg.exec_()
 
     def get_numbers(self, string):
