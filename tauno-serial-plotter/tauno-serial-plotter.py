@@ -3,7 +3,7 @@
     Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:    07.03.2020
-    Edited:     03.01.2021
+    Edited:     04.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -28,6 +28,13 @@ import pyqtgraph as pg
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 # Use highdpi icons:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
+# Gui Icons
+
+icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
+icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
+icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
+icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
 
 # Define GUI colours
 colors =  {
@@ -137,7 +144,7 @@ QComboBox::drop-down {{ /* shift the text when the popup opens */
 
 QComboBox::down-arrow {{
     background-color: {colors['dark']};/* nool */
-    image: url(icons/arrow_down.svg);
+    image: url({icon_arrow_down});
     width: 24px;
     height: 24px;
 }}
@@ -178,7 +185,7 @@ QComboBox::drop-down {{ /* shift the text when the popup opens */
 
 QComboBox::down-arrow {{
     background-color: {colors['dark']};/* nool */
-    image: url(icons/arrow_down.svg);
+    image: url({icon_arrow_down});
     width: 24px;
     height: 24px;
 }}
@@ -209,7 +216,7 @@ QDoubleSpinBox::up-button{{
 }}
 
 QDoubleSpinBox::up-arrow {{
-    image: url(icons/plus.svg);
+    image: url({icon_plus});
     width: 24px;
     height: 24px;
 }}
@@ -224,7 +231,7 @@ QDoubleSpinBox::down-button{{
 }}
 
 QDoubleSpinBox::down-arrow {{
-    image: url(icons/minus.svg);
+    image: url({icon_minus});
     width: 24px;
     height: 24px;
 }}
@@ -443,7 +450,7 @@ class MainWindow(QWidget):
     def init_ui(self):
         self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
         self.setWindowTitle("Tauno Serial Plotter")
-        self.setWindowIcon(QtGui.QIcon('icons/tauno-plotter.svg'))
+        self.setWindowIcon(QtGui.QIcon(icon_logo))
         self.setMinimumSize(900,550)
 
     def center_mainwindow(self):
@@ -615,7 +622,7 @@ class MainWindow(QWidget):
         print('--> About Button.')
         self.msg = QMessageBox()
         self.msg.setWindowTitle("About")
-        self.msg.setText("Tauno Serial Plotter<br/><br/>Author: Tauno Erik<br/><a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>2021")
+        self.msg.setText("Tauno Serial Plotter<br/><br/>Linux users have to install 99-platformio-udev.rules to accesse serial devices. More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>github.com/taunoe/tauno-serial-plotter</a><br/><br/>Author: Tauno Erik<br/><br/><br/>2021")
         self.aboutbox = self.msg.exec_()
 
     def get_numbers(self, string):
