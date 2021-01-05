@@ -1,15 +1,16 @@
 name: tauno-serial-plotter # you probably want to 'snapcraft register <name>'
 base: core18 
-version: '1.2'
+version: '1.3'
 summary: Simple serial plotter # 79 char long summary
 description: |
   Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
 
 grade: stable #stable # 'devel', must be 'stable' to release into candidate/stable channels
 confinement: strict # strict # 'devmode' or 'strict' to release into candidate/stable channels
-#architectures:
-#  - build-on: [arm64, amd64, i386]
-#    run-on: [arm64, amd64, i386]
+architectures:
+  - build-on: amd64
+  - build-on: i386
+  - build-on: arm64
 
 parts:
   tauno-serial-plotter:
@@ -65,7 +66,7 @@ parts:
 
 apps:
   tauno-serial-plotter:
-    command: bin/desktop-launch tauno-serial-plotter.py #$SNAP/
+    command: bin/desktop-launch tauno-serial-plotter.py
     plugs: 
     - desktop
     - desktop-legacy

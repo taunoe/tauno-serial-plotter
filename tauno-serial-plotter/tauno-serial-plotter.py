@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-    Tauno-Serial-Plotter.py
+    File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
-    Started:    07.03.2020
-    Edited:     04.01.2021
+    Started:07.03.2020
+    Edited: 05.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -16,6 +16,7 @@
 import sys
 import re
 import os
+import logging
 import serial # pip3 install pyserial
 import serial.tools.list_ports
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -24,19 +25,23 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
+VERSION = '1.3'
+
+# Set debuge level
+logging.basicConfig(level=logging.DEBUG)
+
 # Enable highdpi scaling:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 # Use highdpi icons:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
-# Gui Icons
-
+# GUI Icons
 icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
 icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
 icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
 icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
 
-# Define GUI colours
+# GUI colours
 colors =  {
             'oranz':"#FF6F00",
             'green':"#9CCC65",
@@ -45,7 +50,7 @@ colors =  {
 	        'black':"#212121"
 }
 
-# Define PLOT colors
+# PLOT colors
 plot_colors = [
     "#ba8310", # Kollane
     "#00BCD4", # syan
@@ -251,9 +256,9 @@ class Plot(pg.GraphicsWindow):
         self.scatter_plot = scatter_plot
 
         if self.nr_plot_lines is None:
-            print("nr_plot_lines is None!")
+            logging.debug("nr_plot_lines is None!")
 
-        print("Init Plot class. With {} plot lines.".format(self.nr_plot_lines))
+        logging.debug("Init Plot class. With %i plot lines.", self.nr_plot_lines)
 
         # Create plot
         self.serialplot = self.addPlot()
@@ -407,7 +412,7 @@ class MainWindow(QWidget):
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
         self.baudrates = ['300','1200','2400','4800','9600','19200','38400','57600',
-                        '74880','115200','230400','250000','500000','1000000','2000000']
+                        '74880','115200','230400','250000','500000']
         self.selected_baudrate = self.baudrates[4]
 
         self.number_of_lines = 0
@@ -484,55 +489,55 @@ class MainWindow(QWidget):
 
     def selected_port_changed(self, i):
         self.selected_port = self.ports[i]
-        print("Main selected port changed:")
-        print(self.selected_port)
+        logging.info("Main selected port changed:")
+        logging.info(self.selected_port)
         self.equal_x_and_y()
         self.open_serial()
 
     def selected_baud_changed(self, i):
         self.selected_baudrate = self.baudrates[i]
-        print("Main selected baud index changed:")
-        print(self.selected_baudrate)
+        logging.info("Main selected baud index changed:")
+        logging.info(self.selected_baudrate)
         self.equal_x_and_y()
         self.open_serial()
 
     def equal_x_and_y(self):
         if self.plot_exist:
-            print("\t eqaul_x_and_y !!!")
+            logging.debug("\t eqaul_x_and_y !!!")
             try:
-                print("equal_x_and_y try")
+                logging.debug("equal_x_and_y try")
                 for i in range(self.number_of_lines):
                     if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
-                        print("\t x on suurem kui y[{}]".format(i))
+                        logging.debug("\t x on suurem kui y[{}]".format(i))
                         while len(self.plot.x_axis) > len(self.plot.y_axis[i]):
                             # Remove the first element on list
                             self.plot.x_axis = self.plot.x_axis[1:]
                     if len(self.plot.y_axis[i]) > len(self.plot.x_axis):
-                        print("\t y[{i}] on suurem kui x_axis".format(i))
+                        logging.debug("\t y[{i}] on suurem kui x_axis".format(i))
                         while len(self.plot.y_axis[i]) > len(self.plot.x_axis):
                             # Remove the first element on list
                             self.plot.y_axis[i] = self.plot.y_axis[i][1:]
             except:
-                print(sys.exc_info())
+                logging.debug(sys.exc_info())
                 self.error_counter += 1
                 self.error_status()
 
 
     def selected_dot(self):
-        print("Selected dot plot.")
+        logging.debug("Selected dot plot.")
         if not self.plot_exist:
             self.controls.line_box.setChecked(0)
             self.scatter_plot = True
 
 
     def selected_line(self):
-        print("Selected line plot.")
+        logging.debug("Selected line plot.")
         if not self.plot_exist:
             self.controls.dot_box.setChecked(0)
             self.scatter_plot = False
 
     def time_scale_changed(self):
-        print("Timescale changed!")
+        logging.debug("Timescale changed!")
         new_value = int(self.controls.time_scale_spin.value())
         old_value = self.plot_data_size
 
@@ -560,14 +565,14 @@ class MainWindow(QWidget):
         """ Connected or Pause button press? """
         if not self.is_button_connected:
             self.is_button_connected = True
-            print('--> Connect Button.')
+            logging.debug('--> Connect Button.')
             self.connect()
         else:
             self.is_button_connected = False
-            print('--> Pause Button.')
+            logging.debug('--> Pause Button.')
             self.disconnect()
 
-    
+
     def connect(self):
         """ When we press button Connect. """
         # Change button txt
@@ -578,9 +583,9 @@ class MainWindow(QWidget):
         # Change button style
         self.controls.select_port.setStyleSheet(QComboBox_disabled_style)
         self.controls.select_baud.setStyleSheet(QComboBox_disabled_style)
-        
+
         if not self.plot_exist:
-            print("connect: create plot")
+            logging.debug("connect: create plot")
             self.number_of_lines = self.how_many_lines()
             if self.number_of_lines is not None:
                 self.plot = Plot(self.number_of_lines, self.scatter_plot)
@@ -591,7 +596,7 @@ class MainWindow(QWidget):
                 self.controls.dot_box.setEnabled(False)
                 self.controls.line_box.setEnabled(False)
             else:
-                print("connect: None!")
+                logging.debug("connect: None!")
         else:
             #self.equal_x_and_y()
             self.open_serial()
@@ -611,25 +616,25 @@ class MainWindow(QWidget):
 
     def clear_data(self):
         """ Button clear data """
-        print('--> Clear data Button.')
+        logging.debug('--> Clear data Button.')
         # delete existing data
         size = len(self.plot.x_axis)
-        print("x_axis: {}".format(size))
+        logging.debug("x_axis: {}".format(size))
         del self.plot.x_axis[0:(size-1)]
         for i in range(self.number_of_lines):
             del self.plot.y_axis[i][0:(size-1)]
 
     def about(self):
         """ Button About """
-        print('--> About Button.')
+        logging.debug('--> About Button.')
         self.msg = QMessageBox()
         self.msg.setWindowTitle("About")
         self.msg.setText("Tauno Serial Plotter<br/><br/>\
             Linux users have to install 99-platformio-udev.rules to accesse serial devices.\
             More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
-            github.com/taunoe/tauno-serial-plotter</a>\
-            <br/><br/>Author: Tauno Erik\
-            <br/><br/><br/>2021")
+            github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
+            Version {}<br/><br/>\
+            Tauno Erik 2021".format(VERSION))
         self.aboutbox = self.msg.exec_()
 
     def get_numbers(self, string):
@@ -644,7 +649,6 @@ class MainWindow(QWidget):
         """
         y-axis
         """
-        print("add_numbers y-axis")
         # If list is full
         if len(self.plot.y_axis[i]) > plot_data_size:
             # Remove the first element on list
@@ -656,7 +660,6 @@ class MainWindow(QWidget):
         """
         x-axis
         """
-        print("add_time x-axis")
         # If list is full
         if len(self.plot.x_axis) > plot_data_size:
             # Remove the first element on list
@@ -665,15 +668,15 @@ class MainWindow(QWidget):
         self.plot.x_axis.append(self.plot.x_axis[-1] + 1)
 
     def open_serial(self):
-        print("0 Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
+        logging.debug("0 Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
         if self.ser.is_open:
             self.ser.close()
         self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
-        print("1 Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
+        logging.debug("1 Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
 
     def close_serial(self):
         """ Close serial connection. """
-        print("Close serial.")
+        logging.debug("Close serial.")
         self.ser.close()
 
     def error_status(self):
@@ -693,9 +696,9 @@ class MainWindow(QWidget):
                 incoming_data = self.ser.readline()[:-2].decode('ascii')
                 # [:-2] gets rid of the new-line chars
                 if incoming_data:
-                    print("Incoming data: {}".format(incoming_data))
+                    logging.info("Incoming data: {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
-                    print("numbers: {}".format(len(numbers)))
+                    logging.debug("numbers: {}".format(len(numbers)))
 
                     # mitu data punkti tuleb sisse?
                     while len(numbers) > len(self.plot.y_axis):
@@ -707,9 +710,9 @@ class MainWindow(QWidget):
                     self.add_time(self.plot_data_size) # x axis
 
                     for i in range(self.number_of_lines):
-                        print("for loop {}".format(i))
-                        print("plot.x_axis {}".format(self.plot.x_axis))
-                        print("plot.y_axis[i] {}".format(self.plot.y_axis[i]))
+                        logging.debug("for loop {}".format(i))
+                        logging.debug("plot.x_axis {}".format(self.plot.x_axis))
+                        logging.debug("plot.y_axis[i] {}".format(self.plot.y_axis[i]))
                         # TODO: !!! siin on probleem !!!
                         # plot.x_axis [8, 9]
                         # plot.y_axis[i] [333.0]
@@ -719,8 +722,8 @@ class MainWindow(QWidget):
                         self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
 
             except:
-                print(sys.exc_info())
-                print("Error read_serial_data!!!")
+                logging.debug(sys.exc_info())
+                logging.debug("Error read_serial_data!!!")
                 self.error_counter += 1
                 self.error_status()
                 self.equal_x_and_y()
@@ -731,7 +734,7 @@ class MainWindow(QWidget):
             Return number of different incoming data lines.
             Example: --454-45-454- == 3
         """
-        print("How_many_lines?")
+        logging.debug("How_many_lines?")
         self.open_serial()
         if self.ser.is_open:
             try:
@@ -740,13 +743,13 @@ class MainWindow(QWidget):
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
                 if incoming_data:
-                    print("Incoming data {}".format(incoming_data))
+                    logging.debug("Incoming data {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
-                    print("Found: {} lines".format(len(numbers)))
+                    logging.debug("Found: {} lines".format(len(numbers)))
                     return len(numbers)
             except:
-                print(sys.exc_info())
-                print("Error how_many_lines")
+                logging.debug(sys.exc_info())
+                logging.debug("Error how_many_lines")
                 self.ser.close()
 
     # Keyboard functions:
@@ -755,15 +758,15 @@ class MainWindow(QWidget):
             Detect keypress and run function
         """
         if event.key() == 32: # Space
-            print("Space")
+            logging.debug("Space")
         elif event.key() == 16777219: # Backspace
-            print("Backspace")
+            logging.debug("Backspace")
         elif event.key() == 16777274: # F11
             self.fullscreen()
         elif event.key() == 16777216: # Esc
             self.esc()
         else:
-            print(f'Unknown keypress: {event.key()}, "{event.text()}"')
+            logging.debug(f'Unknown keypress: {event.key()}, "{event.text()}"')
 
     def fullscreen(self):
         if not self.is_fullscreen:

@@ -12,7 +12,6 @@ finish-args:
   - --device=all
 
 modules:
-  #  python3 flatpak-pip-generator --requirements-file=requirements.txt
   - python3-requirements.json
 
   - name: tauno-serial-plotter
@@ -25,15 +24,12 @@ modules:
       - type: file
         path: tauno-serial-plotter/tauno-serial-plotter.py
       - type: file
-        path: Tauno-Serial-Plotter.desktop #?
-
-  #-name appmenu-gtk3-module
+        path: Tauno-Serial-Plotter.desktop
       
   - name: icons
     buildsystem: simple
     build-commands:
-      #- install -Dm644 tauno-plotter.svg /usr/share/icons/tauno-plotter.svg # desktop file
-      - install -Dm644 tauno-plotter.svg /app/bin/icons/tauno-plotter.svg # app icon
+      - install -Dm644 tauno-plotter.svg /app/bin/icons/tauno-plotter.svg
       - install -Dm644 arrow_down.svg /app/bin/icons/arrow_down.svg
       - install -Dm644 minus.svg /app/bin/icons/minus.svg
       - install -Dm644 plus.svg /app/bin/icons/plus.svg
