@@ -627,15 +627,15 @@ class MainWindow(QWidget):
     def about(self):
         """ Button About """
         logging.debug('--> About Button.')
-        self.msg = QMessageBox()
-        self.msg.setWindowTitle("About")
-        self.msg.setText("Tauno Serial Plotter<br/><br/>\
+        self.aboutbox = QMessageBox()
+        self.aboutbox.setWindowTitle("About")
+        self.aboutbox.setText("Tauno Serial Plotter<br/><br/>\
             Linux users have to install 99-platformio-udev.rules to accesse serial devices.\
             More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
             Tauno Erik 2021".format(VERSION))
-        self.aboutbox = self.msg.exec_()
+        self.aboutbox.exec_()
 
     def get_numbers(self, string):
         """
