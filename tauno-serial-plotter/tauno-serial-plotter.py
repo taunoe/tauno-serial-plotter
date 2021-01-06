@@ -27,10 +27,11 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.4'
+VERSION = '1.5'
 
 # Set debuge level
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 
 # Enable highdpi scaling:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -258,7 +259,7 @@ class Forever_Worker(QRunnable):
 
     def __del__(self):
         self.working = False
-        self.wait()
+        #self.wait()
 
     def run(self):
         """ Forever running task """
@@ -529,15 +530,16 @@ class MainWindow(QWidget):
         """
         Find avaible ports/devices and add to self.ports
         """
-        logging.debug("self.plot_exist {}".format(self.plot_exist))
-        logging.debug("self.is_button_connected {}".format(self.is_button_connected))
+        logging.debug("self.plot_exist %s", self.plot_exist)
+        logging.debug("self.is_button_connected %s", self.is_button_connected)
+
         if not self.plot_exist or not self.is_button_connected:
         # Kui plot on olemas siis me ei skänni!
             self.ports.clear() # clear the devices list
             self.controls.select_port.clear() # clear dropdown menu
-            logging.debug("self.ports: {}".format(len(self.ports)))
+            logging.debug("self.ports: %s", len(self.ports))
             ports = list(serial.tools.list_ports.comports())
-            logging.debug("find_ports: {}".format(len(ports)))
+            logging.debug("find_ports: %s", len(ports))
             for port in ports:
                 #print(port[0]) # /dev/ttyACM0
                 #print(port[1]) # USB2.0-Serial
