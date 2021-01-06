@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 05.01.2021
+    Edited: 06.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -17,15 +17,17 @@ import sys
 import re
 import os
 import logging
+import time
 import serial # pip3 install pyserial
 import serial.tools.list_ports
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QRunnable, QThreadPool # Threads
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.3'
+VERSION = '1.4'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -245,6 +247,39 @@ QDoubleSpinBox::down-arrow {{
 
 """
 
+# 1. Subclass QRunnable
+# https://realpython.com/python-pyqt-qthread/
+# https://www.learnpyqt.com/tutorials/multithreading-pyqt-applications-qthreadpool/
+class Forever_Worker(QRunnable):
+    def __init__(self, fn):
+        super().__init__()
+        self.fn = fn
+        self.working = True
+
+    def __del__(self):
+        self.working = False
+        self.wait()
+
+    def run(self):
+        """ Forever running task """
+        while self.working:
+            logging.debug("Forever_Worker.Run while loop")
+            self.fn()
+            time.sleep(10) # seconds
+
+class Worker(QRunnable):
+    def __init__(self, fn):
+        super().__init__()
+        self.fn = fn
+
+    def run(self):
+        """ Worker running task """
+        while self.working:
+            logging.debug("Worker.Run while loop")
+            self.fn()
+
+
+
 class Plot(pg.GraphicsWindow):
     """
     Define Plot
@@ -421,6 +456,7 @@ class MainWindow(QWidget):
         self.scatter_plot = False
         self.is_button_connected = False
 
+        # 
         self.init_ui()
         self.center_mainwindow()
 
@@ -433,7 +469,9 @@ class MainWindow(QWidget):
         self.controls = Controls(parent=self)
         self.horizontal_layout.addWidget(self.controls)
 
-        self.find_ports()       # Ports on dropdown menu
+        self.threadpool = QThreadPool()
+        self.oh_no()
+        #self.find_ports()       # TODO:Thread! Ports on dropdown menu
         self.init_baudrates()   # Baud Rates on dropdown menu
 
         # Controll selct and button calls
@@ -446,6 +484,26 @@ class MainWindow(QWidget):
 
         self.controls.dot_box.pressed.connect(self.selected_dot)
         self.controls.line_box.pressed.connect(self.selected_line)
+
+#    def runTasks(self):
+#       threadCount = QThreadPool.globalInstance().maxThreadCount()
+#        self.label.setText(f"Running {threadCount} Threads")
+#        pool = QThreadPool.globalInstance()
+#        for i in range(threadCount):
+#            # 2. Instantiate the subclass of QRunnable
+#            runnable = Runnable(i)
+#            # 3. Call start()
+#            pool.start(runnable)
+
+    def oh_no(self):
+        """
+        Runs on background forewer
+        """
+        # Pass the function to execute
+        worker = Forever_Worker(self.find_ports)
+        # Execute
+        self.threadpool.start(worker)
+    
 
     # Init functions
 
@@ -471,17 +529,24 @@ class MainWindow(QWidget):
         """
         Find avaible ports/devices and add to self.ports
         """
-        self.ports.clear() # clear the devices list
-        ports = list(serial.tools.list_ports.comports())
-        for port in ports:
-            #print(port[0]) # /dev/ttyACM0
-            #print(port[1]) # USB2.0-Serial
-            #print(port[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
-            self.ports.append(port[0]) # add devices to list
-        self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
-        if len(ports) > 0:
-            self.controls.select_port.setCurrentIndex(0)
-            self.selected_port = self.ports[0]
+        logging.debug("self.plot_exist {}".format(self.plot_exist))
+        logging.debug("self.is_button_connected {}".format(self.is_button_connected))
+        if not self.plot_exist or not self.is_button_connected:
+        # Kui plot on olemas siis me ei skänni!
+            self.ports.clear() # clear the devices list
+            self.controls.select_port.clear() # clear dropdown menu
+            logging.debug("self.ports: {}".format(len(self.ports)))
+            ports = list(serial.tools.list_ports.comports())
+            logging.debug("find_ports: {}".format(len(ports)))
+            for port in ports:
+                #print(port[0]) # /dev/ttyACM0
+                #print(port[1]) # USB2.0-Serial
+                #print(port[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
+                self.ports.append(port[0]) # add devices to list
+            self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
+            if len(ports) > 0:
+                self.controls.select_port.setCurrentIndex(0)
+                self.selected_port = self.ports[0]
 
     def init_baudrates(self):
         self.controls.select_baud.addItems(self.baudrates)
