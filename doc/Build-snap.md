@@ -1,5 +1,10 @@
 # Build snap
 
+**Note:**
+Serial port access is restricted in snaps. It is easier to install it with '--devmode'.
+
+    $ sudo snap install --devmode tauno-serial-port --channel=beta
+
 ## Install
 
     $ pip install --upgrade setuptools

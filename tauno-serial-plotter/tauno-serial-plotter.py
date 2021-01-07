@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.7'
+VERSION = '1.8'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
