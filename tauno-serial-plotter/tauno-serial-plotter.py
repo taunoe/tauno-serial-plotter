@@ -27,11 +27,11 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.5'
+VERSION = '1.6'
 
 # Set debuge level
-#logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.CRITICAL)
 
 # Enable highdpi scaling:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -99,6 +99,17 @@ QPushButton::pressed{{
 	background-color: {colors['hall']};
 }}"""
 
+QPushButton_disabled_style = f"""
+QPushButton{{
+	color: {colors['black']};
+	background-color: {colors['dark']};
+	border: 1px solid {colors['black']};
+	padding: 5px;
+    margin-top: 5px;
+    font: {FONTSIZE}px;
+}}
+"""
+
 QLabel_style = f"""
 QLabel{{
     color: {colors['hall']};
@@ -120,6 +131,23 @@ QCheckBox::indicator:unchecked{{
 
 QCheckBox::indicator:checked{{
     background-color: {colors['green']};
+    padding:5px;
+}}
+"""
+
+QCheckBox_disabled_style = f"""
+QCheckBox{{
+    background-color: transparent;
+    color: {colors['black']};
+    padding:5px;
+}}
+QCheckBox::indicator:unchecked{{
+    background-color: {colors['dark']};
+    padding:5px;
+}}
+
+QCheckBox::indicator:checked{{
+    background-color: {colors['black']};
     padding:5px;
 }}
 """
@@ -275,9 +303,13 @@ class Worker(QRunnable):
 
     def run(self):
         """ Worker running task """
-        while self.working:
-            logging.debug("Worker.Run while loop")
-            self.fn()
+        try:
+            while self.working:
+                logging.debug("Worker.Run while loop")
+                self.fn()
+        except IOError:
+            logging.error("No premisson to Serial port!")
+        
 
 
 
@@ -413,7 +445,8 @@ class Controls(QWidget):
         self.clear_data = QtWidgets.QPushButton('Clear data', parent=self)
         self.menu_3.addWidget(self.clear_data)
         self.clear_data.setFixedWidth(self.control_width)
-        self.clear_data.setStyleSheet(QPushButton_style)
+        self.clear_data.setStyleSheet(QPushButton_disabled_style)
+        self.clear_data.setEnabled(False)
 
         # Button: About
         self.about = QtWidgets.QPushButton('About', parent=self)
@@ -447,6 +480,7 @@ class MainWindow(QWidget):
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
+        self.selected_port_plot = self.ports[0]
         self.baudrates = ['300','1200','2400','4800','9600','19200','38400','57600',
                         '74880','115200','230400','250000','500000']
         self.selected_baudrate = self.baudrates[4]
@@ -533,22 +567,25 @@ class MainWindow(QWidget):
         logging.debug("self.plot_exist %s", self.plot_exist)
         logging.debug("self.is_button_connected %s", self.is_button_connected)
 
-        if not self.plot_exist or not self.is_button_connected:
-        # Kui plot on olemas siis me ei skänni!
-            self.ports.clear() # clear the devices list
-            self.controls.select_port.clear() # clear dropdown menu
-            logging.debug("self.ports: %s", len(self.ports))
-            ports = list(serial.tools.list_ports.comports())
-            logging.debug("find_ports: %s", len(ports))
-            for port in ports:
-                #print(port[0]) # /dev/ttyACM0
-                #print(port[1]) # USB2.0-Serial
-                #print(port[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
-                self.ports.append(port[0]) # add devices to list
-            self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
-            if len(ports) > 0:
-                self.controls.select_port.setCurrentIndex(0)
-                self.selected_port = self.ports[0]
+        try:
+            if not self.plot_exist or not self.is_button_connected:
+            # Kui plot on olemas siis me ei skänni!
+                self.ports.clear() # clear the devices list
+                self.controls.select_port.clear() # clear dropdown menu
+                logging.debug("self.ports: %s", len(self.ports))
+                ports = list(serial.tools.list_ports.comports())
+                logging.debug("find_ports: %s", len(ports))
+                for port in ports:
+                    #print(port[0]) # /dev/ttyACM0
+                    #print(port[1]) # USB2.0-Serial
+                    #print(port[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
+                    self.ports.append(port[0]) # add devices to list
+                self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
+                if len(ports) > 0:
+                    self.controls.select_port.setCurrentIndex(0)
+                    self.selected_port = self.ports[0]
+        except IOError:
+            logging.error("find_ports IOError")
 
     def init_baudrates(self):
         self.controls.select_baud.addItems(self.baudrates)
@@ -558,8 +595,8 @@ class MainWindow(QWidget):
         self.selected_port = self.ports[i]
         logging.info("Main selected port changed:")
         logging.info(self.selected_port)
-        self.equal_x_and_y()
-        self.open_serial()
+        #self.equal_x_and_y()
+        #self.open_serial()
 
     def selected_baud_changed(self, i):
         self.selected_baudrate = self.baudrates[i]
@@ -634,10 +671,26 @@ class MainWindow(QWidget):
             self.is_button_connected = True
             logging.debug('--> Connect Button.')
             self.connect()
+            # Enable Clear Data button
+            self.controls.clear_data.setEnabled(True)
+            self.controls.clear_data.setStyleSheet(QPushButton_style)
+            # Disable Line/Dot box
+            self.controls.dot_box.setEnabled(False)
+            self.controls.line_box.setEnabled(False)
+            self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
+            self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
         else:
             self.is_button_connected = False
             logging.debug('--> Pause Button.')
             self.disconnect()
+            # Diable Clear Data button
+            self.controls.clear_data.setEnabled(False)
+            self.controls.clear_data.setStyleSheet(QPushButton_disabled_style)
+            # Disable Line/Dot box
+            self.controls.dot_box.setEnabled(False)
+            self.controls.line_box.setEnabled(False)
+            self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
+            self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
 
 
     def connect(self):
@@ -660,8 +713,6 @@ class MainWindow(QWidget):
                 self.open_serial()
                 self.plot_exist = True
                 self.timer.timeout.connect(self.read_serial_data)
-                self.controls.dot_box.setEnabled(False)
-                self.controls.line_box.setEnabled(False)
             else:
                 logging.debug("connect: None!")
         else:
@@ -735,11 +786,14 @@ class MainWindow(QWidget):
         self.plot.x_axis.append(self.plot.x_axis[-1] + 1)
 
     def open_serial(self):
-        logging.debug("0 Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
-        if self.ser.is_open:
-            self.ser.close()
-        self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
-        logging.debug("1 Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
+        try:
+            logging.debug("0 Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
+            if self.ser.is_open:
+                self.ser.close()
+            self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
+            logging.debug("1 Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
+        except IOError:
+            logging.error("open_serial IOError")
 
     def close_serial(self):
         """ Close serial connection. """
@@ -807,8 +861,15 @@ class MainWindow(QWidget):
             try:
                 incoming_data = self.ser.readline()[:-2].decode('ascii')
                 # [:-2] removes new-line chars
+                i = 0
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
+                    if i > 50:
+                        break
+                    logging.debug("i = %s", i)
+                    logging.debug("incoming_data %s", incoming_data)
+                    i = i+1
+                    
                 if incoming_data:
                     logging.debug("Incoming data {}".format(incoming_data))
                     numbers = self.get_numbers(incoming_data)
