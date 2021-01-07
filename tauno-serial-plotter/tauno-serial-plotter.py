@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 06.01.2021
+    Edited: 07.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.6'
+VERSION = '1.7'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -480,7 +480,6 @@ class MainWindow(QWidget):
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
-        self.selected_port_plot = self.ports[0]
         self.baudrates = ['300','1200','2400','4800','9600','19200','38400','57600',
                         '74880','115200','230400','250000','500000']
         self.selected_baudrate = self.baudrates[4]

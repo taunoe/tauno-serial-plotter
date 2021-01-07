@@ -1,6 +1,6 @@
 name: tauno-serial-plotter # you probably want to 'snapcraft register <name>'
 base: core18 
-version: '1.6'
+version: '1.7'
 summary: Simple serial plotter # 79 char long summary
 description: |
   Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
@@ -76,3 +76,4 @@ apps:
     - opengl
     - network
     - network-bind
+    - serial-port
