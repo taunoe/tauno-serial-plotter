@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 07.01.2021
+    Edited: 08.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.8'
+VERSION = '1.9'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -46,11 +46,11 @@ icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg'
 
 # GUI colours
 colors =  {
-            'oranz':"#FF6F00",
-            'green':"#9CCC65",
-            'dark' :"#263238",
-            'hall' :"#B0BEC5",
-	        'black':"#212121"
+    'oranz':"#FF6F00",
+    'green':"#9CCC65",
+    'dark' :"#263238",
+    'hall' :"#B0BEC5",
+	'black':"#212121"
 }
 
 # PLOT colors
@@ -280,6 +280,10 @@ QDoubleSpinBox::down-arrow {{
 # https://realpython.com/python-pyqt-qthread/
 # https://www.learnpyqt.com/tutorials/multithreading-pyqt-applications-qthreadpool/
 class Forever_Worker(QRunnable):
+    """
+    It runs forever on background
+    I use it to scan the avaible serial ports.
+    """
     def __init__(self, fn):
         super().__init__()
         self.fn = fn
@@ -308,8 +312,7 @@ class Worker(QRunnable):
                 logging.debug("Worker.Run while loop")
                 self.fn()
         except IOError:
-            logging.error("No premisson to Serial port!")
-        
+            logging.error("Worker IOError!")
 
 
 
@@ -343,15 +346,18 @@ class Plot(pg.GraphicsWindow):
         self.data_lines = []
 
         for i in range(self.nr_plot_lines):
+            if i >= len(plot_colors):
+                # If we have more data than colors
+                color_i = i - len(plot_colors)
+            else:
+                color_i = i
+
             if self.scatter_plot:  # Dotts
                 pen = None
             else:                  # Lines
-                if i >= len(plot_colors):
-                    # If we have more data than colors
-                    color_i = i - len(plot_colors)
-                else:
-                    color_i = i
-            pen = pg.mkPen(color=(plot_colors[color_i]))
+                
+                pen = pg.mkPen(color=(plot_colors[color_i]))
+
             brush = pg.mkBrush(color=(plot_colors[color_i]))
             line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], pen=pen,
                                 symbol='o', symbolBrush=brush, symbolSize=5)
@@ -366,7 +372,7 @@ class Controls(QWidget):
     def __init__(self, parent=None):
         super(Controls, self).__init__(parent=parent)
 
-        # Plot time scale == data size
+        # Plot time scale == data visible area size
         self.plot_timescale = 100 # default
         self.plot_timescale_min = 50
         self.plot_timescale_max = 500
@@ -376,47 +382,62 @@ class Controls(QWidget):
         # Menu width:
         self.control_width = 150
 
-        # DropDown: Select Port
-        self.menu_1 = QVBoxLayout()
-        # Grpup 1 starts
-        self.menu_1.setAlignment(Qt.AlignTop)
-        # Label
-        self.device_label = QLabel(self)
-        self.menu_1.addWidget(self.device_label)
-        self.device_label.setText("Select port:")
-        self.device_label.setStyleSheet(QLabel_style)
-        # Select
-        self.select_port = QtWidgets.QComboBox(parent=self)
-        self.menu_1.addWidget(self.select_port)
-        self.select_port.setStyleSheet(QComboBox_style)
-        self.select_port.setFixedWidth(self.control_width)
-        # Label
+        # Top Menu
+        self.menu_top = QVBoxLayout()
+        self.menu_top.setAlignment(Qt.AlignTop)
+
+        # Select line or dot
+        #self.line_box = QtWidgets.QCheckBox('Line plot', parent=self)
+        #self.menu_top.addWidget(self.line_box)
+        #self.line_box.setChecked(1)
+        #self.line_box.setStyleSheet(QCheckBox_style)
+
+        #self.dot_box = QtWidgets.QCheckBox('Dot plot', parent=self)
+        #self.menu_top.addWidget(self.dot_box)
+        #self.dot_box.setChecked(0)
+        #self.dot_box.setStyleSheet(QCheckBox_style)
+
+        # Label Baud
         self.baud_label = QLabel(self)
-        self.menu_1.addWidget(self.baud_label)
+        self.menu_top.addWidget(self.baud_label)
         self.baud_label.setText("Baud rate:")
         self.baud_label.setStyleSheet(QLabel_style)
-        # Select
+        # Select Baud
         self.select_baud = QtWidgets.QComboBox(parent=self)
-        self.menu_1.addWidget(self.select_baud)
+        self.menu_top.addWidget(self.select_baud)
         self.select_baud.setStyleSheet(QComboBox_style)
         self.select_baud.setFixedWidth(self.control_width)
 
-        # Select line or dot
-        self.line_box = QtWidgets.QCheckBox('Line plot', parent=self)
-        self.menu_1.addWidget(self.line_box)
-        self.line_box.setChecked(1)
-        self.line_box.setStyleSheet(QCheckBox_style)
+        # Label Port
+        self.device_label = QLabel(self)
+        self.menu_top.addWidget(self.device_label)
+        self.device_label.setText("Port:")
+        self.device_label.setStyleSheet(QLabel_style)
+        # Select Port
+        self.select_port = QtWidgets.QComboBox(parent=self)
+        self.menu_top.addWidget(self.select_port)
+        self.select_port.setStyleSheet(QComboBox_style)
+        self.select_port.setFixedWidth(self.control_width)
+        
+        # Button Connect
+        self.connect = QtWidgets.QPushButton('Connect', parent=self)
+        self.menu_top.addWidget(self.connect)
+        self.connect.setFixedWidth(self.control_width)
+        self.connect.setStyleSheet(QPushButton_style)
 
-        self.dot_box = QtWidgets.QCheckBox('Dot plot', parent=self)
-        self.menu_1.addWidget(self.dot_box)
-        self.dot_box.setChecked(0)
-        self.dot_box.setStyleSheet(QCheckBox_style)
+        self.vertical_layout.addLayout(self.menu_top)
+        # Top menu ends
+
+
+        # Bottom menu
+        self.menu_bottom = QVBoxLayout()
+        self.menu_bottom.setAlignment(Qt.AlignBottom)
 
         # Select Time scale size
         ## Time scale txt
         self.time_scale_txt = QLabel(self)
-        self.menu_1.addWidget(self.time_scale_txt)
-        self.time_scale_txt.setText("Timescale:")
+        self.menu_bottom.addWidget(self.time_scale_txt)
+        self.time_scale_txt.setText("Visible area:")
         self.time_scale_txt.setStyleSheet(QLabel_style)
         ## SpinBox
         self.time_scale_spin = QtWidgets.QDoubleSpinBox()
@@ -425,36 +446,23 @@ class Controls(QWidget):
         self.time_scale_spin.setMaximum(self.plot_timescale_max)
         self.time_scale_spin.setMinimum(self.plot_timescale_min)
         self.time_scale_spin.setValue(self.plot_timescale)
-        self.menu_1.addWidget(self.time_scale_spin)
+        self.menu_bottom.addWidget(self.time_scale_spin)
         self.time_scale_spin.setStyleSheet(QDoubleSpinBox_style)
-
-        # Button Connect
-        self.connect = QtWidgets.QPushButton('Connect', parent=self)
-        self.menu_1.addWidget(self.connect)
-        self.connect.setFixedWidth(self.control_width)
-        self.connect.setStyleSheet(QPushButton_style)
-
-        self.vertical_layout.addLayout(self.menu_1)
-        # Grpup 1 ends
-
-        # Button goup 2
-        self.menu_3 = QVBoxLayout()
-        self.menu_3.setAlignment(Qt.AlignBottom)
 
         # Button: Clear data
         self.clear_data = QtWidgets.QPushButton('Clear data', parent=self)
-        self.menu_3.addWidget(self.clear_data)
+        self.menu_bottom.addWidget(self.clear_data)
         self.clear_data.setFixedWidth(self.control_width)
         self.clear_data.setStyleSheet(QPushButton_disabled_style)
         self.clear_data.setEnabled(False)
 
         # Button: About
         self.about = QtWidgets.QPushButton('About', parent=self)
-        self.menu_3.addWidget(self.about)
+        self.menu_bottom.addWidget(self.about)
         self.about.setFixedWidth(self.control_width)
         self.about.setStyleSheet(QPushButton_style)
 
-        self.vertical_layout.addLayout(self.menu_3)
+        self.vertical_layout.addLayout(self.menu_bottom)
 
     def update_timescale(self, new_value):
         """ Assign new value. """
@@ -516,8 +524,8 @@ class MainWindow(QWidget):
         self.controls.clear_data.pressed.connect(self.clear_data)
         self.controls.about.pressed.connect(self.about)
 
-        self.controls.dot_box.pressed.connect(self.selected_dot)
-        self.controls.line_box.pressed.connect(self.selected_line)
+        #self.controls.dot_box.pressed.connect(self.selected_dot)
+        #self.controls.line_box.pressed.connect(self.selected_line)
 
 #    def runTasks(self):
 #       threadCount = QThreadPool.globalInstance().maxThreadCount()
@@ -747,7 +755,6 @@ class MainWindow(QWidget):
         self.aboutbox = QMessageBox()
         self.aboutbox.setWindowTitle("About")
         self.aboutbox.setText("Tauno Serial Plotter<br/><br/>\
-            Linux users have to install 99-platformio-udev.rules to accesse serial devices.\
             More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\

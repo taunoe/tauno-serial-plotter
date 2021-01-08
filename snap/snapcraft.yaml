@@ -1,6 +1,6 @@
 name: tauno-serial-plotter # you probably want to 'snapcraft register <name>'
 base: core18 
-version: '1.8'
+version: '1.9'
 summary: Simple serial plotter # 79 char long summary
 description: |
   Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
@@ -52,13 +52,13 @@ parts:
     source: .
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      cp -av tauno-serial-plotter/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
+      cp -av src/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
-      cp -f tauno-serial-plotter/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
+      cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
   # copy icons to snap
   desktop-gui:
     plugin: dump
-    source: ./tauno-serial-plotter/icons/
+    source: ./src/icons/
     organize:
       '*.svg' : bin/icons/
     stage:
@@ -67,6 +67,9 @@ parts:
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
+    # https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
+    #command-chain:
+    #  - check-permissions
     plugs: 
     - desktop
     - desktop-legacy
@@ -77,5 +80,5 @@ apps:
     - network
     - network-bind
     - serial-port
-    - removable-media
+    #- removable-media # ?
     - raw-usb

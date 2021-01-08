@@ -32,7 +32,10 @@ Python 3.7, PyQt5, pyserial, pyqtgraph
 
     $ pip3 install pyserial pyqtgraph
 
+## dialout group
+In order to access USB devices on Linux, you need to add your user to the dialout group. Open a terminal window, run the following command and reboot your computer.
 
+    $ sudo usermod -a -G dialout $USER
 
 ## udev.rules
 
@@ -47,7 +50,7 @@ Restart “udev” management tool:
 More info: https://docs.platformio.org/en/latest/faq.html#faq-udev-rules
 
 ## Run
-    $ cd tauno-serial-plotter
+    $ cd src/
     
     $ chmod +x tauno-serial-plotter.py
 

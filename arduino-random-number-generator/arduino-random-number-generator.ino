@@ -1,4 +1,6 @@
 
+
+
 void setup() {
   Serial.begin(115200);
 
@@ -38,5 +40,5 @@ void loop() {
   long r8 = random(70, 80);
   Serial.println(r8);
 
-  delay(200);
+  delay(100);
 }

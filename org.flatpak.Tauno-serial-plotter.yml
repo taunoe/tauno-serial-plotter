@@ -22,7 +22,7 @@ modules:
       - install -m644 Tauno-Serial-Plotter.desktop /app/share/applications/Tauno-Serial-Plotter.desktop
     sources:
       - type: file
-        path: tauno-serial-plotter/tauno-serial-plotter.py
+        path: src/tauno-serial-plotter.py
       - type: file
         path: Tauno-Serial-Plotter.desktop
       
@@ -35,10 +35,10 @@ modules:
       - install -Dm644 plus.svg /app/bin/icons/plus.svg
     sources:
       - type: file
-        path: tauno-serial-plotter/icons/tauno-plotter.svg
+        path: src/icons/tauno-plotter.svg
       - type: file
-        path: tauno-serial-plotter/icons/arrow_down.svg
+        path: src/icons/arrow_down.svg
       - type: file
-        path: tauno-serial-plotter/icons/minus.svg
+        path: src/icons/minus.svg
       - type: file
-        path: tauno-serial-plotter/icons/plus.svg
+        path: src/icons/plus.svg
