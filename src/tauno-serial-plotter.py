@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 08.01.2021
+    Edited: 09.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -18,7 +18,7 @@ import re
 import os
 import logging
 import time
-import serial # pip3 install pyserial
+import serial
 import serial.tools.list_ports
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.9'
+VERSION = '1.10'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -186,24 +186,6 @@ QComboBox::down-arrow {{
 }}
 """
 
-
-QCheckBox_style = f"""
-QCheckBox{{
-    background-color: transparent;
-    color: {colors['hall']};
-    padding:5px;
-}}
-QCheckBox::indicator:unchecked{{
-    background-color: {colors['hall']};
-    padding:5px;
-}}
-
-QCheckBox::indicator:checked{{
-    background-color: {colors['green']};
-    padding:5px;
-}}
-"""
-
 QComboBox_disabled_style = f"""
 QComboBox:editable, QComboBox{{
     background-color: {colors['dark']};
@@ -279,9 +261,9 @@ QDoubleSpinBox::down-arrow {{
 # 1. Subclass QRunnable
 # https://realpython.com/python-pyqt-qthread/
 # https://www.learnpyqt.com/tutorials/multithreading-pyqt-applications-qthreadpool/
-class Forever_Worker(QRunnable):
+class ForeverWorker(QRunnable):
     """
-    It runs forever on background
+    It put function to run forever on background.
     I use it to scan the avaible serial ports.
     """
     def __init__(self, fn):
@@ -296,11 +278,12 @@ class Forever_Worker(QRunnable):
     def run(self):
         """ Forever running task """
         while self.working:
-            logging.debug("Forever_Worker.Run while loop")
+            logging.debug("ForeverWorker.Run while loop")
             self.fn()
             time.sleep(10) # seconds
 
 class Worker(QRunnable):
+    """ Thread """
     def __init__(self, fn):
         super().__init__()
         self.fn = fn
@@ -317,9 +300,7 @@ class Worker(QRunnable):
 
 
 class Plot(pg.GraphicsWindow):
-    """
-    Define Plot
-    """
+    """ Plot definition """
     def __init__(self, nr_plot_lines='1', scatter_plot=False):
         super(Plot,self).__init__(parent=None)
 
@@ -355,12 +336,12 @@ class Plot(pg.GraphicsWindow):
             if self.scatter_plot:  # Dotts
                 pen = None
             else:                  # Lines
-                
+
                 pen = pg.mkPen(color=(plot_colors[color_i]))
 
             brush = pg.mkBrush(color=(plot_colors[color_i]))
             line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], pen=pen,
-                                symbol='o', symbolBrush=brush, symbolSize=5)
+                                symbol='o', symbolBrush=brush, symbolSize=3)
             self.data_lines.append(line)
 
 # END of class Plot ------------------------------------------------------
@@ -418,7 +399,7 @@ class Controls(QWidget):
         self.menu_top.addWidget(self.select_port)
         self.select_port.setStyleSheet(QComboBox_style)
         self.select_port.setFixedWidth(self.control_width)
-        
+
         # Button Connect
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
         self.menu_top.addWidget(self.connect)
@@ -437,7 +418,7 @@ class Controls(QWidget):
         ## Time scale txt
         self.time_scale_txt = QLabel(self)
         self.menu_bottom.addWidget(self.time_scale_txt)
-        self.time_scale_txt.setText("Visible area:")
+        self.time_scale_txt.setText("Visible time area:")
         self.time_scale_txt.setStyleSheet(QLabel_style)
         ## SpinBox
         self.time_scale_spin = QtWidgets.QDoubleSpinBox()
@@ -498,23 +479,21 @@ class MainWindow(QWidget):
         self.scatter_plot = False
         self.is_button_connected = False
 
-        # 
         self.init_ui()
         self.center_mainwindow()
+        self.horizontal_layout = QHBoxLayout(self)
 
         self.init_timer()
         self.ser = serial.Serial()
-
-        self.horizontal_layout = QHBoxLayout(self)
 
         # Controlls
         self.controls = Controls(parent=self)
         self.horizontal_layout.addWidget(self.controls)
 
-        self.threadpool = QThreadPool()
-        self.oh_no()
-        #self.find_ports()       # TODO:Thread! Ports on dropdown menu
         self.init_baudrates()   # Baud Rates on dropdown menu
+
+        self.threadpool = QThreadPool()
+        self.thread_finf_ports()
 
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
@@ -523,6 +502,9 @@ class MainWindow(QWidget):
         self.controls.connect.pressed.connect(self.connect_stop)
         self.controls.clear_data.pressed.connect(self.clear_data)
         self.controls.about.pressed.connect(self.about)
+
+        # Init About window
+        self.aboutbox = QMessageBox()
 
         #self.controls.dot_box.pressed.connect(self.selected_dot)
         #self.controls.line_box.pressed.connect(self.selected_line)
@@ -537,17 +519,14 @@ class MainWindow(QWidget):
 #            # 3. Call start()
 #            pool.start(runnable)
 
-    def oh_no(self):
-        """
-        Runs on background forewer
-        """
+    def thread_finf_ports(self):
+        """ Runs on background forewer. """
         # Pass the function to execute
-        worker = Forever_Worker(self.find_ports)
+        worker = ForeverWorker(self.find_ports)
         # Execute
         self.threadpool.start(worker)
-    
 
-    # Init functions
+    # Init functions:
 
     def init_timer(self):
         self.timer = QtCore.QTimer()
@@ -585,7 +564,9 @@ class MainWindow(QWidget):
                 for port in ports:
                     #print(port[0]) # /dev/ttyACM0
                     #print(port[1]) # USB2.0-Serial
-                    #print(port[2]) # USB VID:PID=2341:0043 SER=9563430343235150C281 LOCATION=1-1.4.4:1.0
+                    #print(port[2]) # USB VID:PID=2341:0043
+                                    # SER=9563430343235150C281
+                                    # LOCATION=1-1.4.4:1.0
                     self.ports.append(port[0]) # add devices to list
                 self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
                 if len(ports) > 0:
@@ -619,12 +600,12 @@ class MainWindow(QWidget):
                 logging.debug("equal_x_and_y try")
                 for i in range(self.number_of_lines):
                     if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
-                        logging.debug("\t x on suurem kui y[{}]".format(i))
+                        logging.debug("\t x on suurem kui y[%s]", i)
                         while len(self.plot.x_axis) > len(self.plot.y_axis[i]):
                             # Remove the first element on list
                             self.plot.x_axis = self.plot.x_axis[1:]
                     if len(self.plot.y_axis[i]) > len(self.plot.x_axis):
-                        logging.debug("\t y[{i}] on suurem kui x_axis".format(i))
+                        logging.debug("\t y[%s] on suurem kui x_axis", i)
                         while len(self.plot.y_axis[i]) > len(self.plot.x_axis):
                             # Remove the first element on list
                             self.plot.y_axis[i] = self.plot.y_axis[i][1:]
@@ -682,10 +663,10 @@ class MainWindow(QWidget):
             self.controls.clear_data.setEnabled(True)
             self.controls.clear_data.setStyleSheet(QPushButton_style)
             # Disable Line/Dot box
-            self.controls.dot_box.setEnabled(False)
-            self.controls.line_box.setEnabled(False)
-            self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
-            self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
+            #self.controls.dot_box.setEnabled(False)
+            #self.controls.line_box.setEnabled(False)
+            #self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
+            #self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
         else:
             self.is_button_connected = False
             logging.debug('--> Pause Button.')
@@ -694,10 +675,10 @@ class MainWindow(QWidget):
             self.controls.clear_data.setEnabled(False)
             self.controls.clear_data.setStyleSheet(QPushButton_disabled_style)
             # Disable Line/Dot box
-            self.controls.dot_box.setEnabled(False)
-            self.controls.line_box.setEnabled(False)
-            self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
-            self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
+            #self.controls.dot_box.setEnabled(False)
+            #self.controls.line_box.setEnabled(False)
+            #self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
+            #self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
 
 
     def connect(self):
@@ -744,7 +725,7 @@ class MainWindow(QWidget):
         logging.debug('--> Clear data Button.')
         # delete existing data
         size = len(self.plot.x_axis)
-        logging.debug("x_axis: {}".format(size))
+        logging.debug("x_axis: %s", size)
         del self.plot.x_axis[0:(size-1)]
         for i in range(self.number_of_lines):
             del self.plot.y_axis[i][0:(size-1)]
@@ -752,13 +733,14 @@ class MainWindow(QWidget):
     def about(self):
         """ Button About """
         logging.debug('--> About Button.')
-        self.aboutbox = QMessageBox()
+        #self.aboutbox = QMessageBox()
         self.aboutbox.setWindowTitle("About")
-        self.aboutbox.setText("Tauno Serial Plotter<br/><br/>\
+        self.aboutbox.setText("<b>Tauno Serial Plotter</b><br/><br/>\
             More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
-            Tauno Erik 2021".format(VERSION))
+            Tauno Erik<br/><br/>\
+            2021".format(VERSION))
         self.aboutbox.exec_()
 
     def get_numbers(self, string):
@@ -779,7 +761,7 @@ class MainWindow(QWidget):
             self.plot.y_axis[i] = self.plot.y_axis[i][1:]
         # Before adding newone
         self.plot.y_axis[i].append(float(number))
- 
+
     def add_time(self, plot_data_size):
         """
         x-axis
@@ -793,11 +775,11 @@ class MainWindow(QWidget):
 
     def open_serial(self):
         try:
-            logging.debug("0 Open serial: {} {}".format(self.selected_port, self.selected_baudrate))
+            logging.debug("0 Open serial: %s %s", self.selected_port, self.selected_baudrate)
             if self.ser.is_open:
                 self.ser.close()
             self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
-            logging.debug("1 Open serial: {} {}".format(self.ser.name, self.ser.baudrate))
+            logging.debug("1 Open serial: %s %s", self.ser.name, self.ser.baudrate)
         except IOError:
             logging.error("open_serial IOError")
 
@@ -823,9 +805,9 @@ class MainWindow(QWidget):
                 incoming_data = self.ser.readline()[:-2].decode('ascii')
                 # [:-2] gets rid of the new-line chars
                 if incoming_data:
-                    logging.info("Incoming data: {}".format(incoming_data))
+                    logging.info("Incoming data: %s", incoming_data)
                     numbers = self.get_numbers(incoming_data)
-                    logging.debug("numbers: {}".format(len(numbers)))
+                    logging.debug("numbers: %s", len(numbers))
 
                     # mitu data punkti tuleb sisse?
                     while len(numbers) > len(self.plot.y_axis):
@@ -837,14 +819,13 @@ class MainWindow(QWidget):
                     self.add_time(self.plot_data_size) # x axis
 
                     for i in range(self.number_of_lines):
-                        logging.debug("for loop {}".format(i))
-                        logging.debug("plot.x_axis {}".format(self.plot.x_axis))
-                        logging.debug("plot.y_axis[i] {}".format(self.plot.y_axis[i]))
-                        # TODO: !!! siin on probleem !!!
+                        logging.debug("for loop %s", i)
+                        logging.debug("plot.x_axis %s", self.plot.x_axis)
+                        logging.debug("plot.y_axis[i] %s", self.plot.y_axis[i])
                         # plot.x_axis [8, 9]
                         # plot.y_axis[i] [333.0]
                         if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
-                            # At beginning append 0.0 
+                            # At beginning append 0.0
                             self.plot.y_axis[i].insert(0, 0.0)
                         self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
 
@@ -855,7 +836,7 @@ class MainWindow(QWidget):
                 self.error_status()
                 self.equal_x_and_y()
 
-    
+
     def how_many_lines(self):
         """
             Return number of different incoming data lines.
@@ -875,11 +856,11 @@ class MainWindow(QWidget):
                     logging.debug("i = %s", i)
                     logging.debug("incoming_data %s", incoming_data)
                     i = i+1
-                    
+
                 if incoming_data:
-                    logging.debug("Incoming data {}".format(incoming_data))
+                    logging.debug("Incoming data %s", incoming_data)
                     numbers = self.get_numbers(incoming_data)
-                    logging.debug("Found: {} lines".format(len(numbers)))
+                    logging.debug("Found: %s lines", len(numbers))
                     return len(numbers)
             except:
                 logging.debug(sys.exc_info())
@@ -889,20 +870,21 @@ class MainWindow(QWidget):
     # Keyboard functions:
     def keyPressEvent(self, event):
         """
-            Detect keypress and run function
+            Detect keypress and runs function
         """
         if event.key() == 32: # Space
             logging.debug("Space")
         elif event.key() == 16777219: # Backspace
             logging.debug("Backspace")
         elif event.key() == 16777274: # F11
-            self.fullscreen()
+            self.key_f11()
         elif event.key() == 16777216: # Esc
-            self.esc()
+            self.key_esc()
         else:
-            logging.debug(f'Unknown keypress: {event.key()}, "{event.text()}"')
+            logging.debug("Unknown keypress: %s, %s", event.key(),event.text())
 
-    def fullscreen(self):
+    def key_f11(self):
+        """ F11 of/off fullscreen"""
         if not self.is_fullscreen:
             self.showFullScreen()
             self.is_fullscreen = True
@@ -910,7 +892,8 @@ class MainWindow(QWidget):
             self.showNormal()
             self.is_fullscreen = False
 
-    def esc(self):
+    def key_esc(self):
+        """ Window is on fullscreen and user presses ESC """
         if self.is_fullscreen:
             self.showNormal()
             self.is_fullscreen = False
