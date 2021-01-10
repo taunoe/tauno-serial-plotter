@@ -3,14 +3,14 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 09.01.2021
+    Edited: 10.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
     - https://www.materialui.co/colors
     - https://stackoverflow.com/questions/40577104/how-to-plot-two-real-time-data-in-one-single-plot-in-pyqtgraph
     - https://www.youtube.com/watch?v=IEEhzQoKtQU&t=800s
-
+    - https://github.com/pyqt/examples
 """
 
 import sys
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.10'
+VERSION = '1.11'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -553,14 +553,19 @@ class MainWindow(QWidget):
         logging.debug("self.plot_exist %s", self.plot_exist)
         logging.debug("self.is_button_connected %s", self.is_button_connected)
 
+        before_selected_port = self.selected_port
+        logging.debug("before_selected_port %s", before_selected_port)
+
         try:
             if not self.plot_exist or not self.is_button_connected:
             # Kui plot on olemas siis me ei skänni!
                 self.ports.clear() # clear the devices list
                 self.controls.select_port.clear() # clear dropdown menu
+
                 logging.debug("self.ports: %s", len(self.ports))
                 ports = list(serial.tools.list_ports.comports())
                 logging.debug("find_ports: %s", len(ports))
+
                 for port in ports:
                     #print(port[0]) # /dev/ttyACM0
                     #print(port[1]) # USB2.0-Serial
@@ -570,8 +575,13 @@ class MainWindow(QWidget):
                     self.ports.append(port[0]) # add devices to list
                 self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
                 if len(ports) > 0:
-                    self.controls.select_port.setCurrentIndex(0)
-                    self.selected_port = self.ports[0]
+                    # Et valitud port ei muutuks
+                    if before_selected_port in self.ports:
+                        index = self.ports.index(before_selected_port)
+                    else:
+                        index = 0
+                    self.controls.select_port.setCurrentIndex(index)
+                    self.selected_port = self.ports[index]
         except IOError:
             logging.error("find_ports IOError")
 
@@ -735,7 +745,7 @@ class MainWindow(QWidget):
         logging.debug('--> About Button.')
         #self.aboutbox = QMessageBox()
         self.aboutbox.setWindowTitle("About")
-        self.aboutbox.setText("<b>Tauno Serial Plotter</b><br/><br/>\
+        self.aboutbox.setText("<center></center><b>Tauno Serial Plotter</b><br/><br/>\
             More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
@@ -847,11 +857,11 @@ class MainWindow(QWidget):
         if self.ser.is_open:
             try:
                 incoming_data = self.ser.readline()[:-2].decode('ascii')
-                # [:-2] removes new-line chars
+                # [:-2] removes the new-line chars.
                 i = 0
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
-                    if i > 50:
+                    if i > 60:
                         break
                     logging.debug("i = %s", i)
                     logging.debug("incoming_data %s", incoming_data)
