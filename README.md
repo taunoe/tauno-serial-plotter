@@ -19,12 +19,17 @@ But not with **-** unless it is a negative number:
 
 Script will extracts all numbers and generate graph.
 
-Tested on Ubuntu 19.10.
-
+Tested on Ubuntu 20.10.
 
 ![Screenshot on ubuntu](./img/screenshot.png)
 
+And on Windows 10
+
+![Screenshot on ubuntu](./img/screenshot_win10.png)
+
 ## Requirements
+
+Requirements if you use python script to run it. On Windows 10 it is easier to download zip file and run from it. On Linux use [Snapcraft](https://snapcraft.io/tauno-serial-plotter).
 
 Python 3.7, PyQt5, pyserial, pyqtgraph
 

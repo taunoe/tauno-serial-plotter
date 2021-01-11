@@ -356,7 +356,7 @@ class Controls(QWidget):
         # Plot time scale == data visible area size
         self.plot_timescale = 100 # default
         self.plot_timescale_min = 50
-        self.plot_timescale_max = 500
+        self.plot_timescale_max = 1000
 
         self.vertical_layout = QVBoxLayout(self)
 
