@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 10.01.2021
+    Edited: 13.01.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.11'
+VERSION = '1.12'
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -75,6 +75,7 @@ plot_colors = [
 # STYLING
 FONTSIZE = 16
 
+# Graph style
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', colors['dark'])
 pg.setConfigOption('foreground', colors['hall'])
@@ -301,11 +302,10 @@ class Worker(QRunnable):
 
 class Plot(pg.GraphicsWindow):
     """ Plot definition """
-    def __init__(self, nr_plot_lines='1', scatter_plot=False):
+    def __init__(self, nr_plot_lines='1'):
         super(Plot,self).__init__(parent=None)
 
         self.nr_plot_lines = nr_plot_lines
-        self.scatter_plot = scatter_plot
 
         if self.nr_plot_lines is None:
             logging.debug("nr_plot_lines is None!")
@@ -333,11 +333,7 @@ class Plot(pg.GraphicsWindow):
             else:
                 color_i = i
 
-            if self.scatter_plot:  # Dotts
-                pen = None
-            else:                  # Lines
-
-                pen = pg.mkPen(color=(plot_colors[color_i]))
+            pen = pg.mkPen(color=(plot_colors[color_i]))
 
             brush = pg.mkBrush(color=(plot_colors[color_i]))
             line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], pen=pen,
@@ -366,17 +362,6 @@ class Controls(QWidget):
         # Top Menu
         self.menu_top = QVBoxLayout()
         self.menu_top.setAlignment(Qt.AlignTop)
-
-        # Select line or dot
-        #self.line_box = QtWidgets.QCheckBox('Line plot', parent=self)
-        #self.menu_top.addWidget(self.line_box)
-        #self.line_box.setChecked(1)
-        #self.line_box.setStyleSheet(QCheckBox_style)
-
-        #self.dot_box = QtWidgets.QCheckBox('Dot plot', parent=self)
-        #self.menu_top.addWidget(self.dot_box)
-        #self.dot_box.setChecked(0)
-        #self.dot_box.setStyleSheet(QCheckBox_style)
 
         # Label Baud
         self.baud_label = QLabel(self)
@@ -473,10 +458,10 @@ class MainWindow(QWidget):
                         '74880','115200','230400','250000','500000']
         self.selected_baudrate = self.baudrates[4]
 
+        self.max_tryes = 75 # how_many_lines()
         self.number_of_lines = 0
         self.error_counter = 0
-        self.plot_data_size = 100
-        self.scatter_plot = False
+        self.plot_data_size = 100 #?
         self.is_button_connected = False
 
         self.init_ui()
@@ -506,8 +491,6 @@ class MainWindow(QWidget):
         # Init About window
         self.aboutbox = QMessageBox()
 
-        #self.controls.dot_box.pressed.connect(self.selected_dot)
-        #self.controls.line_box.pressed.connect(self.selected_line)
 
 #    def runTasks(self):
 #       threadCount = QThreadPool.globalInstance().maxThreadCount()
@@ -525,8 +508,6 @@ class MainWindow(QWidget):
         worker = ForeverWorker(self.find_ports)
         # Execute
         self.threadpool.start(worker)
-
-    # Init functions:
 
     def init_timer(self):
         self.timer = QtCore.QTimer()
@@ -573,7 +554,10 @@ class MainWindow(QWidget):
                                     # SER=9563430343235150C281
                                     # LOCATION=1-1.4.4:1.0
                     self.ports.append(port[0]) # add devices to list
-                self.controls.select_port.addItems(self.ports) # add devices to dropdown menu
+
+                # add devices to dropdown menu
+                self.controls.select_port.addItems(self.ports)
+
                 if len(ports) > 0:
                     # Et valitud port ei muutuks
                     if before_selected_port in self.ports:
@@ -611,11 +595,13 @@ class MainWindow(QWidget):
                 for i in range(self.number_of_lines):
                     if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
                         logging.debug("\t x on suurem kui y[%s]", i)
+
                         while len(self.plot.x_axis) > len(self.plot.y_axis[i]):
                             # Remove the first element on list
                             self.plot.x_axis = self.plot.x_axis[1:]
                     if len(self.plot.y_axis[i]) > len(self.plot.x_axis):
                         logging.debug("\t y[%s] on suurem kui x_axis", i)
+
                         while len(self.plot.y_axis[i]) > len(self.plot.x_axis):
                             # Remove the first element on list
                             self.plot.y_axis[i] = self.plot.y_axis[i][1:]
@@ -624,19 +610,6 @@ class MainWindow(QWidget):
                 self.error_counter += 1
                 self.error_status()
 
-
-    def selected_dot(self):
-        logging.debug("Selected dot plot.")
-        if not self.plot_exist:
-            self.controls.line_box.setChecked(0)
-            self.scatter_plot = True
-
-
-    def selected_line(self):
-        logging.debug("Selected line plot.")
-        if not self.plot_exist:
-            self.controls.dot_box.setChecked(0)
-            self.scatter_plot = False
 
     def time_scale_changed(self):
         logging.debug("Timescale changed!")
@@ -672,11 +645,6 @@ class MainWindow(QWidget):
             # Enable Clear Data button
             self.controls.clear_data.setEnabled(True)
             self.controls.clear_data.setStyleSheet(QPushButton_style)
-            # Disable Line/Dot box
-            #self.controls.dot_box.setEnabled(False)
-            #self.controls.line_box.setEnabled(False)
-            #self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
-            #self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
         else:
             self.is_button_connected = False
             logging.debug('--> Pause Button.')
@@ -684,11 +652,6 @@ class MainWindow(QWidget):
             # Diable Clear Data button
             self.controls.clear_data.setEnabled(False)
             self.controls.clear_data.setStyleSheet(QPushButton_disabled_style)
-            # Disable Line/Dot box
-            #self.controls.dot_box.setEnabled(False)
-            #self.controls.line_box.setEnabled(False)
-            #self.controls.dot_box.setStyleSheet(QCheckBox_disabled_style)
-            #self.controls.line_box.setStyleSheet(QCheckBox_disabled_style)
 
 
     def connect(self):
@@ -705,8 +668,9 @@ class MainWindow(QWidget):
         if not self.plot_exist:
             logging.debug("connect: create plot")
             self.number_of_lines = self.how_many_lines()
+
             if self.number_of_lines is not None:
-                self.plot = Plot(self.number_of_lines, self.scatter_plot)
+                self.plot = Plot(self.number_of_lines)
                 self.horizontal_layout.addWidget(self.plot)
                 self.open_serial()
                 self.plot_exist = True
@@ -861,7 +825,7 @@ class MainWindow(QWidget):
                 i = 0
                 while not incoming_data:
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
-                    if i > 60:
+                    if i > self.max_tryes:
                         break
                     logging.debug("i = %s", i)
                     logging.debug("incoming_data %s", incoming_data)
@@ -877,7 +841,7 @@ class MainWindow(QWidget):
                 logging.debug("Error how_many_lines")
                 self.ser.close()
 
-    # Keyboard functions:
+
     def keyPressEvent(self, event):
         """
             Detect keypress and runs function
