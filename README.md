@@ -72,3 +72,7 @@ or
  - [Build with snapcraft](doc/Build-snap.md) (Linux)
  - [Build with flatpak](doc/Build-flatpak.md) (Linux)
  - [Build with PyInstaller](doc/pyinstaller.md) (Windows, Linux, Mac)
+ 
+ ___
+
+Copyright 2021 Tauno Erik https://taunoerik.art
