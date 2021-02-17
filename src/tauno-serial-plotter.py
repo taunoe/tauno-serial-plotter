@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 13.01.2021
+    Edited: 17.02.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -11,6 +11,9 @@
     - https://stackoverflow.com/questions/40577104/how-to-plot-two-real-time-data-in-one-single-plot-in-pyqtgraph
     - https://www.youtube.com/watch?v=IEEhzQoKtQU&t=800s
     - https://github.com/pyqt/examples
+    
+    - https://phrase.com/blog/posts/translate-python-gnu-gettext/
+    - https://phrase.com/blog/posts/beginners-guide-to-locale-in-python/
 """
 
 import sys
@@ -27,11 +30,13 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.12'
+
+VERSION = '1.13'
+TIMESCALESIZE = 150  # = self.plot_timescale and self.plot_data_size
 
 # Set debuge level
-logging.basicConfig(level=logging.DEBUG)
-#logging.basicConfig(level=logging.CRITICAL)
+#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 
 # Enable highdpi scaling:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -350,7 +355,7 @@ class Controls(QWidget):
         super(Controls, self).__init__(parent=parent)
 
         # Plot time scale == data visible area size
-        self.plot_timescale = 100 # default
+        self.plot_timescale = TIMESCALESIZE # default
         self.plot_timescale_min = 50
         self.plot_timescale_max = 1000
 
@@ -461,7 +466,7 @@ class MainWindow(QWidget):
         self.max_tryes = 75 # how_many_lines()
         self.number_of_lines = 0
         self.error_counter = 0
-        self.plot_data_size = 100 #?
+        self.plot_data_size = TIMESCALESIZE #?
         self.is_button_connected = False
 
         self.init_ui()
@@ -478,7 +483,7 @@ class MainWindow(QWidget):
         self.init_baudrates()   # Baud Rates on dropdown menu
 
         self.threadpool = QThreadPool()
-        self.thread_finf_ports()
+        self.thread_find_ports()
 
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
@@ -502,7 +507,7 @@ class MainWindow(QWidget):
 #            # 3. Call start()
 #            pool.start(runnable)
 
-    def thread_finf_ports(self):
+    def thread_find_ports(self):
         """ Runs on background forewer. """
         # Pass the function to execute
         worker = ForeverWorker(self.find_ports)
@@ -779,7 +784,7 @@ class MainWindow(QWidget):
                 incoming_data = self.ser.readline()[:-2].decode('ascii')
                 # [:-2] gets rid of the new-line chars
                 if incoming_data:
-                    logging.info("Incoming data: %s", incoming_data)
+                    logging.info("read_serial_dat: Incoming data: %s", incoming_data)
                     numbers = self.get_numbers(incoming_data)
                     logging.debug("numbers: %s", len(numbers))
 
@@ -814,25 +819,32 @@ class MainWindow(QWidget):
     def how_many_lines(self):
         """
             Return number of different incoming data lines.
-            Example: --454-45-454- == 3
+            Example: data:454something45t=454-\n == 3
         """
         logging.debug("How_many_lines?")
         self.open_serial()
         if self.ser.is_open:
             try:
-                incoming_data = self.ser.readline()[:-2].decode('ascii')
+                # This may be half of data
                 # [:-2] removes the new-line chars.
+                broken_data = self.ser.readline()#[:-2].decode('ascii') 
+                # Full data is between two \n chars
+                incoming_data = self.ser.readline()[:-2].decode('ascii')
+                logging.debug("try broken_data %s", broken_data)
+                logging.debug("try incoming_data %s", incoming_data)
+                
                 i = 0
                 while not incoming_data:
+                    broken_data = self.ser.readline()#[:-2].decode('ascii')
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
                     if i > self.max_tryes:
                         break
                     logging.debug("i = %s", i)
-                    logging.debug("incoming_data %s", incoming_data)
+                    logging.debug("while Incoming_data %s", incoming_data)
                     i = i+1
 
                 if incoming_data:
-                    logging.debug("Incoming data %s", incoming_data)
+                    logging.debug("if Incoming data %s", incoming_data)
                     numbers = self.get_numbers(incoming_data)
                     logging.debug("Found: %s lines", len(numbers))
                     return len(numbers)
