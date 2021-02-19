@@ -1,5 +1,6 @@
 # Tauno Serial Plotter
 [![tauno-serial-plotter](https://snapcraft.io/tauno-serial-plotter/badge.svg)](https://snapcraft.io/tauno-serial-plotter)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/taunoe/tauno-serial-plotter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/taunoe/tauno-serial-plotter/context:python)
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tauno-serial-plotter)
 
