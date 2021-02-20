@@ -12,8 +12,8 @@ Serial Plotter for Arduino and other embedded devices.
 - Plotting of multiple variables, with different colors for each
 - Can plot both integers and floats
 - Can plot negative values
-- Auto-scrolls the Time (X) axis
-- Auto-resizes the scale (Y axis)
+- Auto-scrolls the Time scale (X axis)
+- Auto-resizes the Data scale (Y axis)
 
 ## Data
 
