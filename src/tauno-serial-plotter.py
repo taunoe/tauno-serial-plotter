@@ -5,6 +5,9 @@
     Started:07.03.2020
     Edited: 20.02.2021
 
+    TODO:
+    - Add labels
+
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
     - https://www.materialui.co/colors
