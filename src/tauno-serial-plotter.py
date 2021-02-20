@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 17.02.2021
+    Edited: 20.02.2021
 
     Useful links:
     - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
@@ -31,7 +31,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 
 
-VERSION = '1.13'
+VERSION = '1.14'
 TIMESCALESIZE = 150  # = self.plot_timescale and self.plot_data_size
 
 # Set debuge level
@@ -610,10 +610,14 @@ class MainWindow(QWidget):
                         while len(self.plot.y_axis[i]) > len(self.plot.x_axis):
                             # Remove the first element on list
                             self.plot.y_axis[i] = self.plot.y_axis[i][1:]
-            except:
-                logging.debug(sys.exc_info())
+            
+            except Exception as ex:
+                logging.debug(ex)
                 self.error_counter += 1
                 self.error_status()
+
+            except SystemExit:  
+                logging.debug(sys.exc_info())
 
 
     def time_scale_changed(self):
@@ -807,13 +811,15 @@ class MainWindow(QWidget):
                             # At beginning append 0.0
                             self.plot.y_axis[i].insert(0, 0.0)
                         self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
-
-            except:
-                logging.debug(sys.exc_info())
+            except Exception as ex:
+                logging.debug(ex)
                 logging.debug("Error read_serial_data!!!")
                 self.error_counter += 1
                 self.error_status()
                 self.equal_x_and_y()
+                
+            except SystemExit:  
+                logging.debug(sys.exc_info())
 
 
     def how_many_lines(self):
@@ -835,7 +841,7 @@ class MainWindow(QWidget):
                 
                 i = 0
                 while not incoming_data:
-                    broken_data = self.ser.readline()#[:-2].decode('ascii')
+                    _ = self.ser.readline()#[:-2].decode('ascii')  # Often broken data
                     incoming_data = self.ser.readline()[:-2].decode('ascii')
                     if i > self.max_tryes:
                         break
@@ -848,10 +854,16 @@ class MainWindow(QWidget):
                     numbers = self.get_numbers(incoming_data)
                     logging.debug("Found: %s lines", len(numbers))
                     return len(numbers)
-            except:
-                logging.debug(sys.exc_info())
+
+            except Exception as ex:
+                logging.debug(ex)
                 logging.debug("Error how_many_lines")
                 self.ser.close()
+                
+            except SystemExit:  
+                logging.debug(sys.exc_info())
+                #logging.debug("Error how_many_lines")
+                #self.ser.close()
 
 
     def keyPressEvent(self, event):
