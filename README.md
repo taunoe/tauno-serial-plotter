@@ -6,6 +6,17 @@
 
 Serial Plotter for Arduino and other embedded devices.
 
+## Features
+
+- Simple user interface
+- Plotting of multiple variables, with different colors for each
+- Can plot both integers and floats
+- Can plot negative values
+- Auto-scrolls the Time (X) axis
+- Auto-resizes the scale (Y axis)
+
+## Data
+
 Incoming data should be string. Ending with new line character. Numbers (int and float) can be separated with almost any character.
 Like:
 
@@ -20,6 +31,28 @@ But not with **-** unless it is a negative number:
     5-10-22-33-40-55-62-75
 
 Script will extracts all numbers and generate graph.
+
+## Example Arduino code
+
+```C++
+Serial.print(variable1);
+Serial.print(",");
+Serial.print(variable2);
+Serial.print(",");
+Serial.println(last_variable);
+```
+
+To stop the plotter from auto-scaling add a 'min' and 'max' line.
+
+```C++
+Serial.print(variable1);
+Serial.print(",");
+Serial.print(variable2);
+Serial.print(",");
+Serial.println("Min:0,Max:1023");
+```
+
+## Screenshots
 
 Tested on Ubuntu 20.10.
 
