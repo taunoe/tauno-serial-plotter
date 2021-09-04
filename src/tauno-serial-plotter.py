@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 20.02.2021
+    Edited: 04.09.2021
 
     TODO:
     - Add labels
@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 
 
-VERSION = '1.14'
+VERSION = '1.15'
 TIMESCALESIZE = 150  # = self.plot_timescale and self.plot_data_size
 
 # Set debuge level
@@ -462,8 +462,28 @@ class MainWindow(QWidget):
 
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
-        self.baudrates = ['300','1200','2400','4800','9600','19200','38400','57600',
-                        '74880','115200','230400','250000','500000']
+        self.baudrates = [
+                          '150',
+                          '200',
+                          '300',
+                          '600',
+                         '1200',
+                         '1800',
+                         '2400',
+                         '4800',
+                         '9600',
+                        '19200',
+                        '28800',
+                        '38400',
+                        '57600',
+                        '74880',
+                        '76800',
+                       '115200',
+                       '230400',
+                       '250000',
+                       '460800',
+                       '500000',
+                       '576000']
         self.selected_baudrate = self.baudrates[4]
 
         self.max_tryes = 75 # how_many_lines()
