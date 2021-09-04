@@ -6,6 +6,8 @@
 
 Serial Plotter for Arduino and other embedded devices.
 
+Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases).
+
 ## Features
 
 - Simple user interface
