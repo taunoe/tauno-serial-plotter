@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 04.09.2021
+    Edited: 12.10.2021
 
     TODO:
     - Add labels
@@ -463,15 +463,15 @@ class MainWindow(QWidget):
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
         self.baudrates = [
-                          '150',
-                          '200',
-                          '300',
-                          '600',
-                         '1200',
-                         '1800',
-                         '2400',
-                         '4800',
-                         '9600',
+                          '150', # 0
+                          '200', # 1
+                          '300', # 2
+                          '600', # 3
+                         '1200', # 4
+                         '1800', # 5
+                         '2400', # 6
+                         '4800', # 7
+                         '9600', # 8
                         '19200',
                         '28800',
                         '38400',
@@ -484,7 +484,7 @@ class MainWindow(QWidget):
                        '460800',
                        '500000',
                        '576000']
-        self.selected_baudrate = self.baudrates[4]
+        self.selected_baudrate = self.baudrates[8] # default selected baud rate
 
         self.max_tryes = 75 # how_many_lines()
         self.number_of_lines = 0

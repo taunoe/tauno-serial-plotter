@@ -70,46 +70,55 @@ Requirements if you use python script to run it. On Windows 10 it is easier to d
 
 Python 3.7, PyQt5, pyserial, pyqtgraph
 
-    $ sudo apt install python3-pip python3-pyqt5
+    sudo apt install python3-pip python3-pyqt5
 
-    $ pip3 install pyserial pyqtgraph
+    pip3 install pyserial pyqtgraph
 
-## dialout group
+## Dialout group
+
 In order to access USB devices on Linux, you need to add your user to the dialout group. Open a terminal window, run the following command and reboot your computer.
 
-    $ sudo usermod -a -G dialout $USER
+    sudo usermod -a -G dialout $USER
 
 ## udev.rules
 
 Linux users have to install 99-platformio-udev.rules to accesse serial devices.
 
-    $ curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/master/scripts/99-platformio-udev.rules | sudo tee /etc/udev/rules.d/99-platformio-udev.rules
+    curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/master/scripts/99-platformio-udev.rules | sudo tee /etc/udev/rules.d/99-platformio-udev.rules
 
 Restart “udev” management tool:
 
-    $ sudo service udev restart
+    sudo service udev restart
 
 More info: https://docs.platformio.org/en/latest/faq.html#faq-udev-rules
 
 ## Run
-    $ cd src/
+
+    cd src/
     
-    $ chmod +x tauno-serial-plotter.py
+    chmod +x tauno-serial-plotter.py
 
-    $ ./tauno-serial-plotter.py
+    ./tauno-serial-plotter.py
 
-or 
+or
 
-    $ python3 ./tauno-serial-plotter.py
+    python3 ./tauno-serial-plotter.py
 
+## Plot settings
+
+Once the plot (graph) is created it is possible to change the additional plot settings. Like to disable auto-resize on x or-axis y-axis. Or to export data.
+
+**Right-click** on the plot area.
+
+![Graph settings](img/graph-settings.png)
 
 ## Diffrent ways to build
 
- - [Build with fbs](doc/Build-fbs.md) (Windows, Linux)
- - [Build with snapcraft](doc/Build-snap.md) (Linux)
- - [Build with flatpak](doc/Build-flatpak.md) (Linux)
- - [Build with PyInstaller](doc/pyinstaller.md) (Windows, Linux, Mac)
- 
+- [Build with fbs](doc/Build-fbs.md) (Windows, Linux)
+- [Build with snapcraft](doc/Build-snap.md) (Linux)
+- [Build with flatpak](doc/Build-flatpak.md) (Linux)
+- [Build with PyInstaller](doc/pyinstaller.md) (Windows, Linux, Mac)
+
  ___
 
 Copyright 2021 Tauno Erik https://taunoerik.art
