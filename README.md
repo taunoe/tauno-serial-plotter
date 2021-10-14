@@ -106,9 +106,9 @@ or
 
 ## Plot settings
 
-Once the graph is created it is possible to change the additional graph settings. Like to disable auto-resize on x or-axis y-axis. Or to export data.
+Once the plot (graph) is created it is possible to change the additional plot settings. Like to disable auto-resize on x or-axis y-axis. Or to export data.
 
-**Right-click** on the graph area.
+**Right-click** on the plot area.
 
 ![Graph settings](img/graph-settings.png)
 
