@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 12.10.2021
+    Edited: 13.11.2021
 
     TODO:
     - Add labels
@@ -34,12 +34,12 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 
 
-VERSION = '1.15'
+VERSION = '1.16'
 TIMESCALESIZE = 150  # = self.plot_timescale and self.plot_data_size
 
 # Set debuge level
-#logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.CRITICAL)
 
 # Enable highdpi scaling:
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -307,8 +307,9 @@ class Worker(QRunnable):
             logging.error("Worker IOError!")
 
 
-
-class Plot(pg.GraphicsWindow):
+# Deprecated: GraphicsWindow
+# New: GraphicsLayoutWidget
+class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
     def __init__(self, nr_plot_lines='1'):
         super(Plot,self).__init__(parent=None)
@@ -484,7 +485,10 @@ class MainWindow(QWidget):
                        '460800',
                        '500000',
                        '576000']
-        self.selected_baudrate = self.baudrates[8] # default selected baud rate
+        self.default_baud_index = 8
+        self.selected_baudrate = self.baudrates[self.default_baud_index] # default selected baud rate
+        logging.debug("self.selected_baudrate =")
+        logging.debug(self.selected_baudrate)
 
         self.max_tryes = 75 # how_many_lines()
         self.number_of_lines = 0
@@ -599,7 +603,7 @@ class MainWindow(QWidget):
 
     def init_baudrates(self):
         self.controls.select_baud.addItems(self.baudrates)
-        self.controls.select_baud.setCurrentIndex(4)
+        self.controls.select_baud.setCurrentIndex(self.default_baud_index)
 
     def selected_port_changed(self, i):
         self.selected_port = self.ports[i]
@@ -808,7 +812,8 @@ class MainWindow(QWidget):
     def read_serial_data(self):
         if self.ser.is_open:
             try:
-                incoming_data = self.ser.readline()[:-2].decode('ascii')
+                #incoming_data = self.ser.readline()[:-2].decode('ascii')
+                incoming_data = self.ser.readline().decode('ascii')
                 # [:-2] gets rid of the new-line chars
                 if incoming_data:
                     logging.info("read_serial_dat: Incoming data: %s", incoming_data)
@@ -856,21 +861,24 @@ class MainWindow(QWidget):
             try:
                 # This may be half of data
                 # [:-2] removes the new-line chars.
-                broken_data = self.ser.readline()#[:-2].decode('ascii') 
+                #broken_data = self.ser.readline()#[:-2].decode('ascii')
+                #logging.debug("try broken_data %s", broken_data)
                 # Full data is between two \n chars
-                incoming_data = self.ser.readline()[:-2].decode('ascii')
-                logging.debug("try broken_data %s", broken_data)
+                # incoming_data = self.ser.readline().decode('ascii')
+                incoming_data = self.ser.readline().decode('ascii')
+                
                 logging.debug("try incoming_data %s", incoming_data)
                 
                 i = 0
                 while not incoming_data:
-                    _ = self.ser.readline()#[:-2].decode('ascii')  # Often broken data
-                    incoming_data = self.ser.readline()[:-2].decode('ascii')
+                    #_ = self.ser.readline().decode('ascii')  # Often broken data
+                    incoming_data = self.ser.readline().decode('ascii') #readline()[:-1]
                     if i > self.max_tryes:
                         break
                     logging.debug("i = %s", i)
-                    logging.debug("while Incoming_data %s", incoming_data)
+                    logging.debug("while not incoming_data %s", incoming_data)
                     i = i+1
+                    
 
                 if incoming_data:
                     logging.debug("if Incoming data %s", incoming_data)
