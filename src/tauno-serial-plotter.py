@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 13.11.2021
+    Edited: 14.11.2021
 
     TODO:
     - Add labels
@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 
 
-VERSION = '1.16'
+VERSION = '1.17'
 TIMESCALESIZE = 150  # = self.plot_timescale and self.plot_data_size
 
 # Set debuge level
@@ -861,10 +861,9 @@ class MainWindow(QWidget):
             try:
                 # This may be half of data
                 # [:-2] removes the new-line chars.
-                #broken_data = self.ser.readline()#[:-2].decode('ascii')
-                #logging.debug("try broken_data %s", broken_data)
+                broken_data = self.ser.readline()#[:-2].decode('ascii')
+                logging.debug("try broken_data %s", broken_data)
                 # Full data is between two \n chars
-                # incoming_data = self.ser.readline().decode('ascii')
                 incoming_data = self.ser.readline().decode('ascii')
                 
                 logging.debug("try incoming_data %s", incoming_data)
