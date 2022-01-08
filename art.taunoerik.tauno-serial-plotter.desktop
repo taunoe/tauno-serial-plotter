@@ -1,10 +1,9 @@
 [Desktop Entry]
 Version=1.0
-Encoding=UTF-8
 Type=Application
 Name=Tauno-serial-plotter
 Comment=Simple serial plotter
 TryExec=tauno-serial-plotter
 Exec=tauno-serial-plotter
-Icon=app/bin/icons/tauno-plotter.svg
-MimeType=image/x-svg;
+Icon=Tauno-plotter
+
