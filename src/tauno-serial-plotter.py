@@ -33,11 +33,9 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-
 VERSION = '1.18'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
-#is_serial_opened
 is_serial_opened = False
 
 # Set debuge level
