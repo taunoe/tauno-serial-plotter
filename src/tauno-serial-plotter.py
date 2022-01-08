@@ -37,7 +37,7 @@ import pyqtgraph as pg
 VERSION = '1.18'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
-global is_serial_opened
+#is_serial_opened
 is_serial_opened = False
 
 # Set debuge level
