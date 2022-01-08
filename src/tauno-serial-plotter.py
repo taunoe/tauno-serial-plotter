@@ -37,6 +37,9 @@ import pyqtgraph as pg
 VERSION = '1.18'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
+#is_serial_opened
+is_serial_opened = False
+
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
@@ -275,24 +278,23 @@ class ForeverWorker(QRunnable):
     It put function to run forever on background.
     I use it to scan the avaible serial ports.
     """
-    def __init__(self, fn, *args, **kwargs):
+    def __init__(self, fn):
         super(ForeverWorker, self).__init__()
         self.fn = fn
         self.is_working = True
-        self.args = args
-        self.kwargs = kwargs
 
     def __del__(self):
-        self.is_working = False
+        self.is_working = True
         #self.wait()
 
-    
     def run(self):
         """ Forever running task """
         while self.is_working:
             logging.debug("ForeverWorker.Run while loop")
             self.fn()
             time.sleep(10) # seconds
+            if is_serial_opened:
+               self.is_working = False
 
 
 # Deprecated: GraphicsWindow
@@ -498,9 +500,9 @@ class MainWindow(QWidget):
         self.init_baudrates()   # Baud Rates on dropdown menu
 
         # TODO: How to exit thread when mainwindow is closed??
-        #self.threadpool = QThreadPool()
-        #self.thread_find_ports()
-        self.find_ports() # while threads disabled!
+        self.threadpool = QThreadPool()
+        self.thread_find_ports()
+        #self.find_ports() # while threads disabled!
 
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
@@ -791,6 +793,9 @@ class MainWindow(QWidget):
             self.error_counter = 0
 
     def read_serial_data(self):
+        global is_serial_opened
+        is_serial_opened = True
+
         if self.ser.is_open:
             try:
                 #incoming_data = self.ser.readline()[:-2].decode('ascii')
