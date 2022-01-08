@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 14.11.2021
+    Edited: 08.01.2022
 
     TODO:
     - Add labels
@@ -34,8 +34,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 
 
-VERSION = '1.17'
-TIMESCALESIZE = 150  # = self.plot_timescale and self.plot_data_size
+VERSION = '1.18'
+TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -275,36 +275,24 @@ class ForeverWorker(QRunnable):
     It put function to run forever on background.
     I use it to scan the avaible serial ports.
     """
-    def __init__(self, fn):
-        super().__init__()
+    def __init__(self, fn, *args, **kwargs):
+        super(ForeverWorker, self).__init__()
         self.fn = fn
-        self.working = True
+        self.is_working = True
+        self.args = args
+        self.kwargs = kwargs
 
     def __del__(self):
-        self.working = False
+        self.is_working = False
         #self.wait()
 
+    
     def run(self):
         """ Forever running task """
-        while self.working:
+        while self.is_working:
             logging.debug("ForeverWorker.Run while loop")
             self.fn()
             time.sleep(10) # seconds
-
-class Worker(QRunnable):
-    """ Thread """
-    def __init__(self, fn):
-        super().__init__()
-        self.fn = fn
-
-    def run(self):
-        """ Worker running task """
-        try:
-            while self.working:
-                logging.debug("Worker.Run while loop")
-                self.fn()
-        except IOError:
-            logging.error("Worker IOError!")
 
 
 # Deprecated: GraphicsWindow
@@ -509,8 +497,10 @@ class MainWindow(QWidget):
 
         self.init_baudrates()   # Baud Rates on dropdown menu
 
-        self.threadpool = QThreadPool()
-        self.thread_find_ports()
+        # TODO: How to exit thread when mainwindow is closed??
+        #self.threadpool = QThreadPool()
+        #self.thread_find_ports()
+        self.find_ports() # while threads disabled!
 
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
@@ -524,15 +514,6 @@ class MainWindow(QWidget):
         self.aboutbox = QMessageBox()
 
 
-#    def runTasks(self):
-#       threadCount = QThreadPool.globalInstance().maxThreadCount()
-#        self.label.setText(f"Running {threadCount} Threads")
-#        pool = QThreadPool.globalInstance()
-#        for i in range(threadCount):
-#            # 2. Instantiate the subclass of QRunnable
-#            runnable = Runnable(i)
-#            # 3. Call start()
-#            pool.start(runnable)
 
     def thread_find_ports(self):
         """ Runs on background forewer. """
@@ -848,6 +829,7 @@ class MainWindow(QWidget):
                 
             except SystemExit:  
                 logging.debug(sys.exc_info())
+                #self.threadpool.disconnect()
 
 
     def how_many_lines(self):
@@ -935,4 +917,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow(app)
     window.show()
-    sys.exit(app.exec_())
+
+    try:
+        sys.exit(app.exec_()) # sys.exit(app.exec_())
+    except SystemExit:
+        print(SystemExit)
