@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 08.01.2022
+    Edited: 09.01.2022
 
     TODO:
     - Add labels
@@ -36,7 +36,7 @@ import pyqtgraph as pg
 VERSION = '1.18'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
-is_serial_opened = False
+stop_port_scan = False # To kill port scan thread when sys.exit
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -291,7 +291,7 @@ class ForeverWorker(QRunnable):
             logging.debug("ForeverWorker.Run while loop")
             self.fn()
             time.sleep(10) # seconds
-            if is_serial_opened:
+            if stop_port_scan:
                self.is_working = False
 
 
@@ -770,6 +770,7 @@ class MainWindow(QWidget):
             if self.ser.is_open:
                 self.ser.close()
             self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
+            self.ser.reset_input_buffer()## 09.02.2022
             logging.debug("1 Open serial: %s %s", self.ser.name, self.ser.baudrate)
         except IOError:
             logging.error("open_serial IOError")
@@ -791,13 +792,10 @@ class MainWindow(QWidget):
             self.error_counter = 0
 
     def read_serial_data(self):
-        global is_serial_opened
-        is_serial_opened = True
 
         if self.ser.is_open:
             try:
-                #incoming_data = self.ser.readline()[:-2].decode('ascii')
-                incoming_data = self.ser.readline().decode('ascii')
+                incoming_data = self.ser.readline().decode('utf8')
                 # [:-2] gets rid of the new-line chars
                 if incoming_data:
                     logging.info("read_serial_dat: Incoming data: %s", incoming_data)
@@ -849,14 +847,14 @@ class MainWindow(QWidget):
                 broken_data = self.ser.readline()#[:-2].decode('ascii')
                 logging.debug("try broken_data %s", broken_data)
                 # Full data is between two \n chars
-                incoming_data = self.ser.readline().decode('ascii')
+                incoming_data = self.ser.readline().decode('utf8')
                 
                 logging.debug("try incoming_data %s", incoming_data)
                 
                 i = 0
                 while not incoming_data:
                     #_ = self.ser.readline().decode('ascii')  # Often broken data
-                    incoming_data = self.ser.readline().decode('ascii') #readline()[:-1]
+                    incoming_data = self.ser.readline().decode('utf8') #readline()[:-1]
                     if i > self.max_tryes:
                         break
                     logging.debug("i = %s", i)
@@ -924,4 +922,5 @@ if __name__ == '__main__':
     try:
         sys.exit(app.exec_()) # sys.exit(app.exec_())
     except SystemExit:
+        stop_port_scan = True # Kill port scan thread
         print(SystemExit)
