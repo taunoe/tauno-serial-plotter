@@ -4,9 +4,11 @@
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tauno-serial-plotter)
 
+[<img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="25%" height="25%">](https://flathub.org/apps/details/art.taunoerik.tauno-serial-plotter)
+
 Serial Plotter for Arduino and other embedded devices.
 
-Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases).
+Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases). (TODO: Update it!)
 
 ## Features
 

@@ -731,7 +731,7 @@ class MainWindow(QWidget):
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
             Tauno Erik<br/><br/>\
-            2021".format(VERSION))
+            2021-2022".format(VERSION))
         self.aboutbox.exec_()
 
     def get_numbers(self, string):
