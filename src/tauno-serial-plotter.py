@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 09.01.2022
+    Edited: 12.01.2022
 
     TODO:
     - Add labels
@@ -27,13 +27,12 @@ import time
 import serial
 import serial.tools.list_ports
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QRunnable, QThreadPool # Threads
+from PyQt5.QtCore import Qt, QRunnable, QThreadPool # Threads
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 
-VERSION = '1.18'
+VERSION = '1.18.7'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -41,11 +40,6 @@ stop_port_scan = False # To kill port scan thread when sys.exit
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
-
-# Enable highdpi scaling:
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-# Use highdpi icons:
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 # GUI Icons
 icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
@@ -915,12 +909,27 @@ class MainWindow(QWidget):
 # END of class MainWindow --------------------------------------------
 
 if __name__ == '__main__':
+    # Enable highdpi scaling:
+    #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    # Use highdpi icons:
+    #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
+    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+    if hasattr(Qt, 'AA_Use96Dpi'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi, True)
+
+
     app = QApplication(sys.argv)
     window = MainWindow(app)
     window.show()
 
     try:
-        sys.exit(app.exec_()) # sys.exit(app.exec_())
+        exit_code = app.exec_()
+        print(exit_code)
+        sys.exit(exit_code) # sys.exit(app.exec_())
     except SystemExit:
         stop_port_scan = True # Kill port scan thread
         print(SystemExit)
