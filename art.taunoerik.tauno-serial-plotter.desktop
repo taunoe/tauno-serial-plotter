@@ -6,3 +6,4 @@ Comment=Simple serial plotter
 TryExec=tauno-serial-plotter
 Exec=tauno-serial-plotter
 Icon=art.taunoerik.tauno-serial-plotter
+Categories=Utility;
