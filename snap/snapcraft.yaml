@@ -76,11 +76,14 @@ apps:
     - desktop-legacy
     - x11
     #- unity7 
-    #- wayland
+    - wayland
     - opengl
     - network
     - network-bind
-    - serial-port
+    - serial-port:
+        path: /dev/tty/ACM0
+
     #- removable-media # ?
     - raw-usb
     - hardware-observe
+
