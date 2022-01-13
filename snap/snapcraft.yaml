@@ -7,6 +7,8 @@ description: |
 
 grade: stable #stable # 'devel', must be 'stable' to release into candidate/stable channels
 confinement: strict # strict # 'devmode' or 'strict' to release into candidate/stable channels
+compression: lzo      # improves startup time for large snaps
+
 architectures:
   - build-on: amd64
   - build-on: i386
@@ -65,25 +67,28 @@ parts:
     stage:
       - bin/icons/
 
+# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
-    # https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
     #command-chain:
     #  - check-permissions
-    plugs: 
+    environment:
+      # Fallback to XWayland if running in a Wayland session.
+      DISABLE_WAYLAND: 1
+    plugs:
+    - unity7
+    - home
+    - removable-media
+    - network
+    - serial-port
+    - raw-usb
+
     - desktop
     - desktop-legacy
     - x11
-    #- unity7 
     - wayland
     - opengl
-    - network
     - network-bind
-    - serial-port:
-        path: /dev/tty/ACM0
-
-    #- removable-media # ?
-    - raw-usb
     - hardware-observe
 
