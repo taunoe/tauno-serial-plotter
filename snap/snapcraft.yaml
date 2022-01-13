@@ -80,8 +80,7 @@ apps:
     - opengl
     - network
     - network-bind
-    - serial-port:
-        path: /dev/tty/ACM0
+    - serial-port
 
     #- removable-media # ?
     - raw-usb
