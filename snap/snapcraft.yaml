@@ -46,6 +46,7 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
+      - qtwayland5
     
   launcher:
     plugin: nil
@@ -81,4 +82,4 @@ apps:
     - network-bind
     - serial-port
     #- removable-media # ?
-    - raw-usb
+    #- raw-usb
