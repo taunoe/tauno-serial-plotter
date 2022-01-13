@@ -19,6 +19,7 @@ parts:
     requirements: ['requirements.txt']
     stage-packages:
       - python3-pyqt5
+      - qtwayland5
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -46,7 +47,6 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
-      - qtwayland5
     
   launcher:
     plugin: nil
@@ -75,11 +75,12 @@ apps:
     - desktop
     - desktop-legacy
     - x11
-    - unity7
-    - wayland
+    #- unity7 
+    #- wayland
     - opengl
     - network
     - network-bind
     - serial-port
     #- removable-media # ?
-    #- raw-usb
+    - raw-usb
+    - hardware-observe
