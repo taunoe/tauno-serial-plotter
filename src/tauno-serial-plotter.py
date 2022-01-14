@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 12.01.2022
+    Edited: 14.01.2022
 
     TODO:
     - Add labels
@@ -27,13 +27,13 @@ import time
 import serial
 import serial.tools.list_ports
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import Qt, QRunnable, QThreadPool # Threads
+from PyQt5.QtCore import Qt, QRunnable, QThreadPool
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.18.7'
+VERSION = '1.18.8'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -43,15 +43,16 @@ logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
 
 # GUI Icons
-if platform.system == 'Windows' :
-    img_type = '.png'
+if platform.system() == 'Windows' :
+    icon_logo = "./icons/tauno-plotter.svg"
+    icon_minus = "./icons/minus.svg"
+    icon_plus = "./icons/plus.svg"
+    icon_arrow_down = "./icons/arrow_down.svg"
 else:
-    img_type = '.svg'
-
-icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter' + img_type)
-icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus' + img_type)
-icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus' + img_type)
-icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down' + img_type)
+    icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
+    icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
+    icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
+    icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
 
 # GUI colours
 colors =  {
@@ -239,9 +240,9 @@ QDoubleSpinBox::up-button{{
     subcontrol-position: top right;
     background-color: {colors['dark']};
     width: 25px;
-    /*border-width: 1px;*/
-    height:27px;
-    padding-bottom: 4px;
+    border-width: 1px;
+    height:25px;
+    padding-bottom: 1px;
 }}
 
 QDoubleSpinBox::down-button{{
@@ -249,9 +250,9 @@ QDoubleSpinBox::down-button{{
     background-color: {colors['dark']};
     subcontrol-position: top left;
     width: 25px;
-    /*border-width: 1px;*/
-    height:27px;
-    padding-bottom: 4px;
+    border-width: 1px;
+    height:25px;
+    padding-bottom: 1px;
 }}
 
 QDoubleSpinBox::up-arrow {{
@@ -590,8 +591,6 @@ class MainWindow(QWidget):
         self.selected_port = self.ports[i]
         logging.info("Main selected port changed:")
         logging.info(self.selected_port)
-        #self.equal_x_and_y()
-        #self.open_serial()
 
     def selected_baud_changed(self, i):
         self.selected_baudrate = self.baudrates[i]
@@ -724,8 +723,8 @@ class MainWindow(QWidget):
     def about(self):
         """ Button About """
         logging.debug('--> About Button.')
-        #self.aboutbox = QMessageBox()
         self.aboutbox.setWindowTitle("About")
+        self.aboutbox.setWindowIcon(QtGui.QIcon(icon_logo))
         self.aboutbox.setText("<center></center><b>Tauno Serial Plotter</b><br/><br/>\
             More info: <a href ='https://github.com/taunoe/tauno-serial-plotter'>\
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
@@ -796,7 +795,7 @@ class MainWindow(QWidget):
         if self.ser.is_open:
             try:
                 incoming_data = self.ser.readline().decode('utf8')
-                # [:-2] gets rid of the new-line chars
+
                 if incoming_data:
                     logging.info("read_serial_dat: Incoming data: %s", incoming_data)
                     numbers = self.get_numbers(incoming_data)
@@ -815,8 +814,6 @@ class MainWindow(QWidget):
                         logging.debug("for loop %s", i)
                         logging.debug("plot.x_axis %s", self.plot.x_axis)
                         logging.debug("plot.y_axis[i] %s", self.plot.y_axis[i])
-                        # plot.x_axis [8, 9]
-                        # plot.y_axis[i] [333.0]
                         if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
                             # At beginning append 0.0
                             self.plot.y_axis[i].insert(0, 0.0)
@@ -830,7 +827,6 @@ class MainWindow(QWidget):
                 
             except SystemExit:  
                 logging.debug(sys.exc_info())
-                #self.threadpool.disconnect()
 
 
     def how_many_lines(self):
@@ -853,7 +849,6 @@ class MainWindow(QWidget):
                 
                 i = 0
                 while not incoming_data:
-                    #_ = self.ser.readline().decode('ascii')  # Often broken data
                     incoming_data = self.ser.readline().decode('utf8') #readline()[:-1]
                     if i > self.max_tryes:
                         break
@@ -875,8 +870,6 @@ class MainWindow(QWidget):
                 
             except SystemExit:  
                 logging.debug(sys.exc_info())
-                #logging.debug("Error how_many_lines")
-                #self.ser.close()
 
 
     def keyPressEvent(self, event):
@@ -915,10 +908,6 @@ class MainWindow(QWidget):
 # END of class MainWindow --------------------------------------------
 
 if __name__ == '__main__':
-    # Enable highdpi scaling:
-    #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    # Use highdpi icons:
-    #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -935,7 +924,7 @@ if __name__ == '__main__':
     try:
         exit_code = app.exec_()
         print(exit_code)
-        sys.exit(exit_code) # sys.exit(app.exec_())
+        sys.exit(exit_code)
     except SystemExit:
         stop_port_scan = True # Kill port scan thread
         print(SystemExit)
