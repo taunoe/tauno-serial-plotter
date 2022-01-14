@@ -1,26 +1,41 @@
-# Building Flatpak
+# Flatpak
 
-**I managed to get flatpak work, but it does not show any GUI icons!** 
+Official Flatpak repository is [github.com/flathub/art.taunoerik.tauno-serial-plotter](https://github.com/flathub/art.taunoerik.tauno-serial-plotter).
 
-Install a runtime and the matching SDK
+The Flatpak app [maintenance guide](https://github.com/flathub/flathub/wiki/App-Maintenance).
 
-    $ flatpak install flathub org.kde.Platform org.kde.Sdk
+## Some commands
 
-Add a manifest file: org.flatpak.Tauno-serial-plotter.yml
+Build localy:
 
+```Bash
+flatpak-builder --user --install --force-clean build-dir art.taunoerik.tauno-serial-plotter.yml
+```
 
-## Build & Test
+Run:
 
-    $ flatpak-builder --user --install build-dir org.flatpak.Tauno-serial-plotter.yml --force-clean
+```Bash
+flatpak run art.taunoerik.tauno-serial-plotter
+```
 
-    $ flatpak run org.flatpak.Tauno-serial-plotter
+List flatpak apps:
 
-## Put the app in a local repository
+```Bash
+flatpak list --app
+```
 
-    $ flatpak-builder --repo=repo --force-clean build-dir org.flatpak.Tauno-serial-plotter.yml
+Install from flathub:
 
-## Install
+```Bash
+flatpak install flathub art.taunoerik.tauno-serial-plotter
+```
 
-## Links
+Uninstall:
 
-- [Building your first Flatpak](https://docs.flatpak.org/en/latest/first-build.html)
+```Bash
+flatpak uninstall art.taunoerik.tauno-serial-plotter
+```
+
+ ___
+
+Copyright 2021-2022 Tauno Erik https://taunoerik.art
