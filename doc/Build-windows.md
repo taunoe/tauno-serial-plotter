@@ -1,20 +1,39 @@
 # Build for Windows
 
-## PyInstaller
-
-PyInstaller freezes (packages) Python applications into stand-alone executables, under Windows, GNU/Linux, Mac OS X, FreeBSD, Solaris and AIX.
+## Requirments
 
 Install PyInstaller:
 
-    $ pip3 install pyinstaller
+```Bash
+pip install pyinstaller
+```
 
-Go to your program’s directory and run (Before delete: build/, dist/ and __pycache__/ folders?):
+Download and install [Inno Setup](https://jrsoftware.org/isdl.php#stable).
 
-    $ pyinstaller.exe tauno-serial-plotter.spec --noconsole
 
-This will generate the bundle in a subdirectory called dist.
+## Build
+
+PyInstaller freezes (packages) Python applications into stand-alone executables, under Windows, GNU/Linux, Mac OS X, FreeBSD, Solaris and AIX.
+
+Go to tauno-serial-plotter/ directory and run:
+
+```Bash
+pyinstaller.exe tauno-serial-plotter.spec --noconsole
+```
+
+This will generate the bundle in a subdirectory **dist/**.
+
+```Bash
+dist/tauno-serial-plotter/
+```
 
 ## Inno Setup
+
+Select: inno-setup-script.iss
+
+Run.
+
+Folder tauno-serial-plotter/Output/ contains setup file.
 
 ## Links
 
