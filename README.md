@@ -61,8 +61,7 @@ flatpak uninstall art.taunoerik.tauno-serial-plotter
 
 ### Windows
 
-Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases). (TODO: Update it!)
-
+Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases).
 
 ## Data
 
