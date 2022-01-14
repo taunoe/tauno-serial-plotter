@@ -31,6 +31,7 @@ from PyQt5.QtCore import Qt, QRunnable, QThreadPool # Threads
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QDesktopWidget, QMessageBox)
 import pyqtgraph as pg
+import platform
 
 VERSION = '1.18.7'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
@@ -42,10 +43,15 @@ logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
 
 # GUI Icons
-icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
-icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
-icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
-icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
+if platform.system == 'Windows' :
+    img_type = '.png'
+else:
+    img_type = '.svg'
+
+icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter' + img_type)
+icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus' + img_type)
+icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus' + img_type)
+icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down' + img_type)
 
 # GUI colours
 colors =  {
