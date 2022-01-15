@@ -40,7 +40,7 @@ apps:
     - hardware-observe
 
 parts:
-  desktop-qt5:
+  desktop_qt5:
     build-packages:
       - build-essential
       - qtbase5-dev
