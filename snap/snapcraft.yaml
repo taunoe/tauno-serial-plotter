@@ -40,15 +40,6 @@ apps:
     - hardware-observe
 
 parts:
-  tauno-serial-plotter:
-    source: .
-    plugin: python
-    requirements: ['requirements.txt']
-    stage-packages:
-      - python3-pyqt5
-      - qtwayland5
-    after: [desktop-qt5]
-  
   desktop-qt5:
     build-packages:
       - build-essential
@@ -74,6 +65,15 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
+
+  other_packages:
+    source: .
+    plugin: python
+    requirements: ['requirements.txt']
+    stage-packages:
+      - python3-pyqt5
+      - qtwayland5
+    after: [desktop-qt5]
     
   launcher:
     plugin: nil
@@ -98,10 +98,17 @@ parts:
     stage-packages:
       - yad
 
+# This part removes all the files in this snap which already exist in
+  # connected content and base snaps. Since these files will be available
+  # at runtime from the content and base snaps, they do not need to be
+  # included in this snap itself.
+  #
+  # More info: https://snapcraft-utils-library.readthedocs.io/en/latest/lib/cleanup.html 
+  #
 cleanup:
     after:  # Make this part run last; list all your other parts here
-      - tauno-serial-plotter
       - desktop-qt5
+      - other_packages
       - launcher
       - desktop-gui
       - script_launcher
