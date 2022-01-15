@@ -101,9 +101,3 @@ apps:
     - network-bind
     - hardware-observe
 
-  pip:
-    command: usr/bin/python -m pip
-    environment:
-      PIP_USER: 1
-    plugs:
-      - network
