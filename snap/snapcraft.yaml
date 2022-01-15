@@ -14,31 +14,6 @@ architectures:
   - build-on: i386
   - build-on: arm64
 
-# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
-apps:
-  tauno-serial-plotter:
-    command: bin/desktop-launch tauno-serial-plotter.py
-    command-chain:
-      - check-permissions
-    environment:
-      # Fallback to XWayland if running in a Wayland session.
-      DISABLE_WAYLAND: 1
-    plugs:
-    - unity7
-    - home
-    - removable-media
-    - network
-    - serial-port
-    - raw-usb
-
-    - desktop
-    - desktop-legacy
-    - x11
-    - wayland
-    - opengl
-    - network-bind
-    - hardware-observe
-
 parts:
   tauno-serial-plotter:
     source: .
@@ -83,17 +58,46 @@ parts:
       cp -av src/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
       cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
+      cp -f src/icons/arrow_down.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/arrow_down.svg
+      cp -f src/icons/arrow_down.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/arrow_down.svg
+      cp -f src/icons/minus.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/minus.svg
+      cp -f src/icons/plus.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/plus.svg
   # copy icons to snap
-  desktop-gui:
-    plugin: dump
-    source: ./src/icons/
-    organize:
-      '*.svg' : bin/icons/
-    stage:
-      - bin/icons/
-  ##New:
-  script_launcher:
+  #desktop-gui:
+  #  plugin: dump
+  #  source: src/icons/
+  #  organize:
+  #    '*.svg' : bin/icons/
+  #  stage:
+  #    - bin/icons/
+  check:
     plugin: dump
     source: scripts
     stage-packages:
       - yad
+
+# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
+apps:
+  tauno-serial-plotter:
+    command: bin/desktop-launch tauno-serial-plotter.py
+    command-chain:
+      - check-permissions
+    environment:
+      # Fallback to XWayland if running in a Wayland session.
+      DISABLE_WAYLAND: 1
+    plugs:
+    - unity7
+    - home
+    - removable-media
+    - network
+    - serial-port
+    - raw-usb
+
+    - desktop
+    - desktop-legacy
+    - x11
+    - wayland
+    - opengl
+    - network-bind
+    - hardware-observe
+
