@@ -14,6 +14,31 @@ architectures:
   - build-on: i386
   - build-on: arm64
 
+# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
+apps:
+  tauno-serial-plotter:
+    command: bin/desktop-launch tauno-serial-plotter.py
+    command-chain:
+      - check-permissions
+    environment:
+      # Fallback to XWayland if running in a Wayland session.
+      DISABLE_WAYLAND: 1
+    plugs:
+    - unity7
+    - home
+    - removable-media
+    - network
+    - serial-port
+    - raw-usb
+
+    - desktop
+    - desktop-legacy
+    - x11
+    - wayland
+    - opengl
+    - network-bind
+    - hardware-observe
+
 parts:
   tauno-serial-plotter:
     source: .
@@ -66,29 +91,28 @@ parts:
       '*.svg' : bin/icons/
     stage:
       - bin/icons/
+##New:
+  script_launcher:
+    plugin: dump
+    source: scripts
+    stage-packages:
+      - yad
 
-# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
-apps:
-  tauno-serial-plotter:
-    command: bin/desktop-launch tauno-serial-plotter.py
-    #command-chain:
-    #  - check-permissions
-    environment:
-      # Fallback to XWayland if running in a Wayland session.
-      DISABLE_WAYLAND: 1
-    plugs:
-    - unity7
-    - home
-    - removable-media
-    - network
-    - serial-port
-    - raw-usb
+cleanup:
+    after:  # Make this part run last; list all your other parts here
+      - tauno-serial-plotter
+      - desktop-qt5
+      - launcher
+      - desktop-gui
+      - script_launcher
+    plugin: nil
+    build-snaps:  # List all content-snaps and base snaps you're using here
+      - core18
+    override-prime: |
+      set -eux
+      for snap in "core18" ; do  # List all content-snaps and base snaps you're using here
+        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      done
 
-    - desktop
-    - desktop-legacy
-    - x11
-    - wayland
-    - opengl
-    - network-bind
-    - hardware-observe
+
 
