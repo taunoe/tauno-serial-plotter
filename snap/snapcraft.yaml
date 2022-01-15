@@ -58,18 +58,18 @@ parts:
       cp -av src/tauno-serial-plotter.py $SNAPCRAFT_PART_INSTALL/bin/
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
       cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
-      cp -f src/icons/arrow_down.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/arrow_down.svg
-      cp -f src/icons/arrow_down.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/arrow_down.svg
-      cp -f src/icons/minus.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/minus.svg
-      cp -f src/icons/plus.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/plus.svg
+    #  cp -f src/icons/arrow_down.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/arrow_down.svg
+    #  cp -f src/icons/arrow_down.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/arrow_down.svg
+    #  cp -f src/icons/minus.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/minus.svg
+    #  cp -f src/icons/plus.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/plus.svg
   # copy icons to snap
-  #desktop-gui:
-  #  plugin: dump
-  #  source: src/icons/
-  #  organize:
-  #    '*.svg' : bin/icons/
-  #  stage:
-  #    - bin/icons/
+  desktop-gui:
+    plugin: dump
+    source: src/icons/
+    organize:
+      '*.svg' : bin/icons/
+    stage:
+      - bin/icons/
   check:
     plugin: dump
     source: scripts
