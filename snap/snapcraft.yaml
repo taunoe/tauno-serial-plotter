@@ -18,8 +18,8 @@ architectures:
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
-    #command-chain:
-    #  - check-permissions
+    command-chain:
+      - check-permissions
     environment:
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
