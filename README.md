@@ -31,7 +31,7 @@ Run Snap:
 snap run tauno-serial-plotter
 ```
 
-Unnstall Snap:
+Uninstall Snap:
 
 ```Bash
 sudo snap remove tauno-serial-plotter
