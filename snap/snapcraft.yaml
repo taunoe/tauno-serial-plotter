@@ -5,6 +5,12 @@ summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.
 
+  If no ports show up. Then:
+
+  `sudo usermod -a -G dialout $USER`
+
+  `sudo snap connect tauno-serial-plotter:raw-usb`
+
 grade: stable         # 'devel', must be 'stable' to release into candidate/stable channels
 confinement: strict   # strict # 'devmode' or 'strict' to release into candidate/stable channels
 compression: lzo      # improves startup time for large snaps
