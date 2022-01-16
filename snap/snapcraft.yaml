@@ -1,9 +1,9 @@
-name: tauno-serial-plotter # you probably want to 'snapcraft register <name>'
+name: tauno-serial-plotter
 base: core18 
 version: '1.18.8'
-summary: Simple serial plotter # 79 char long summary
+summary: Simple serial plotter
 description: |
-  Tauno-Serial-Plotter is simple serial plotter for Arduino and others.
+  Tauno Serial Plotter is simple serial plotter for Arduino and others.
 
 grade: stable #stable # 'devel', must be 'stable' to release into candidate/stable channels
 confinement: strict # strict # 'devmode' or 'strict' to release into candidate/stable channels
@@ -117,6 +117,7 @@ apps:
       - desktop-qt5
       - launcher
       - desktop-gui
+      - check
     plugin: nil
     build-snaps:  # List all content-snaps and base snaps you're using here
       - core18
