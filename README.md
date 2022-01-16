@@ -31,6 +31,14 @@ Run Snap:
 snap run tauno-serial-plotter
 ```
 
+If no ports show up. Then close the app and run these commands. And open the app again:
+
+```Bash
+sudo usermod -a -G dialout $USER
+
+sudo snap connect tauno-serial-plotter:raw-usb
+```
+
 Uninstall Snap:
 
 ```Bash
