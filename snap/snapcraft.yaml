@@ -49,8 +49,8 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
-      - libgdk-x11-2.0.so.0 #???
-      - libgtk-x11-2.0.so.0 #???
+      #- libgdk-x11-2.0 #???
+      #- libgtk-x11-2.0 #???
     
   launcher:
     plugin: nil
