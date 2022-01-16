@@ -49,6 +49,8 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
+      - libgdk-x11-2.0.so.0 #???
+      - libgtk-x11-2.0.so.0 #???
     
   launcher:
     plugin: nil
@@ -81,7 +83,8 @@ apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
     command-chain:
-      - check-permissions
+       - linux-setup.sh
+    #  - check-permissions
     environment:
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
@@ -101,3 +104,24 @@ apps:
     - network-bind
     - hardware-observe
 
+# This part removes all the files in this snap which already exist in
+  # connected content and base snaps. Since these files will be available
+  # at runtime from the content and base snaps, they do not need to be
+  # included in this snap itself.
+  #
+  # More info: https://snapcraft-utils-library.readthedocs.io/en/latest/lib/cleanup.html 
+  #
+  cleanup:
+    after:  # Make this part run last; list all your other parts here
+      - tauno-serial-plotter
+      - desktop-qt5
+      - launcher
+      - desktop-gui
+    plugin: nil
+    build-snaps:  # List all content-snaps and base snaps you're using here
+      - core18
+    override-prime: |
+      set -eux
+      for snap in "core18" ; do  # List all content-snaps and base snaps you're using here
+        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      done
