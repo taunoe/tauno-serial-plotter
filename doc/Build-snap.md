@@ -65,11 +65,17 @@ snapcraft upload snap-file-name --release=candidate
 sudo snap install snap-name --channel=candidate
 ```
 
-Uninstall:
+## Uninstall
 
 ```Bash
 sudo snap remove snap-name
 ```
+
+## Change channel after install
+
+stabel, candidate, beta, edge
+
+sudo snap refresh --channel=edge tauno-serial-plotter
 
 ## Links
 
