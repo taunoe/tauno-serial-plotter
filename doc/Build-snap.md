@@ -77,6 +77,12 @@ stabel, candidate, beta, edge
 
 sudo snap refresh --channel=edge tauno-serial-plotter
 
+## notes
+
+sudo usermod -a -G dialout $USER
+
+sudo snap connect tauno-serial-plotter:raw-usb
+
 ## Links
 
 - [How to publish Python apps for human beings](https://gist.github.com/ForgottenUmbrella/ce6ecd8983e76f6d8ef47e07240eb4ac#snappy)
