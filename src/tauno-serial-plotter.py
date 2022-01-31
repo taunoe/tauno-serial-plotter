@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 14.01.2022
+    Edited: 31.01.2022
 
     TODO:
     - Add labels
@@ -125,6 +125,14 @@ QLabel_style = f"""
 QLabel{{
     color: {colors['hall']};
     font: {FONTSIZE}px;
+    margin-top: 5px;
+}}
+"""
+
+Qinfo_text_style = f"""
+QLabel{{
+    color: {colors['hall']};
+    font: {FONTSIZE-3}px;
     margin-top: 5px;
 }}
 """
@@ -388,6 +396,12 @@ class Controls(QWidget):
         self.menu_top.addWidget(self.connect)
         self.connect.setFixedWidth(self.control_width)
         self.connect.setStyleSheet(QPushButton_style)
+
+        # Info text
+        self.info_text = QLabel(self)
+        self.menu_top.addWidget(self.info_text)
+        self.info_text.setText("\nTo export data\nright-click on the plot.")
+        self.info_text.setStyleSheet(Qinfo_text_style)
 
         self.vertical_layout.addLayout(self.menu_top)
         # Top menu ends
