@@ -3,20 +3,10 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 31.01.2022
+    Edited: 30.09.2023
 
     TODO:
     - Add labels
-
-    Useful links:
-    - https://www.learnpyqt.com/courses/graphics-plotting/plotting-pyqtgraph/
-    - https://www.materialui.co/colors
-    - https://stackoverflow.com/questions/40577104/how-to-plot-two-real-time-data-in-one-single-plot-in-pyqtgraph
-    - https://www.youtube.com/watch?v=IEEhzQoKtQU&t=800s
-    - https://github.com/pyqt/examples
-    
-    - https://phrase.com/blog/posts/translate-python-gnu-gettext/
-    - https://phrase.com/blog/posts/beginners-guide-to-locale-in-python/
 """
 
 import sys
@@ -33,7 +23,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.18.8'
+VERSION = '1.18.9'
 TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -323,6 +313,8 @@ class Plot(pg.GraphicsLayoutWidget):
         self.serialplot.setLabel('left', 'Data')
         self.serialplot.setLabel('bottom', 'Time')
         self.serialplot.showGrid(x=True, y=True)
+        self.serialplot.addLegend()
+
 
         # Place to hold data
         self.x_axis = [0]  # Time
@@ -342,10 +334,9 @@ class Plot(pg.GraphicsLayoutWidget):
             pen = pg.mkPen(color=(plot_colors[color_i]))
 
             brush = pg.mkBrush(color=(plot_colors[color_i]))
-            line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], pen=pen,
+            line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], name="sensor", pen=pen,
                                 symbol='o', symbolBrush=brush, symbolSize=3)
             self.data_lines.append(line)
-
 # END of class Plot ------------------------------------------------------
 
 class Controls(QWidget):
@@ -821,6 +812,7 @@ class MainWindow(QWidget):
 
                     for count, value in enumerate(numbers):
                         self.add_numbers(count, value, self.plot_data_size)
+                        logging.debug("value: %s", value)
 
                     self.add_time(self.plot_data_size) # x axis
 
@@ -863,7 +855,13 @@ class MainWindow(QWidget):
                 
                 i = 0
                 while not incoming_data:
-                    incoming_data = self.ser.readline().decode('utf8') #readline()[:-1]
+                    #TODO Kas sisaldab numbreid?
+                    input = self.ser.readline().decode('utf8')
+                    for c in input:
+                        if c.isdigit():
+                            incoming_data = input
+
+                    #incoming_data = self.ser.readline().decode('utf8') #readline()[:-1]
                     if i > self.max_tryes:
                         break
                     logging.debug("i = %s", i)
@@ -876,6 +874,7 @@ class MainWindow(QWidget):
                     numbers = self.get_numbers(incoming_data)
                     logging.debug("Found: %s lines", len(numbers))
                     return len(numbers)
+                
 
             except Exception as ex:
                 logging.debug(ex)
