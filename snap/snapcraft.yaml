@@ -28,7 +28,7 @@ parts:
     python-packages:
       - pyserial  # requirements.txt
       - pyqtgraph  # requirements.txt
-      - PyQt5
+      - #PyQt5
     stage-packages:
       - python3-pyqt5
       - qtwayland5
