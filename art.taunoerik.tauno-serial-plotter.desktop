@@ -4,6 +4,6 @@ Type=Application
 Name=Tauno-serial-plotter
 Comment=Simple serial plotter
 TryExec=tauno-serial-plotter
-Exec=tauno-serial-plotter
+Exec=tauno-serial-plotter.py
 Icon=art.taunoerik.tauno-serial-plotter
 Categories=Utility;
