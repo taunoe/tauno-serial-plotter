@@ -17,8 +17,8 @@ compression: lzo      # improves startup time for large snaps
 
 architectures:
   - build-on: amd64
-  - build-on: i386
   - build-on: arm64
+  #- build-on: i386
 
 parts:
   tauno-serial-plotter:
@@ -28,6 +28,7 @@ parts:
     python-packages:
       - pyserial  # requirements.txt
       - pyqtgraph  # requirements.txt
+      - PyQt5
     stage-packages:
       - python3-pyqt5
       - qtwayland5
