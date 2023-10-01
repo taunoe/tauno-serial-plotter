@@ -1,6 +1,5 @@
 # Tauno Serial Plotter
 [![tauno-serial-plotter](https://snapcraft.io/tauno-serial-plotter/badge.svg)](https://snapcraft.io/tauno-serial-plotter)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/taunoe/tauno-serial-plotter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/taunoe/tauno-serial-plotter/context:python)
 
 Serial Plotter for Arduino and other embedded devices.
 
@@ -12,6 +11,29 @@ Serial Plotter for Arduino and other embedded devices.
 - Can plot negative values
 - Auto-scrolls the Time scale (X axis)
 - Auto-resizes the Data scale (Y axis)
+- Labels
+
+## Example Arduino code
+
+Do not add new line between multiple data items. Only in the end.
+
+```C++
+Serial.print("Label1");
+Serial.print(data1);
+Serial.print("Label2");
+Serial.print(data2);
+Serial.println();
+```
+
+To stop the plotter from auto-scaling add a 'min' and 'max' line.
+
+```C++
+Serial.print("Label1");
+Serial.print(data1);
+Serial.print("Label2");
+Serial.print(data2);
+Serial.println("Min:0,Max:1023");
+```
 
 ## Install
 
@@ -71,50 +93,6 @@ flatpak uninstall art.taunoerik.tauno-serial-plotter
 
 Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases). (TODO: Update it!)
 
-
-## Data
-
-Incoming data should be string. Ending with new line character. Numbers (int and float) can be separated with almost any character.
-Like:
-
-```C
-label2la15be17el28/31/42/54 78
-```
-
-or
-
-```C
-a2b1.5c1.7d2.8/3.1/4.2/5.4 7.8
-```
-
-But not with **-** unless it is a negative number:
-
-```C
-5-10-22-33-40-55-62-75
-```
-
-Script will extracts all numbers and generate graph.
-
-## Example Arduino code
-
-```C++
-Serial.print(variable1);
-Serial.print(",");
-Serial.print(variable2);
-Serial.print(",");
-Serial.println(last_variable);
-```
-
-To stop the plotter from auto-scaling add a 'min' and 'max' line.
-
-```C++
-Serial.print(variable1);
-Serial.print(",");
-Serial.print(variable2);
-Serial.print(",");
-Serial.println("Min:0,Max:1023");
-```
-
 ## Plot settings
 
 Once the plot (graph) is created it is possible to change the additional plot settings. Like to disable auto-resize on x or-axis y-axis. Or to export data.
@@ -132,8 +110,6 @@ Tested on Ubuntu 20.10.
 And on Windows 10
 
 ![Screenshot on ubuntu](./img/screenshot_win10.png)
-
-
 
 ## Dialout group
 
@@ -188,8 +164,6 @@ or
 ```Bash
 python3 ./tauno-serial-plotter.py
 ```
-
-
 
  ___
 

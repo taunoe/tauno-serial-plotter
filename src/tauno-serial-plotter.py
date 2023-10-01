@@ -3,10 +3,10 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 30.09.2023
+    Edited: 01.10.2023
 
     TODO:
-    - Add labels
+    - Add labels/legends
 """
 
 import sys
@@ -23,8 +23,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.18.9'
-TIMESCALESIZE = 450  # = self.plot_timescale and self.plot_data_size
+VERSION = '1.19.0'
+TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
 
@@ -298,10 +298,11 @@ class ForeverWorker(QRunnable):
 # New: GraphicsLayoutWidget
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
-    def __init__(self, nr_plot_lines='1'):
+    def __init__(self, nr_plot_lines='1', labels=["sensor1"]):
         super(Plot,self).__init__(parent=None)
 
         self.nr_plot_lines = nr_plot_lines
+        self.data_labels =labels
 
         if self.nr_plot_lines is None:
             logging.debug("nr_plot_lines is None!")
@@ -331,11 +332,12 @@ class Plot(pg.GraphicsLayoutWidget):
             else:
                 color_i = i
 
-            pen = pg.mkPen(color=(plot_colors[color_i]))
+            pen = pg.mkPen(color=(plot_colors[color_i]), width=3)
 
             brush = pg.mkBrush(color=(plot_colors[color_i]))
-            line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], name="sensor", pen=pen,
-                                symbol='o', symbolBrush=brush, symbolSize=3)
+            #
+            line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], name=self.data_labels[i],
+                                       pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
             self.data_lines.append(line)
 # END of class Plot ------------------------------------------------------
 
@@ -455,6 +457,7 @@ class MainWindow(QWidget):
         self.plot_exist = False
         self.is_fullscreen = False
 
+        self.labels = ["sensor"]
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
         self.baudrates = [
@@ -691,7 +694,8 @@ class MainWindow(QWidget):
             self.number_of_lines = self.how_many_lines()
 
             if self.number_of_lines is not None:
-                self.plot = Plot(self.number_of_lines)
+                # Init plot
+                self.plot = Plot(self.number_of_lines, self.labels)
                 self.horizontal_layout.addWidget(self.plot)
                 self.open_serial()
                 self.plot_exist = True
@@ -735,7 +739,7 @@ class MainWindow(QWidget):
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
             Tauno Erik<br/><br/>\
-            2021-2022".format(VERSION))
+            2021-2023".format(VERSION))
         self.aboutbox.exec_()
 
     def get_numbers(self, string):
@@ -745,6 +749,13 @@ class MainWindow(QWidget):
         """
         numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)
         return numbers
+    
+    def get_labels(self, string):
+        """
+        Function to extract all the labels from the given string
+        """
+        labels = re.findall(r'[-+]?[a-zA-Z]*\.?[a-zA-Z]+', string)
+        return labels
 
     def add_numbers(self, i, number, plot_data_size):
         """
@@ -803,6 +814,7 @@ class MainWindow(QWidget):
 
                 if incoming_data:
                     logging.info("read_serial_dat: Incoming data: %s", incoming_data)
+
                     numbers = self.get_numbers(incoming_data)
                     logging.debug("numbers: %s", len(numbers))
 
@@ -855,7 +867,6 @@ class MainWindow(QWidget):
                 
                 i = 0
                 while not incoming_data:
-                    #TODO Kas sisaldab numbreid?
                     input = self.ser.readline().decode('utf8')
                     for c in input:
                         if c.isdigit():
@@ -873,6 +884,17 @@ class MainWindow(QWidget):
                     logging.debug("if Incoming data %s", incoming_data)
                     numbers = self.get_numbers(incoming_data)
                     logging.debug("Found: %s lines", len(numbers))
+
+                    labels = self.get_labels(incoming_data)
+                    logging.debug("Found: %s labels", len(labels))
+                    for i, label in enumerate(labels):
+                        if i == 0: 
+                            self.labels[i] = label
+                        else:
+                           self.labels.append(label)
+                        logging.debug(i)
+                        logging.debug(label)
+
                     return len(numbers)
                 
 
