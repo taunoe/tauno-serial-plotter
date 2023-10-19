@@ -20,6 +20,8 @@ Do not add new line between multiple data items. Only in the end.
 
 Label names cannot contain numbers.
 
+If all data is not labelled. Then the labels will not be displayed.
+
 ```C++
 Serial.print("Label");
 Serial.print(data1);
