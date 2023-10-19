@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 01.10.2023
+    Edited: 19.10.2023
 
     TODO:
     - Add labels/legends
@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.19.0'
+VERSION = '1.19.1'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -335,8 +335,13 @@ class Plot(pg.GraphicsLayoutWidget):
             pen = pg.mkPen(color=(plot_colors[color_i]), width=3)
 
             brush = pg.mkBrush(color=(plot_colors[color_i]))
-            #
-            line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], name=self.data_labels[i],
+            # Quick fix:
+            # https://github.com/taunoe/tauno-serial-plotter/issues/71#issuecomment-1769499968
+            if len(self.data_labels) == len(self.y_axis):
+                line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], name=self.data_labels[i],
+                                       pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
+            else:
+                line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i],
                                        pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
             self.data_lines.append(line)
 # END of class Plot ------------------------------------------------------
@@ -457,7 +462,7 @@ class MainWindow(QWidget):
         self.plot_exist = False
         self.is_fullscreen = False
 
-        self.labels = ["sensor"]
+        self.labels = ["label"]
         self.ports = [''] # list of avablie devices
         self.selected_port = self.ports[0] # '/dev/ttyACM0'
         self.baudrates = [
