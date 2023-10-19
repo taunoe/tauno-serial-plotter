@@ -1,4 +1,5 @@
 # Tauno Serial Plotter
+
 [![tauno-serial-plotter](https://snapcraft.io/tauno-serial-plotter/badge.svg)](https://snapcraft.io/tauno-serial-plotter)
 
 Serial Plotter for Arduino and other embedded devices.
@@ -17,10 +18,12 @@ Serial Plotter for Arduino and other embedded devices.
 
 Do not add new line between multiple data items. Only in the end.
 
+Label names cannot contain numbers.
+
 ```C++
-Serial.print("Label1");
+Serial.print("Label");
 Serial.print(data1);
-Serial.print("Label2");
+Serial.print("Label");
 Serial.print(data2);
 Serial.println();
 ```
