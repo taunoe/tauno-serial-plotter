@@ -26,7 +26,7 @@ parts:
     plugin: python
     #requirements: ['requirements.txt']
     python-packages:
-      - -r pyserial requirements.txt
+      - -r requirements.txt
     stage-packages:
       - python3-pyqt5
       - qtwayland5
