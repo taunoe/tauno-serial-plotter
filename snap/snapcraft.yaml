@@ -31,6 +31,7 @@ parts:
     stage-packages:
       - python3-pyqt5
       - qtwayland5
+      - fonts-ubuntu  # Replace this with the correct font package
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -38,7 +39,7 @@ parts:
       - build-essential
       - qtbase5-dev
       - dpkg-dev
-      - fonts-ubuntu  # Replace this with the correct font package
+      
     make-parameters:
       - FLAVOR=qt5
     plugin: make
@@ -88,7 +89,7 @@ parts:
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
-    extensions: [kde-neon]  # Use this for a Qt5 desktop app
+    #extensions: [kde-neon]  # Use this for a Qt5 desktop app
     #command-chain:
     # Give execution permission to this file!
     #   - setup.sh
