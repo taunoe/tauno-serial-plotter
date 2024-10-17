@@ -6,7 +6,7 @@
     Edited: 17.10.2024
 
     TODO:
-    - Add labels/legends
+    - Monitor
 """
 
 import sys
@@ -82,30 +82,30 @@ pg.setConfigOption('foreground', colors['hall'])
 
 QPushButton_style = f"""
 QPushButton{{
-	color: {colors['black']};
-	background-color: {colors['hall']};
-	border: 1px solid {colors['black']};
-	padding: 5px;
+    color: {colors['black']};
+    background-color: {colors['hall']};
+    border: 1px solid {colors['black']};
+    padding: 5px;
     margin-top: 5px;
     font: {FONTSIZE}px;
 }}
 
 QPushButton::hover{{
-	background-color: {colors['green']};
+    background-color: {colors['green']};
     color: {colors['black']};
 }}
 
 QPushButton::pressed{{
-	border: 1px solid {colors['oranz']};
-	background-color: {colors['hall']};
+    border: 1px solid {colors['oranz']};
+    background-color: {colors['hall']};
 }}"""
 
 QPushButton_disabled_style = f"""
 QPushButton{{
-	color: {colors['black']};
-	background-color: {colors['dark']};
-	border: 1px solid {colors['black']};
-	padding: 5px;
+    color: {colors['black']};
+    background-color: {colors['dark']};
+    border: 1px solid {colors['black']};
+    padding: 5px;
     margin-top: 5px;
     font: {FONTSIZE}px;
 }}
@@ -171,7 +171,7 @@ QComboBox:editable, QComboBox{{
 }}
 
 QComboBox::hover{{
-	background-color: {colors['green']};
+    background-color: {colors['green']};
     color: {colors['black']}; /* tekst*/
 }}
 
@@ -229,7 +229,7 @@ QDoubleSpinBox{{
 }}
 
 QDoubleSpinBox::hover{{
-	background-color: {colors['green']};
+    background-color: {colors['green']};
     color: {colors['black']}; /* tekst*/
 }}
 
