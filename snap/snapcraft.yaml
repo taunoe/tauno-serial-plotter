@@ -1,5 +1,5 @@
 name: tauno-serial-plotter
-base: core20
+base: core22
 version: '1.19.2'
 summary: Simple serial plotter
 description: |
@@ -17,8 +17,8 @@ compression: lzo      # improves startup time for large snaps
 
 architectures:
   - build-on: amd64
-  - build-on: i386
   - build-on: arm64
+    #- build-on: i386 # alates core20 ei tööta
 
 parts:
   tauno-serial-plotter:
