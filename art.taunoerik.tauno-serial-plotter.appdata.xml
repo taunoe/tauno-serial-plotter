@@ -50,6 +50,10 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="1.19.2" date="2024-10-17"/>
+  </releases>
+
+  <releases>
     <release version="1.19.1" date="2023-10-19"/>
   </releases>
 </component>

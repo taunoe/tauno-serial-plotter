@@ -9,7 +9,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="tauno-serial-plotter",
-    version="1.19.1",
+    version="1.19.2",
     author="Tauno Erik",
     author_email="sedumacre@gmail.com",
     description="Tauno-Serial-Plotter is simple serial plotter for Arduino and others.",
@@ -23,5 +23,5 @@ setuptools.setup(
         "License :: GNU General Public License v3.0",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 )

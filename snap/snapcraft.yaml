@@ -1,6 +1,6 @@
 name: tauno-serial-plotter
 base: core18 
-version: '1.19.1'
+version: '1.19.2'
 summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.

@@ -149,9 +149,11 @@ Requirements if you use python script to run it.
 Python 3.7, PyQt5, pyserial, pyqtgraph
 
 ```Bash
-sudo apt install python3-pip python3-pyqt5
+sudo apt install python3-pip
 
-pip3 install pyserial pyqtgraph
+pip install PyQt5
+
+pip install pyserial pyqtgraph
 ```
 
 ### Run
@@ -172,4 +174,4 @@ python3 ./tauno-serial-plotter.py
 
  ___
 
-Copyright 2021-2022 Tauno Erik https://taunoerik.art
+Copyright 2021-2024 Tauno Erik https://taunoerik.art

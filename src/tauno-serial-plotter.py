@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 19.10.2023
+    Edited: 17.10.2024
 
     TODO:
     - Add labels/legends
@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.19.1'
+VERSION = '1.19.2'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -744,7 +744,7 @@ class MainWindow(QWidget):
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
             Tauno Erik<br/><br/>\
-            2021-2023".format(VERSION))
+            2021-2024".format(VERSION))
         self.aboutbox.exec_()
 
     def get_numbers(self, string):
