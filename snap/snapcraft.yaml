@@ -31,7 +31,6 @@ parts:
     stage-packages:
       - python3-pyqt5
       - qtwayland5
-      - fonts-ubuntu  # Replace this with the correct font package
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -47,7 +46,8 @@ parts:
     source-subdir: qt
     stage-packages:
       - libxkbcommon0
-      - ttf-ubuntu-font-family
+      #- ttf-ubuntu-font-family
+      - fonts-ubuntu  # Replace this with the correct font package
       - dmz-cursor-theme
       - light-themes
       - adwaita-icon-theme
