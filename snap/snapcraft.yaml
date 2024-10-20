@@ -66,13 +66,7 @@ parts:
       - qtwayland5
       - libqt5widgets5
       - libqt5xcbqpa5
-    Warning: Ignoring XDG_SESSION_TYPE=wayland on Gnome. Use QT_QPA_PLATFORM=wayland to run on Wayland anyway. qt.qpa.plugin: Could not load the Qt platform plugin "wayland-egl" in ough it was found. "" even th
 
-This application failed to start because no Qt platform plugin could be initiali zed. Reinstalling the application may fix this problem.
-
-Available platform plugins are: eglfs, linuxfb, minimal, minimalegl, offscreen, vnc, wayland-egl, wayland, wayland-xcomposite-egl, wayland-xcomposite-glx, xcb, webgl.
-
-Aborted (core dumped)
   launcher:
     plugin: nil
     source: .
