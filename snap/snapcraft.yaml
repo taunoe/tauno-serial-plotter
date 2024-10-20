@@ -1,5 +1,5 @@
 name: tauno-serial-plotter
-base: core18 
+base: core22
 version: '1.19.3'
 summary: Simple serial plotter
 description: |
@@ -17,7 +17,7 @@ compression: lzo      # improves startup time for large snaps
 
 architectures:
   - build-on: amd64
-  - build-on: i386
+  #- build-on: i386
   - build-on: arm64
 
 parts:
@@ -84,9 +84,8 @@ parts:
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
-    #command-chain:
-    # Give execution permission to this file!
-    #   - setup.sh
+    extensions:
+      - kde-neon
     environment:
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
