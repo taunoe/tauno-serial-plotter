@@ -33,7 +33,6 @@ parts:
       - python3
       - python3-pyqt5
       - libqt5gui5
-      - libqt5core5a
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -47,9 +46,9 @@ parts:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
     stage-packages:
-      - libxkbcommon0
       #- ttf-ubuntu-font-family
-      - fonts-ubuntu  # Replace this with the correct font package
+      - fonts-ubuntu
+      - fonts-dejavu-core
       - dmz-cursor-theme
       - light-themes
       - adwaita-icon-theme
@@ -58,12 +57,25 @@ parts:
       - libqt5gui5
       - libgdk-pixbuf2.0-0
       - libqt5svg5
+      - libqt5widgets5
+      - libqt5x11extras5
+      - libqt5dbus5
+      - libxkbcommon0
+      - libqt5core5a
+      - libxcb-xinput0
+      - libglib2.0-0
+      - libegl1
+      - libegl1-mesa
+      - libxcb1
+      - libxcb-render0
+      - libxcb-shape0
+      - libxcb-shm0
       #- try: [appmenu-qt5] # not available on core18
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
-      - qtwayland5
-      - libqt5widgets5
+      #- qtwayland5
+      
 
   launcher:
     plugin: nil
@@ -100,7 +112,7 @@ apps:
       QT_QPA_PLATFORM: xcb  # Force the use of X11 platform
       PYTHONPATH: $SNAP/usr/lib/python3:$SNAP/usr/lib/python3/site-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
-      DISABLE_WAYLAND: 1
+      # DISABLE_WAYLAND: 1
     plugs:
       #- unity7
       - home
