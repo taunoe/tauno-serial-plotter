@@ -47,6 +47,7 @@ parts:
     source-subdir: qt
     stage-packages:
       #- ttf-ubuntu-font-family
+      - libxkbcommon0
       - fonts-ubuntu
       - fonts-dejavu-core
       - dmz-cursor-theme
@@ -70,6 +71,8 @@ parts:
       - libxcb-render0
       - libxcb-shape0
       - libxcb-shm0
+      - libxcb-xfixes0
+      - libxcb-sync1
       #- try: [appmenu-qt5] # not available on core18
       - locales-all
       - xdg-user-dirs
@@ -110,6 +113,7 @@ apps:
     #   - setup.sh
     environment:
       QT_QPA_PLATFORM: xcb  # Force the use of X11 platform
+      QT_DEBUG_PLUGINS: 1  # Optional: This helps debug Qt plugin issues
       PYTHONPATH: $SNAP/usr/lib/python3:$SNAP/usr/lib/python3/site-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       # DISABLE_WAYLAND: 1
