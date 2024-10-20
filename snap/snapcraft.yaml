@@ -34,6 +34,7 @@ parts:
       - python3
       - python3-pyqt5
       - qtwayland5
+      - libqt5xcbqpa5
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -41,7 +42,6 @@ parts:
       - build-essential
       - qtbase5-dev
       - dpkg-dev
-      
     make-parameters:
       - FLAVOR=qt5
     plugin: make
@@ -65,7 +65,14 @@ parts:
       - fcitx-frontend-qt5
       - qtwayland5
       - libqt5widgets5
-    
+      - libqt5xcbqpa5
+    Warning: Ignoring XDG_SESSION_TYPE=wayland on Gnome. Use QT_QPA_PLATFORM=wayland to run on Wayland anyway. qt.qpa.plugin: Could not load the Qt platform plugin "wayland-egl" in ough it was found. "" even th
+
+This application failed to start because no Qt platform plugin could be initiali zed. Reinstalling the application may fix this problem.
+
+Available platform plugins are: eglfs, linuxfb, minimal, minimalegl, offscreen, vnc, wayland-egl, wayland, wayland-xcomposite-egl, wayland-xcomposite-glx, xcb, webgl.
+
+Aborted (core dumped)
   launcher:
     plugin: nil
     source: .
@@ -98,6 +105,8 @@ apps:
     # Give execution permission to this file!
     #   - setup.sh
     environment:
+      QT_QPA_PLATFORM: xcb  # Force the use of X11 platform
+      PYTHONPATH: $SNAP/usr/lib/python3/site-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
     plugs:
