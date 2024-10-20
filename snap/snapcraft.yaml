@@ -25,7 +25,6 @@ parts:
     plugin: python
     build-packages:
       - python3
-      - python3-pyqt5
     python-packages:
       - pyserial
       - pyqtgraph
@@ -66,7 +65,6 @@ parts:
       - fcitx-frontend-qt5
       - qtwayland5
       - libqt5widgets5
-      - libqt5xcbqpa5
 
   launcher:
     plugin: nil
@@ -101,7 +99,7 @@ apps:
     #   - setup.sh
     environment:
       QT_QPA_PLATFORM: xcb  # Force the use of X11 platform
-      PYTHONPATH: $SNAP/usr/lib/python3/site-packages:$PYTHONPATH
+      PYTHONPATH: $SNAP/usr/lib/python3:$SNAP/usr/lib/python3/site-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
     plugs:
