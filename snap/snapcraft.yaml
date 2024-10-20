@@ -24,7 +24,7 @@ parts:
   tauno-serial-plotter:
     source: .
     plugin: python
-    requirements: ['requirements.txt']
+    requirements: 'requirements.txt'
     stage-packages:
       - python3-pyqt5
       - qtwayland5
