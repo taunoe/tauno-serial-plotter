@@ -25,6 +25,11 @@ parts:
     plugin: python
     build-packages:
       - python3
+      - qtbase5-dev
+      - qtwayland5
+      - libegl1-mesa-dev
+      - libgles2-mesa-dev
+      - libwayland-dev
     python-packages:
       - pyserial
       - pyqtgraph
@@ -33,6 +38,12 @@ parts:
       - python3
       - python3-pyqt5
       - libqt5gui5
+      - qtwayland5
+      - libqt5waylandclient5
+      - libqt5waylandcompositor5
+      - libegl1-mesa
+      - libgles2-mesa
+      - libwayland-egl1
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -112,13 +123,13 @@ apps:
     # Give execution permission to this file!
     #   - setup.sh
     environment:
-      QT_QPA_PLATFORM: xcb  # Force the use of X11 platform
+      QT_QPA_PLATFORM: "wayland;xcb"  # Try Wayland first, fallback to X11
       QT_DEBUG_PLUGINS: 1  # Optional: This helps debug Qt plugin issues
       PYTHONPATH: $SNAP/usr/lib/python3:$SNAP/usr/lib/python3/site-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       # DISABLE_WAYLAND: 1
     plugs:
-      #- unity7
+      - unity7
       - home
       - removable-media
       - network
