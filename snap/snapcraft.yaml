@@ -94,17 +94,18 @@ apps:
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
     plugs:
-    - unity7
-    - home
-    - removable-media
-    - network
-    - serial-port
-    - raw-usb
-
-    - desktop
-    - desktop-legacy
-    - x11
-    - wayland
-    - opengl
-    - network-bind
-    - hardware-observe
+      - unity7
+      - home
+      - removable-media
+      - network
+      - serial-port
+      - raw-usb
+      - desktop
+      - desktop-legacy
+      - x11
+      - wayland
+      - opengl
+      - network-bind
+      - hardware-observe
+    stage-packages:
+      - python3-pyqt5
