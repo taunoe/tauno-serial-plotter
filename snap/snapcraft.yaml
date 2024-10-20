@@ -23,10 +23,13 @@ parts:
   tauno-serial-plotter:
     source: .
     plugin: python
-    python-packages:
+    build-packages:
+      - python3
+      - python3-pyqt5
       - pyserial
       - pyqtgraph
     stage-packages:
+      - python3
       - python3-pyqt5
       - qtwayland5
     after: [desktop-qt5]
@@ -94,7 +97,7 @@ apps:
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
     plugs:
-      - unity7
+      #- unity7
       - home
       - removable-media
       - network
