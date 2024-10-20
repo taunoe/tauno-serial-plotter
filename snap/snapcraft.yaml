@@ -1,6 +1,6 @@
 name: tauno-serial-plotter
 base: core22
-version: '1.19.2'
+version: '1.19.3'
 summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.
@@ -18,13 +18,11 @@ compression: lzo      # improves startup time for large snaps
 architectures:
   - build-on: amd64
   - build-on: arm64
-    #- build-on: i386 # alates core20 ei tööta
 
 parts:
   tauno-serial-plotter:
     source: .
     plugin: python
-    #requirements: requirements.txt
     python-packages:
       - pyserial
       - pyqtgraph
@@ -89,7 +87,6 @@ parts:
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
-    #extensions: [kde-neon]  # Use this for a Qt5 desktop app
     #command-chain:
     # Give execution permission to this file!
     #   - setup.sh
