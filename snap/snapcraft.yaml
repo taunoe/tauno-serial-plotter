@@ -28,6 +28,7 @@ parts:
       - python3-pyqt5
       - pyserial
     python-packages:
+      - pyserial
       - pyqtgraph
     stage-packages:
       - python3
@@ -62,6 +63,8 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
+      - qtwayland5
+      - libqt5widgets5
     
   launcher:
     plugin: nil
@@ -96,7 +99,7 @@ apps:
     #   - setup.sh
     environment:
       # Fallback to XWayland if running in a Wayland session.
-      DISABLE_WAYLAND: 1
+      # DISABLE_WAYLAND: 1
     plugs:
       #- unity7
       - home
