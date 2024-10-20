@@ -29,6 +29,7 @@ parts:
     python-packages:
       - pyserial
       - pyqtgraph
+      - PyQt5
     stage-packages:
       - python3
       - python3-pyqt5
