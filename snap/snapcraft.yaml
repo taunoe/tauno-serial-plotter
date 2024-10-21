@@ -1,5 +1,5 @@
 name: tauno-serial-plotter
-base: core22
+base: core24
 version: '1.19.3'
 summary: Simple serial plotter
 description: |
@@ -17,8 +17,34 @@ compression: lzo      # improves startup time for large snaps
 
 architectures:
   - build-on: amd64
-  #- build-on: i386
   - build-on: arm64
+
+apps:
+  tauno-serial-plotter:
+    command: bin/desktop-launch tauno-serial-plotter.py
+    extensions:
+      - kde-neon
+    #environment:
+    #  QT_QPA_PLATFORM: xcb
+    #  DISABLE_WAYLAND: 1
+    #  QT_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins
+    #  QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins/platforms
+    #  LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
+    plugs:
+    - unity7
+    - home
+    - removable-media
+    - network
+    - serial-port
+    - raw-usb
+    - desktop
+    - desktop-legacy
+    - x11
+    - wayland
+    - opengl
+    - network-bind
+    - hardware-observe
+
 
 parts:
   tauno-serial-plotter:
@@ -108,36 +134,3 @@ parts:
       '*.svg' : bin/icons/
     stage:
       - bin/icons/
-
-  #scripts:
-  #  plugin: dump
-  #  source: scripts # dir
-  #  stage-packages:
-  #    - yad
-
-# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
-apps:
-  tauno-serial-plotter:
-    command: bin/desktop-launch tauno-serial-plotter.py
-    extensions:
-      - kde-neon
-    environment:
-      QT_QPA_PLATFORM: xcb
-      DISABLE_WAYLAND: 1
-      QT_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins
-      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins/platforms
-      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
-    plugs:
-    - unity7
-    - home
-    - removable-media
-    - network
-    - serial-port
-    - raw-usb
-    - desktop
-    - desktop-legacy
-    - x11
-    - wayland
-    - opengl
-    - network-bind
-    - hardware-observe
