@@ -70,6 +70,25 @@ parts:
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
+      - libxcb-xinerama0
+      - libxcb1
+      - libx11-xcb1
+      - libxkbcommon-x11-0
+      - libxcb-icccm4
+      - libxcb-image0
+      - libxcb-keysyms1
+      - libxcb-render0
+      - libxcb-render-util0
+      - libxcb-shape0
+      - libxcb-sync1
+      - libxcb-xfixes0
+      - libxcb-randr0
+      - libxcb-xinerama0
+      - libxcb-glx0
+      - libc6
+      - libgl1-mesa-dri
+      - libgl1-mesa-glx
+      - libglu1-mesa
     
   launcher:
     plugin: nil
@@ -104,6 +123,9 @@ apps:
     environment:
       QT_QPA_PLATFORM: xcb
       DISABLE_WAYLAND: 1
+      QT_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins
+      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins/platforms
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
     plugs:
     - unity7
     - home
