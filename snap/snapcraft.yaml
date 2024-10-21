@@ -42,9 +42,6 @@ parts:
       - libxcb-shape0
       - libxcb-sync1
       - libxcb-xfixes0
-    stage:
-      # Exclude the lib64 directory to avoid conflict
-      - !lib64
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -90,9 +87,9 @@ parts:
       - libgl1-mesa-dri
       - libgl1-mesa-glx
       - libglu1-mesa
-    stage:
+    #stage:
       # Exclude the lib64 directory to avoid conflict
-      - !lib64
+      #- !lib64
 
   launcher:
     plugin: nil
