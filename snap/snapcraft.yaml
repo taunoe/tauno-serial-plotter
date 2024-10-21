@@ -31,6 +31,17 @@ parts:
     stage-packages:
       - python3-pyqt5
       - qtwayland5
+      - libxcb1
+      - libx11-xcb1
+      - libxkbcommon-x11-0
+      - libxcb-icccm4
+      - libxcb-image0
+      - libxcb-keysyms1
+      - libxcb-render0
+      - libxcb-render-util0
+      - libxcb-shape0
+      - libxcb-sync1
+      - libxcb-xfixes0
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -91,7 +102,7 @@ apps:
     extensions:
       - kde-neon
     environment:
-      # Fallback to XWayland if running in a Wayland session.
+      QT_QPA_PLATFORM: xcb
       DISABLE_WAYLAND: 1
     plugs:
     - unity7
