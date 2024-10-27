@@ -1,5 +1,5 @@
 name: tauno-serial-plotter
-base: core24
+base: core18
 version: '1.19.3'
 summary: Simple serial plotter
 description: |
@@ -22,14 +22,9 @@ architectures:
 apps:
   tauno-serial-plotter:
     command: bin/desktop-launch tauno-serial-plotter.py
-    extensions:
-      - kde-neon
-    #environment:
-    #  QT_QPA_PLATFORM: xcb
-    #  DISABLE_WAYLAND: 1
-    #  QT_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins
-    #  QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/qt5/plugins/platforms
-    #  LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
+    environment:
+      # Fallback to XWayland if running in a Wayland session.
+      DISABLE_WAYLAND: 1
     plugs:
     - unity7
     - home
@@ -55,19 +50,8 @@ parts:
       - pyqtgraph
       - PyQt5
     stage-packages:
-      - python3-pyqt5
-      - qtwayland5
-      - libxcb1
-      - libx11-xcb1
-      - libxkbcommon-x11-0
-      - libxcb-icccm4
-      - libxcb-image0
-      - libxcb-keysyms1
-      - libxcb-render0
-      - libxcb-render-util0
-      - libxcb-shape0
-      - libxcb-sync1
-      - libxcb-xfixes0
+       - python3-pyqt5
+       - qtwayland5
     after: [desktop-qt5]
   
   desktop-qt5:
@@ -81,41 +65,22 @@ parts:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
     stage-packages:
-      - libxkbcommon0
       - fonts-ubuntu
       - fonts-dejavu-core
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
       - dmz-cursor-theme
       - light-themes
       - adwaita-icon-theme
       - gnome-themes-standard
       - shared-mime-info
       - libqt5gui5
-      - libqt5core5a
-      - libqt5dbus5
-      - libqt5widgets5
-      - libqt5svg5
       - libgdk-pixbuf2.0-0
-      #- try: [appmenu-qt5] # not available on core18
+      - libqt5svg5
       - locales-all
       - xdg-user-dirs
       - fcitx-frontend-qt5
-      - libxcb1
-      - libx11-xcb1
-      - libxkbcommon-x11-0
-      - libxcb-icccm4
-      - libxcb-image0
-      - libxcb-keysyms1
-      - libxcb-render0
-      - libxcb-render-util0
-      - libxcb-shape0
-      - libxcb-sync1
-      - libxcb-xfixes0
-      - libxcb-randr0
-      - libxcb-xinerama0
-      - libxcb-glx0
-      - libgl1-mesa-dri
-      - libgl1-mesa-glx
-      - libglu1-mesa
+     
 
   launcher:
     plugin: nil
