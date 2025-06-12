@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 20.10.2024
+    Edited: 12.06.2025
 
     TODO:
     - Monitor
@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.19.3'
+VERSION = '1.19.4'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -744,7 +744,7 @@ class MainWindow(QWidget):
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
             Tauno Erik<br/><br/>\
-            2021-2024".format(VERSION))
+            2021-2025".format(VERSION))
         self.aboutbox.exec_()
 
     def get_numbers(self, string):
@@ -811,45 +811,50 @@ class MainWindow(QWidget):
             self.close_serial()
             self.error_counter = 0
 
+    """
+    Read serial data from serial port.
+    """
     def read_serial_data(self):
 
         if self.ser.is_open:
-            try:
-                incoming_data = self.ser.readline().decode('utf8')
+            # Check if there is data in the input buffer
+            if self.ser.in_waiting > 0:
+                try:
+                    incoming_data = self.ser.readline().decode('utf8')
 
-                if incoming_data:
-                    logging.info("read_serial_dat: Incoming data: %s", incoming_data)
+                    if incoming_data:
+                        logging.info("read_serial_dat: Incoming data: %s", incoming_data)
 
-                    numbers = self.get_numbers(incoming_data)
-                    logging.debug("numbers: %s", len(numbers))
+                        numbers = self.get_numbers(incoming_data)
+                        logging.debug("numbers: %s", len(numbers))
 
-                    # mitu data punkti tuleb sisse?
-                    while len(numbers) > len(self.plot.y_axis):
-                        self.plot.y_axis.append([0])
+                        # mitu data punkti tuleb sisse?
+                        while len(numbers) > len(self.plot.y_axis):
+                            self.plot.y_axis.append([0])
 
-                    for count, value in enumerate(numbers):
-                        self.add_numbers(count, value, self.plot_data_size)
-                        logging.debug("value: %s", value)
+                        for count, value in enumerate(numbers):
+                            self.add_numbers(count, value, self.plot_data_size)
+                            logging.debug("value: %s", value)
 
-                    self.add_time(self.plot_data_size) # x axis
+                        self.add_time(self.plot_data_size) # x axis
 
-                    for i in range(self.number_of_lines):
-                        logging.debug("for loop %s", i)
-                        logging.debug("plot.x_axis %s", self.plot.x_axis)
-                        logging.debug("plot.y_axis[i] %s", self.plot.y_axis[i])
-                        if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
-                            # At beginning append 0.0
-                            self.plot.y_axis[i].insert(0, 0.0)
-                        self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
-            except Exception as ex:
-                logging.debug(ex)
-                logging.debug("Error read_serial_data!!!")
-                self.error_counter += 1
-                self.error_status()
-                self.equal_x_and_y()
+                        for i in range(self.number_of_lines):
+                            logging.debug("for loop %s", i)
+                            logging.debug("plot.x_axis %s", self.plot.x_axis)
+                            logging.debug("plot.y_axis[i] %s", self.plot.y_axis[i])
+                            if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
+                                # At beginning append 0.0
+                                self.plot.y_axis[i].insert(0, 0.0)
+                            self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
+                except Exception as ex:
+                    logging.debug(ex)
+                    logging.debug("Error read_serial_data!!!")
+                    self.error_counter += 1
+                    self.error_status()
+                    self.equal_x_and_y()
                 
-            except SystemExit:  
-                logging.debug(sys.exc_info())
+                except SystemExit:  
+                    logging.debug(sys.exc_info())
 
 
     def how_many_lines(self):
