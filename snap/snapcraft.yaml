@@ -1,6 +1,7 @@
 name: tauno-serial-plotter
 base: core18
 grade: stable
+confinement: strict
 version: '1.19.4'
 summary: Simple serial plotter
 description: |
