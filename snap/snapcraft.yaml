@@ -12,9 +12,6 @@ description: |
   `sudo usermod -a -G dialout $USER`
 
   `sudo snap connect tauno-serial-plotter:raw-usb`
-
-grade: stable
-confinement: strict
 compression: lzo
 
 architectures:
