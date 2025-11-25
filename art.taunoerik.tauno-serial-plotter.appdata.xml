@@ -56,4 +56,10 @@
   <releases>
     <release version="1.19.1" date="2023-10-19"/>
   </releases>
+  <keywords>
+    <keyword>serial plotter</keyword>
+    <keyword>arduino plotting</keyword>
+    <keyword>serial data analysis</keyword>
+    <keyword>simple graphing software</keyword>
+  </keywords>
 </component>
