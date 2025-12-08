@@ -174,4 +174,4 @@ python3 ./tauno-serial-plotter.py
 
  ___
 
-Copyright 2021-2024 Tauno Erik https://taunoerik.art
+Copyright 2021-2025 Tauno Erik https://taunoerik.art
