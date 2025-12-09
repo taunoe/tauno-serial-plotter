@@ -16,10 +16,10 @@ import logging
 import time
 import serial
 import serial.tools.list_ports
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import Qt, QRunnable, QThreadPool
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
-                            QLabel, QWidget, QDesktopWidget, QMessageBox)
+from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6.QtCore import Qt, QRunnable, QThreadPool
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
+                            QLabel, QWidget, QMessageBox) #QDesktopWidget
 import pyqtgraph as pg
 import platform
 
@@ -365,7 +365,8 @@ class Controls(QWidget):
 
         # Top Menu
         self.menu_top = QVBoxLayout()
-        self.menu_top.setAlignment(Qt.AlignTop)
+        #self.menu_top.setAlignment(Qt.AlignTop)#PyQt5
+        self.menu_top.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Label Baud
         self.baud_label = QLabel(self)
@@ -407,7 +408,8 @@ class Controls(QWidget):
 
         # Bottom menu
         self.menu_bottom = QVBoxLayout()
-        self.menu_bottom.setAlignment(Qt.AlignBottom)
+        #self.menu_bottom.setAlignment(Qt.AlignBottom)#PyQt5
+        self.menu_bottom.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
         # Select Time scale size
         ## Time scale txt
@@ -550,7 +552,12 @@ class MainWindow(QWidget):
     def center_mainwindow(self):
         """ Center window on startup. """
         qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
+
+        #cp = QDesktopWidget().availableGeometry().center() #PyQt5
+        screen = QApplication.primaryScreen()
+        rect = screen.availableGeometry()
+        cp = rect.center()
+
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
@@ -967,7 +974,8 @@ if __name__ == '__main__':
     window.show()
 
     try:
-        exit_code = app.exec_()
+        #exit_code = app.exec_()#pyqt5
+        exit_code = app.exec()
         print(exit_code)
         sys.exit(exit_code)
     except SystemExit:
