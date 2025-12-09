@@ -2,7 +2,7 @@ name: tauno-serial-plotter
 base: core20
 grade: stable
 confinement: strict
-version: '1.19.5'
+version: '1.19.6'
 summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.
@@ -16,7 +16,6 @@ compression: lzo
 
 architectures:
   - build-on: amd64
-  - build-on: i386
   - build-on: arm64
 
 parts:
@@ -25,17 +24,17 @@ parts:
     plugin: python
     requirements: ['requirements.txt']
     stage-packages:
-      - python3-pyqt5
-      - qtwayland5
-    after: [desktop-qt5]
+      - python3-pyqt6
+      - qtwayland6
+    after: [desktop-qt6]
   
   desktop-qt5:
     build-packages:
       - build-essential
-      - qtbase5-dev
+      - qtbase6-dev
       - dpkg-dev
     make-parameters:
-      - FLAVOR=qt5
+      - FLAVOR=qt6
     plugin: make
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
@@ -47,12 +46,12 @@ parts:
       - adwaita-icon-theme
       - gnome-themes-standard
       - shared-mime-info
-      - libqt5gui5
+      - libqt5gui6
       - libgdk-pixbuf2.0-0
-      - libqt5svg5
+      - libqt6svg5
       - locales-all
       - xdg-user-dirs
-      - fcitx-frontend-qt5
+      - fcitx-frontend-qt6
     
   launcher:
     plugin: nil

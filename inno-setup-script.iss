@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Tauno Serial Plotter"
-#define MyAppVersion "1.19.5"
+#define MyAppVersion "1.19.6"
 #define MyAppPublisher "taunoerik.art"
 #define MyAppURL "https://github.com/taunoe/tauno-serial-plotter"
 #define SourcePath "C:\Users\tauno\Downloads\tauno-serial-plotter\dist\tauno-serial-plotter"
