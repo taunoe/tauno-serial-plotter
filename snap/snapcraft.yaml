@@ -22,7 +22,7 @@ parts:
   tauno-serial-plotter:
     source: .
     plugin: python
-    requirements: ['requirements.txt']
+    python-requirements: ['requirements.txt']
     stage-packages:
       - python3-pyqt6
       - qtwayland6
