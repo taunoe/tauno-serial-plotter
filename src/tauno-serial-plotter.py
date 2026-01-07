@@ -8,7 +8,6 @@
     TODO:
     - Monitor
 """
-
 import sys
 import re
 import os
@@ -796,7 +795,7 @@ class MainWindow(QWidget):
             logging.debug("0 Open serial: %s %s", self.selected_port, self.selected_baudrate)
             if self.ser.is_open:
                 self.ser.close()
-            self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.0)
+            self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=1)
             self.ser.reset_input_buffer()## 09.02.2022
             logging.debug("1 Open serial: %s %s", self.ser.name, self.ser.baudrate)
         except IOError:
