@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 12.06.2025
+    Edited: 07.01.2026
 
     TODO:
     - Monitor
@@ -19,11 +19,11 @@ import serial.tools.list_ports
 from PyQt6 import QtWidgets, QtCore, QtGui
 from PyQt6.QtCore import Qt, QRunnable, QThreadPool
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
-                            QLabel, QWidget, QMessageBox) #QDesktopWidget
+                            QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.19.5'
+VERSION = '1.21.1'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -751,8 +751,8 @@ class MainWindow(QWidget):
             github.com/taunoe/tauno-serial-plotter</a><br/><br/>\
             Version {}<br/><br/>\
             Tauno Erik<br/><br/>\
-            2021-2025".format(VERSION))
-        self.aboutbox.exec_()
+            2021-2026".format(VERSION))
+        self.aboutbox.exec()
 
     def get_numbers(self, string):
         """
@@ -796,7 +796,7 @@ class MainWindow(QWidget):
             logging.debug("0 Open serial: %s %s", self.selected_port, self.selected_baudrate)
             if self.ser.is_open:
                 self.ser.close()
-            self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.09)
+            self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=0.0)
             self.ser.reset_input_buffer()## 09.02.2022
             logging.debug("1 Open serial: %s %s", self.ser.name, self.ser.baudrate)
         except IOError:

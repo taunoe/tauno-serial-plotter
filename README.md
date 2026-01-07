@@ -96,7 +96,7 @@ flatpak uninstall art.taunoerik.tauno-serial-plotter
 
 ### Windows
 
-Windows version can be found under [Releases](https://github.com/taunoe/tauno-serial-plotter/releases). (TODO: Update it!)
+?
 
 ## Plot settings
 
@@ -146,12 +146,12 @@ More info: https://docs.platformio.org/en/latest/faq.html#faq-udev-rules
 
 Requirements if you use python script to run it.
 
-Python 3.7, PyQt5, pyserial, pyqtgraph
+Python 3.7, PyQt6, pyserial, pyqtgraph
 
 ```Bash
 sudo apt install python3-pip
 
-pip install PyQt5
+pip install PyQt6
 
 pip install pyserial pyqtgraph
 ```
@@ -174,4 +174,4 @@ python3 ./tauno-serial-plotter.py
 
  ___
 
-Copyright 2021-2025 Tauno Erik https://taunoerik.art
+Copyright 2021-2026 Tauno Erik https://taunoerik.art

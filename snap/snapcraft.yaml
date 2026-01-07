@@ -1,8 +1,8 @@
 name: tauno-serial-plotter
-base: core20
+base: core24
 grade: stable
 confinement: strict
-version: '1.19.6'
+version: '1.20.1'
 summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.
@@ -80,7 +80,7 @@ apps:
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
     plugs:
-    - unity7
+    #- unity7
     - home
     - removable-media
     - network
