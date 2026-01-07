@@ -50,14 +50,15 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="1.20.0" date="2026-01-07">
+      <description>
+        <ul>
+          <li>PyQt6</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.19.5" date="2025-12-08"/>
-  </releases>
-
-  <releases>
     <release version="1.19.2" date="2024-10-17"/>
-  </releases>
-
-  <releases>
     <release version="1.19.1" date="2023-10-19"/>
   </releases>
   <keywords>
