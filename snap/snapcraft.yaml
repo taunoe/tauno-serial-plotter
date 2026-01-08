@@ -26,32 +26,14 @@ parts:
     stage-packages:
       - python3-pyqt6
       - qtwayland6
-    after: [desktop-qt6]
-  
-  desktop-qt5:
-    build-packages:
-      - build-essential
-      - qtbase6-dev
-      - dpkg-dev
-    make-parameters:
-      - FLAVOR=qt6
-    plugin: make
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: qt
-    stage-packages:
-      - libxkbcommon0
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libqt5gui6
-      - libgdk-pixbuf2.0-0
-      - libqt6svg5
-      - locales-all
-      - xdg-user-dirs
-      - fcitx-frontend-qt6
+
+  slots:
+  qt6-content:
+    interface: content
+    content: qt6
+    default-provider: qt6-core24
+    target: $SNAP/qt6
+
     
   launcher:
     plugin: nil
@@ -75,10 +57,13 @@ parts:
 # https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
 apps:
   tauno-serial-plotter:
-    command: bin/desktop-launch tauno-serial-plotter.py
-    environment:
+    #command: bin/desktop-launch tauno-serial-plotter.py
+    command: usr/bin/desktop-launch6 tauno-serial-plotter.py
+      command-chain:
+        - bin/snap-command-wrapper
+    #environment:
       # Fallback to XWayland if running in a Wayland session.
-      DISABLE_WAYLAND: 1
+      #DISABLE_WAYLAND: 1
     plugs:
     #- unity7
     - home
@@ -93,3 +78,17 @@ apps:
     - opengl
     - network-bind
     - hardware-observe
+
+desktop-wrapper:
+  plugin: nil
+  override-build: |
+    mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+    cat <<EOF > $SNAPCRAFT_PART_INSTALL/bin/snap-command-wrapper
+    #!/bin/sh
+    export XDG_DATA_DIRS=\$SNAP/qt6/usr/share:\$XDG_DATA_DIRS
+    export QT_PLUGIN_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/plugins
+    export QML2_IMPORT_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/qml
+    export QTCHOICE_PLATFORM_PLUGIN_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/plugins/platforms
+    exec "\$@"
+    EOF
+    chmod +x $SNAPCRAFT_PART_INSTALL/bin/snap-command-wrapper
