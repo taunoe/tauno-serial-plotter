@@ -3,7 +3,7 @@
     File:   Tauno-Serial-Plotter.py
     Author: Tauno Erik
     Started:07.03.2020
-    Edited: 07.01.2026
+    Edited: 09.01.2026
 
     TODO:
     - Monitor
@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.21.1'
+VERSION = '1.21.2'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -223,7 +223,7 @@ QDoubleSpinBox{{
     background-color: {colors['hall']};
     color: {colors['black']};
     border: 1px solid {colors['black']};
-    padding: 5px 25px 0px 25px; 
+    padding: 0px 0px 0px 0px; 
     font: {FONTSIZE}px;
 }}
 
@@ -239,7 +239,7 @@ QDoubleSpinBox::up-button{{
     width: 25px;
     border-width: 1px;
     height:25px;
-    padding-bottom: 1px;
+    /*padding-bottom: 1px;*/
 }}
 
 QDoubleSpinBox::down-button{{
@@ -249,19 +249,19 @@ QDoubleSpinBox::down-button{{
     width: 25px;
     border-width: 1px;
     height:25px;
-    padding-bottom: 1px;
+    /*padding-bottom: 1px;*/
 }}
 
 QDoubleSpinBox::up-arrow {{
     image: url({icon_plus});
-    width: 24px;
-    height: 24px;
+    width: 25px;
+    height: 25px;
 }}
 
 QDoubleSpinBox::down-arrow {{
     image: url({icon_minus});
-    width: 24px;
-    height: 24px;
+    width: 25px;
+    height: 25px;
 }}
 
 """
