@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.20.3'
+VERSION = '1.20.4'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -76,22 +76,23 @@ plot_colors = [
     ]
 
 # STYLING
-FONTSIZE = 16
+FONTSIZE = '16px'
+BORDER_RADIUS = '5px'
 
 # Graph style
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', colors['dark'])
 pg.setConfigOption('foreground', colors['hall'])
 
-QIconButton_style = f"""
+btn_icon_style = f"""
 QPushButton{{
     color: {colors['black']};
     background-color: {colors['hall']};
-    border: 1px solid {colors['black']};
-    border-radius: 5px;
+    border: 1px solid {colors['dark']};
+    border-radius: {BORDER_RADIUS};
     padding: 5px;
     margin-top: 0px;
-    font: {FONTSIZE}px;
+    font: {FONTSIZE};
 }}
 
 QPushButton::hover{{
@@ -104,15 +105,26 @@ QPushButton::pressed{{
     background-color: {colors['hall']};
 }}"""
 
-QPushButton_style = f"""
+btn_icon_style_disabled = f"""
+QPushButton{{
+    color: {colors['black']};
+    background-color: {colors['dark']};
+    border: 1px solid {colors['dark']};
+    padding: 5px;
+    margin-top: 0px;
+    font: {FONTSIZE};
+}}
+"""
+
+btn_style = f"""
 QPushButton{{
     color: {colors['black']};
     background-color: {colors['hall']};
     border: 1px solid {colors['black']};
-    border-radius: 5px;
+    border-radius: {BORDER_RADIUS};
     padding: 5px;
     margin-top: 0px;
-    font: {FONTSIZE}px;
+    font: {FONTSIZE};
 }}
 
 QPushButton::hover{{
@@ -125,21 +137,21 @@ QPushButton::pressed{{
     background-color: {colors['hall']};
 }}"""
 
-QPushButton_disabled_style = f"""
+btn_style_disabled = f"""
 QPushButton{{
     color: {colors['black']};
     background-color: {colors['dark']};
     border: 1px solid {colors['black']};
     padding: 5px;
     margin-top: 0px;
-    font: {FONTSIZE}px;
+    font: {FONTSIZE};
 }}
 """
 
-QLabel_style = f"""
+label_style = f"""
 QLabel{{
     color: {colors['hall']};
-    font: {FONTSIZE}px;
+    font: {FONTSIZE};
     margin-top: 0px;
 }}
 """
@@ -147,52 +159,20 @@ QLabel{{
 Qinfo_text_style = f"""
 QLabel{{
     color: {colors['hall']};
-    font: {FONTSIZE-3}px;
+    font: {FONTSIZE};
     margin-top: 0px;
 }}
 """
 
-QCheckBox_style = f"""
-QCheckBox{{
-    background-color: transparent;
-    color: {colors['hall']};
-    padding:5px;
-}}
-QCheckBox::indicator:unchecked{{
-    background-color: {colors['hall']};
-    padding:5px;
-}}
 
-QCheckBox::indicator:checked{{
-    background-color: {colors['green']};
-    padding:5px;
-}}
-"""
-
-QCheckBox_disabled_style = f"""
-QCheckBox{{
-    background-color: transparent;
-    color: {colors['black']};
-    padding:5px;
-}}
-QCheckBox::indicator:unchecked{{
-    background-color: {colors['dark']};
-    padding:5px;
-}}
-
-QCheckBox::indicator:checked{{
-    background-color: {colors['black']};
-    padding:5px;
-}}
-"""
-
-QComboBox_style = f"""
+dropdown_style = f"""
 QComboBox:editable, QComboBox{{
     background-color: {colors['hall']};
     color: {colors['black']};
     border: 1px solid {colors['black']};
+    border-radius: {BORDER_RADIUS};
     padding: 5px 25p 5px 5px;
-    font: {FONTSIZE}px;
+    font: {FONTSIZE};
 }}
 
 QComboBox::hover{{
@@ -220,13 +200,14 @@ QComboBox::down-arrow {{
 }}
 """
 
-QComboBox_disabled_style = f"""
+dropdown_style_disabled = f"""
 QComboBox:editable, QComboBox{{
     background-color: {colors['dark']};
     color: {colors['black']};
     border: 1px solid {colors['black']};
+    border-radius: {BORDER_RADIUS};
     padding: 5px 25p 5px 5px;
-    font: {FONTSIZE}px;
+    font: {FONTSIZE};
 }}
 
 QComboBox::drop-down {{ /* shift the text when the popup opens */
@@ -249,8 +230,9 @@ QDoubleSpinBox{{
     background-color: {colors['hall']};
     color: {colors['black']};
     border: 1px solid {colors['black']};
-    padding: 0px 0px 0px 0px; 
-    font: {FONTSIZE}px;
+    border-radius: {BORDER_RADIUS};
+    padding: 0px; 
+    font: {FONTSIZE};
 }}
 
 QDoubleSpinBox::hover{{
@@ -259,21 +241,26 @@ QDoubleSpinBox::hover{{
 }}
 
 QDoubleSpinBox::up-button{{
-    /*subcontrol-origin: border;*/
+    subcontrol-origin: border;
     subcontrol-position: top right;
     background-color: {colors['dark']};
+    border: 1px solid {colors['black']};
+    border-top-right-radius: {BORDER_RADIUS};
+    border-bottom-right-radius: {BORDER_RADIUS};
     width: 25px;
-    border-width: 1px;
     height:25px;
+    margin:0px;
     /*padding-bottom: 1px;*/
 }}
 
 QDoubleSpinBox::down-button{{
-    /*subcontrol-origin: border;*/
+    subcontrol-origin: border;
     background-color: {colors['dark']};
     subcontrol-position: top left;
+    border: 1px solid {colors['black']};
+    border-top-left-radius: {BORDER_RADIUS};
+    border-bottom-left-radius: {BORDER_RADIUS};
     width: 25px;
-    border-width: 1px;
     height:25px;
     /*padding-bottom: 1px;*/
 }}
@@ -370,113 +357,6 @@ class Plot(pg.GraphicsLayoutWidget):
 # END of class Plot ------------------------------------------------------
 
 
-class Controls_VANA(QWidget):
-    """
-    Define controls and menus design.
-    """
-    def __init__(self, parent=None):
-        super(Controls, self).__init__(parent=parent)
-
-        # Plot time scale == data visible area size
-        self.plot_timescale = TIMESCALESIZE # default
-        self.plot_timescale_min = 50
-        self.plot_timescale_max = 1000
-
-        self.vertical_layout = QVBoxLayout(self)
-
-        # Menu width:
-        self.control_width = 150
-
-        # Top Menu
-        self.menu_top = QVBoxLayout()
-        self.menu_top.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        # Label Baud
-        self.baud_label = QLabel(self)
-        self.menu_top.addWidget(self.baud_label)
-        self.baud_label.setText("Baud rate:")
-        self.baud_label.setStyleSheet(QLabel_style)
-        # Select Baud
-        self.select_baud = QtWidgets.QComboBox(parent=self)
-        self.menu_top.addWidget(self.select_baud)
-        self.select_baud.setStyleSheet(QComboBox_style)
-        self.select_baud.setFixedWidth(self.control_width)
-
-        # Label Port
-        self.device_label = QLabel(self)
-        self.menu_top.addWidget(self.device_label)
-        self.device_label.setText("Port:")
-        self.device_label.setStyleSheet(QLabel_style)
-        # Select Port
-        self.select_port = QtWidgets.QComboBox(parent=self)
-        self.menu_top.addWidget(self.select_port)
-        self.select_port.setStyleSheet(QComboBox_style)
-        self.select_port.setFixedWidth(self.control_width)
-
-        # Button Connect
-        self.connect = QtWidgets.QPushButton('Connect', parent=self)
-        self.menu_top.addWidget(self.connect)
-        self.connect.setFixedWidth(self.control_width)
-        self.connect.setStyleSheet(QPushButton_style)
-
-        # Info text
-        self.info_text = QLabel(self)
-        self.menu_top.addWidget(self.info_text)
-        self.info_text.setText("\nTo export data\nright-click on the plot.")
-        self.info_text.setStyleSheet(Qinfo_text_style)
-
-        self.vertical_layout.addLayout(self.menu_top)
-        # Top menu ends
-
-
-        # Bottom menu
-        self.menu_bottom = QVBoxLayout()
-        #self.menu_bottom.setAlignment(Qt.AlignBottom)#PyQt5
-        self.menu_bottom.setAlignment(Qt.AlignmentFlag.AlignBottom)
-
-        # Select Time scale size
-        ## Time scale txt
-        self.time_scale_txt = QLabel(self)
-        self.menu_bottom.addWidget(self.time_scale_txt)
-        self.time_scale_txt.setText("Visible time area:")
-        self.time_scale_txt.setStyleSheet(QLabel_style)
-        ## SpinBox
-        self.time_scale_spin = QtWidgets.QDoubleSpinBox()
-        self.time_scale_spin.setSingleStep(1)
-        self.time_scale_spin.setDecimals(0)
-        self.time_scale_spin.setMaximum(self.plot_timescale_max)
-        self.time_scale_spin.setMinimum(self.plot_timescale_min)
-        self.time_scale_spin.setValue(self.plot_timescale)
-        self.menu_bottom.addWidget(self.time_scale_spin)
-        self.time_scale_spin.setStyleSheet(QDoubleSpinBox_style)
-
-        # Button: Clear data
-        self.clear_data = QtWidgets.QPushButton('Clear data', parent=self)
-        self.menu_bottom.addWidget(self.clear_data)
-        self.clear_data.setFixedWidth(self.control_width)
-        self.clear_data.setStyleSheet(QPushButton_disabled_style)
-        self.clear_data.setEnabled(False)
-
-        # Button: About
-        self.about = QtWidgets.QPushButton('About', parent=self)
-        self.menu_bottom.addWidget(self.about)
-        self.about.setFixedWidth(self.control_width)
-        self.about.setStyleSheet(QPushButton_style)
-
-        self.vertical_layout.addLayout(self.menu_bottom)
-
-    def update_timescale(self, new_value):
-        """ Assign new value. """
-        self.plot_timescale = new_value
-
-    def resizeEvent(self, event):
-        """ If we resize main window. """
-        super(Controls, self).resizeEvent(event)
-
-
-# END of class Controls ---- VANA ----------------------------------------
-
-
 class Controls(QWidget):
     """
     Define controls and menus design.
@@ -503,29 +383,32 @@ class Controls(QWidget):
         self.baud_label = QLabel(self)
         self.menu_top.addWidget(self.baud_label)
         self.baud_label.setText("Baud:")
-        self.baud_label.setStyleSheet(QLabel_style)
+        self.baud_label.setStyleSheet(label_style)
         # Select Baud
         self.select_baud = QtWidgets.QComboBox(parent=self)
         self.menu_top.addWidget(self.select_baud)
-        self.select_baud.setStyleSheet(QComboBox_style)
+        self.select_baud.setStyleSheet(dropdown_style)
         self.select_baud.setFixedWidth(100)
+        self.select_baud.setEditable(True)
+        self.select_baud.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.NoInsert)
+        
 
         # Label Port
         self.device_label = QLabel(self)
         self.menu_top.addWidget(self.device_label)
         self.device_label.setText("Port:")
-        self.device_label.setStyleSheet(QLabel_style)
+        self.device_label.setStyleSheet(label_style)
         # Select Port
         self.select_port = QtWidgets.QComboBox(parent=self)
         self.menu_top.addWidget(self.select_port)
-        self.select_port.setStyleSheet(QComboBox_style)
+        self.select_port.setStyleSheet(dropdown_style)
         self.select_port.setFixedWidth(150)
 
         # Button Connect
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
         self.menu_top.addWidget(self.connect)
         self.connect.setFixedWidth(100)
-        self.connect.setStyleSheet(QPushButton_style)
+        self.connect.setStyleSheet(btn_style)
 
         # Info text
         #self.info_text = QLabel(self)
@@ -538,16 +421,16 @@ class Controls(QWidget):
 
 
         # Bottom menu
-        self.menu_bottom = QHBoxLayout()#QVBoxLayout()
-        self.menu_bottom.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.menu_left = QHBoxLayout()#QVBoxLayout()
+        self.menu_left.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Select Time scale size
         ## Time scale txt
         self.time_scale_txt = QLabel(self)
-        self.menu_bottom.addWidget(self.time_scale_txt)
+        self.menu_left.addWidget(self.time_scale_txt)
         #self.time_scale_txt.set(QtGui.QIcon(icon_size))
         self.time_scale_txt.setText("Size:")
-        self.time_scale_txt.setStyleSheet(QLabel_style)
+        self.time_scale_txt.setStyleSheet(label_style)
         ## SpinBox
         self.time_scale_spin = QtWidgets.QDoubleSpinBox()
         self.time_scale_spin.setSingleStep(1)
@@ -556,29 +439,29 @@ class Controls(QWidget):
         self.time_scale_spin.setMaximum(self.plot_timescale_max)
         self.time_scale_spin.setMinimum(self.plot_timescale_min)
         self.time_scale_spin.setValue(self.plot_timescale)
-        self.menu_bottom.addWidget(self.time_scale_spin)
+        self.menu_left.addWidget(self.time_scale_spin)
         self.time_scale_spin.setStyleSheet(QDoubleSpinBox_style)
 
-        # Button: Clear data
-        self.clear_data = QtWidgets.QPushButton(
-            icon=QtGui.QIcon(icon_clean),
-            text='',
-            parent=self)
-        self.menu_bottom.addWidget(self.clear_data)
-        self.clear_data.setFixedWidth(30)
-        self.clear_data.setStyleSheet(QPushButton_disabled_style)
-        self.clear_data.setEnabled(False)
+
+        self.btn_clear = QtWidgets.QPushButton()
+        self.btn_clear.setIcon(QtGui.QIcon(icon_clean))
+        self.btn_clear.setIconSize(QtCore.QSize(13,16))
+        self.btn_clear.setFixedWidth(30)
+        self.btn_clear.setStyleSheet(btn_icon_style_disabled)
+        self.btn_clear.setEnabled(False)
+
+        self.menu_left.addWidget(self.btn_clear)
 
         # Button: About
         self.about = QtWidgets.QPushButton(
             icon=QtGui.QIcon(icon_about),
             text='',
             parent=self)
-        self.menu_bottom.addWidget(self.about)
+        self.menu_left.addWidget(self.about)
         self.about.setFixedWidth(30)
-        self.about.setStyleSheet(QIconButton_style)
+        self.about.setStyleSheet(btn_icon_style)
 
-        self.top_menu_row.addLayout(self.menu_bottom)
+        self.top_menu_row.addLayout(self.menu_left)
 
     def update_timescale(self, new_value):
         """ Assign new value. """
@@ -662,7 +545,7 @@ class MainWindow(QWidget):
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
         self.controls.time_scale_spin.valueChanged.connect(self.time_scale_changed)
         self.controls.connect.pressed.connect(self.connect_stop)
-        self.controls.clear_data.pressed.connect(self.clear_data)
+        self.controls.btn_clear.pressed.connect(self.clear_data)
         self.controls.about.pressed.connect(self.about)
 
         # Init About window
@@ -818,15 +701,15 @@ class MainWindow(QWidget):
             logging.debug('--> Connect Button.')
             self.connect()
             # Enable Clear Data button
-            self.controls.clear_data.setEnabled(True)
-            self.controls.clear_data.setStyleSheet(QPushButton_style)
+            self.controls.btn_clear.setEnabled(True)
+            self.controls.btn_clear.setStyleSheet(btn_icon_style)
         else:
             self.is_button_connected = False
             logging.debug('--> Pause Button.')
             self.disconnect()
             # Diable Clear Data button
-            self.controls.clear_data.setEnabled(False)
-            self.controls.clear_data.setStyleSheet(QPushButton_disabled_style)
+            self.controls.btn_clear.setEnabled(False)
+            self.controls.btn_clear.setStyleSheet(btn_icon_style_disabled)
 
 
     def connect(self):
@@ -837,8 +720,8 @@ class MainWindow(QWidget):
         self.controls.select_port.setEnabled(False)
         self.controls.select_baud.setEnabled(False)
         # Change button style
-        self.controls.select_port.setStyleSheet(QComboBox_disabled_style)
-        self.controls.select_baud.setStyleSheet(QComboBox_disabled_style)
+        self.controls.select_port.setStyleSheet(dropdown_style_disabled)
+        self.controls.select_baud.setStyleSheet(dropdown_style_disabled)
 
         if not self.plot_exist:
             logging.debug("connect: create plot")
@@ -867,8 +750,8 @@ class MainWindow(QWidget):
         self.controls.select_port.setEnabled(True)
         self.controls.select_baud.setEnabled(True)
         # Change button style
-        self.controls.select_port.setStyleSheet(QComboBox_style)
-        self.controls.select_baud.setStyleSheet(QComboBox_style)
+        self.controls.select_port.setStyleSheet(dropdown_style)
+        self.controls.select_baud.setStyleSheet(dropdown_style)
 
     def clear_data(self):
         """ Button clear data """

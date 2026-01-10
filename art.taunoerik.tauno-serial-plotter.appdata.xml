@@ -50,6 +50,13 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+     <release version="1.20.4" date="2026-01-11">
+      <description>
+        <ul>
+          <li>GUI fix.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.20.3" date="2026-01-10">
       <description>
         <ul>
