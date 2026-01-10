@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 """
-    File:   Tauno-Serial-Plotter.py
-    Author: Tauno Erik
-    Started:07.03.2020
-    Edited: 09.01.2026
-
-    TODO:
-    - Monitor
+    File:    Tauno-Serial-Plotter.py
+    Author:  Tauno Erik
+    Started: 07.03.2020
+    Edited:  10.01.2026
 """
 import sys
 import re
@@ -22,7 +19,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.21.2'
+VERSION = '1.20.3'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 stop_port_scan = False # To kill port scan thread when sys.exit
@@ -31,17 +28,24 @@ stop_port_scan = False # To kill port scan thread when sys.exit
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
 
+
 # GUI Icons
 if platform.system() == 'Windows' :
     icon_logo = "./icons/tauno-plotter.svg"
     icon_minus = "./icons/minus.svg"
     icon_plus = "./icons/plus.svg"
     icon_arrow_down = "./icons/arrow_down.svg"
+    icon_about = "./icons/help-about-symbolic.svg"
+    icon_clean = "./icons/larger-brush-symbolic.svg"
+    icon_size = "./icons/ruler-end-horizontal-left-symbolic.svg"
 else:
     icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
     icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
     icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
     icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
+    icon_about = os.path.join(os.path.dirname(__file__), 'icons/help-about-symbolic.svg')
+    icon_clean = os.path.join(os.path.dirname(__file__), 'icons/larger-brush-symbolic.svg')
+    icon_size = os.path.join(os.path.dirname(__file__), 'icons/ruler-end-horizontal-left-symbolic.svg')
 
 # GUI colours
 colors =  {
@@ -79,13 +83,35 @@ pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', colors['dark'])
 pg.setConfigOption('foreground', colors['hall'])
 
+QIconButton_style = f"""
+QPushButton{{
+    color: {colors['black']};
+    background-color: {colors['hall']};
+    border: 1px solid {colors['black']};
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 0px;
+    font: {FONTSIZE}px;
+}}
+
+QPushButton::hover{{
+    background-color: {colors['green']};
+    color: {colors['black']};
+}}
+
+QPushButton::pressed{{
+    border: 1px solid {colors['oranz']};
+    background-color: {colors['hall']};
+}}"""
+
 QPushButton_style = f"""
 QPushButton{{
     color: {colors['black']};
     background-color: {colors['hall']};
     border: 1px solid {colors['black']};
+    border-radius: 5px;
     padding: 5px;
-    margin-top: 5px;
+    margin-top: 0px;
     font: {FONTSIZE}px;
 }}
 
@@ -105,7 +131,7 @@ QPushButton{{
     background-color: {colors['dark']};
     border: 1px solid {colors['black']};
     padding: 5px;
-    margin-top: 5px;
+    margin-top: 0px;
     font: {FONTSIZE}px;
 }}
 """
@@ -114,7 +140,7 @@ QLabel_style = f"""
 QLabel{{
     color: {colors['hall']};
     font: {FONTSIZE}px;
-    margin-top: 5px;
+    margin-top: 0px;
 }}
 """
 
@@ -122,7 +148,7 @@ Qinfo_text_style = f"""
 QLabel{{
     color: {colors['hall']};
     font: {FONTSIZE-3}px;
-    margin-top: 5px;
+    margin-top: 0px;
 }}
 """
 
@@ -280,7 +306,7 @@ class ForeverWorker(QRunnable):
         self.is_working = True
 
     def __del__(self):
-        self.is_working = True
+        self.is_working = False #True
         #self.wait()
 
     def run(self):
@@ -293,8 +319,7 @@ class ForeverWorker(QRunnable):
                self.is_working = False
 
 
-# Deprecated: GraphicsWindow
-# New: GraphicsLayoutWidget
+
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
     def __init__(self, nr_plot_lines='1', labels=["sensor1"]):
@@ -314,7 +339,6 @@ class Plot(pg.GraphicsLayoutWidget):
         self.serialplot.setLabel('bottom', 'Time')
         self.serialplot.showGrid(x=True, y=True)
         self.serialplot.addLegend()
-
 
         # Place to hold data
         self.x_axis = [0]  # Time
@@ -345,7 +369,8 @@ class Plot(pg.GraphicsLayoutWidget):
             self.data_lines.append(line)
 # END of class Plot ------------------------------------------------------
 
-class Controls(QWidget):
+
+class Controls_VANA(QWidget):
     """
     Define controls and menus design.
     """
@@ -364,7 +389,6 @@ class Controls(QWidget):
 
         # Top Menu
         self.menu_top = QVBoxLayout()
-        #self.menu_top.setAlignment(Qt.AlignTop)#PyQt5
         self.menu_top.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Label Baud
@@ -449,6 +473,122 @@ class Controls(QWidget):
         """ If we resize main window. """
         super(Controls, self).resizeEvent(event)
 
+
+# END of class Controls ---- VANA ----------------------------------------
+
+
+class Controls(QWidget):
+    """
+    Define controls and menus design.
+    """
+    def __init__(self, parent=None):
+        super(Controls, self).__init__(parent=parent)
+
+        # Plot time scale == data visible area size
+        self.plot_timescale = TIMESCALESIZE # default
+        self.plot_timescale_min = 50
+        self.plot_timescale_max = 1000
+
+        self.top_menu_row = QHBoxLayout(self)
+        self.top_menu_row.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Menu width:
+        self.control_width = 550
+
+        # Top Menu
+        self.menu_top = QHBoxLayout()#QVBoxLayout()
+        self.menu_top.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        # Label Baud
+        self.baud_label = QLabel(self)
+        self.menu_top.addWidget(self.baud_label)
+        self.baud_label.setText("Baud:")
+        self.baud_label.setStyleSheet(QLabel_style)
+        # Select Baud
+        self.select_baud = QtWidgets.QComboBox(parent=self)
+        self.menu_top.addWidget(self.select_baud)
+        self.select_baud.setStyleSheet(QComboBox_style)
+        self.select_baud.setFixedWidth(100)
+
+        # Label Port
+        self.device_label = QLabel(self)
+        self.menu_top.addWidget(self.device_label)
+        self.device_label.setText("Port:")
+        self.device_label.setStyleSheet(QLabel_style)
+        # Select Port
+        self.select_port = QtWidgets.QComboBox(parent=self)
+        self.menu_top.addWidget(self.select_port)
+        self.select_port.setStyleSheet(QComboBox_style)
+        self.select_port.setFixedWidth(150)
+
+        # Button Connect
+        self.connect = QtWidgets.QPushButton('Connect', parent=self)
+        self.menu_top.addWidget(self.connect)
+        self.connect.setFixedWidth(100)
+        self.connect.setStyleSheet(QPushButton_style)
+
+        # Info text
+        #self.info_text = QLabel(self)
+        #self.menu_top.addWidget(self.info_text)
+        #self.info_text.setText("\nTo export data\nright-click on the plot.")
+        #self.info_text.setStyleSheet(Qinfo_text_style)
+
+        self.top_menu_row.addLayout(self.menu_top)
+        # Top menu ends
+
+
+        # Bottom menu
+        self.menu_bottom = QHBoxLayout()#QVBoxLayout()
+        self.menu_bottom.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        # Select Time scale size
+        ## Time scale txt
+        self.time_scale_txt = QLabel(self)
+        self.menu_bottom.addWidget(self.time_scale_txt)
+        #self.time_scale_txt.set(QtGui.QIcon(icon_size))
+        self.time_scale_txt.setText("Size:")
+        self.time_scale_txt.setStyleSheet(QLabel_style)
+        ## SpinBox
+        self.time_scale_spin = QtWidgets.QDoubleSpinBox()
+        self.time_scale_spin.setSingleStep(1)
+        self.time_scale_spin.setDecimals(0)
+        self.time_scale_spin.setFixedWidth(120)
+        self.time_scale_spin.setMaximum(self.plot_timescale_max)
+        self.time_scale_spin.setMinimum(self.plot_timescale_min)
+        self.time_scale_spin.setValue(self.plot_timescale)
+        self.menu_bottom.addWidget(self.time_scale_spin)
+        self.time_scale_spin.setStyleSheet(QDoubleSpinBox_style)
+
+        # Button: Clear data
+        self.clear_data = QtWidgets.QPushButton(
+            icon=QtGui.QIcon(icon_clean),
+            text='',
+            parent=self)
+        self.menu_bottom.addWidget(self.clear_data)
+        self.clear_data.setFixedWidth(30)
+        self.clear_data.setStyleSheet(QPushButton_disabled_style)
+        self.clear_data.setEnabled(False)
+
+        # Button: About
+        self.about = QtWidgets.QPushButton(
+            icon=QtGui.QIcon(icon_about),
+            text='',
+            parent=self)
+        self.menu_bottom.addWidget(self.about)
+        self.about.setFixedWidth(30)
+        self.about.setStyleSheet(QIconButton_style)
+
+        self.top_menu_row.addLayout(self.menu_bottom)
+
+    def update_timescale(self, new_value):
+        """ Assign new value. """
+        self.plot_timescale = new_value
+
+    def resizeEvent(self, event):
+        """ If we resize main window. """
+        super(Controls, self).resizeEvent(event)
+
+
 # END of class Controls ----------------------------------------
 
 
@@ -501,7 +641,7 @@ class MainWindow(QWidget):
 
         self.init_ui()
         self.center_mainwindow()
-        self.horizontal_layout = QHBoxLayout(self)
+        self.horizontal_layout = QVBoxLayout(self) #QHBoxLayout(self)
 
         self.init_timer()
         self.ser = serial.Serial()
@@ -973,7 +1113,6 @@ if __name__ == '__main__':
     window.show()
 
     try:
-        #exit_code = app.exec_()#pyqt5
         exit_code = app.exec()
         print(exit_code)
         sys.exit(exit_code)

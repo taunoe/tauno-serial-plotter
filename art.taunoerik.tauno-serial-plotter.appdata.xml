@@ -10,12 +10,11 @@
 
   <description>
     <p>
-      Simple serial plotter for Arduino and others similar devices.
+      Simple serial plotter
     </p>
     
     <p>Features:</p>
     <ul>
-      <li>Simple user interface</li>
       <li>Plotting of multiple variables, with different colors for each</li>
       <li>Can plot both integers and floats</li>
       <li>Can plot negative values</li>
@@ -51,6 +50,13 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="1.20.3" date="2026-01-10">
+      <description>
+        <ul>
+          <li>New GUI lauout.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.20.2" date="2026-01-09">
       <description>
         <ul>
