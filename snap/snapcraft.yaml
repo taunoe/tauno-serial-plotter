@@ -7,11 +7,10 @@ summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.
 
-  If no ports show up. Then:
-
-  `sudo usermod -a -G dialout $USER`
-
-  `sudo snap connect tauno-serial-plotter:raw-usb`
+  Note: For serial port access, run:
+  sudo usermod -a -G dialout $USER
+  sudo snap connect tauno-serial-plotter:raw-usb
+  sudo snap connect tauno-serial-plotter:serial-port
 compression: lzo
 
 platforms:
@@ -59,9 +58,8 @@ apps:
   tauno-serial-plotter:
     extensions: [ gnome ] # Provides the runtime environment
     #command: bin/desktop-launch tauno-serial-plotter.py
-    command: usr/bin/desktop-launch6 tauno-serial-plotter.py
-      command-chain:
-        - bin/snap-command-wrapper
+    command: bin/tauno-serial-plotter.py
+      command-chain: [ bin/snap-command-wrapper ]
     #environment:
       # Fallback to XWayland if running in a Wayland session.
       #DISABLE_WAYLAND: 1
