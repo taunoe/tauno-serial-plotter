@@ -39,8 +39,11 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/bin
       cp -av src/tauno-serial-plotter.py $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
-      cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
+    icons:
+      plugin: dump
+      source: src/icons/
+      organize:
+        'tauno-plotter.svg': usr/share/icons/hicolor/scalable/apps/tauno-plotter.svg
 
 
   # copy icons to snap
