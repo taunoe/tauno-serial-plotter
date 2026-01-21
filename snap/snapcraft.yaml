@@ -24,6 +24,28 @@ slots:
     default-provider: qt6-core24
     target: $SNAP/qt6
 
+apps:
+  tauno-serial-plotter:
+    extensions: [ gnome ]
+    command: bin/tauno-serial-plotter.py
+    command-chain: [ bin/snap-command-wrapper ]
+    common-id: tauno-serial-plotter.desktop
+    plugs:
+    - home
+    - removable-media
+    - network
+    - serial-port
+    - raw-usb
+    - desktop
+    - desktop-legacy
+    - x11
+    - wayland
+    - opengl
+    - network-bind
+    - hardware-observe
+
+  
+
 parts:
   tauno-serial-plotter:
     source: .
@@ -41,7 +63,19 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
       cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
 
-
+  desktop-wrapper:
+    plugin: nil
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cat <<EOF > $SNAPCRAFT_PART_INSTALL/bin/snap-command-wrapper
+      #!/bin/sh
+      export XDG_DATA_DIRS=\$SNAP/qt6/usr/share:\$XDG_DATA_DIRS
+      export QT_PLUGIN_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/plugins
+      export QML2_IMPORT_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/qml
+      export QTCHOICE_PLATFORM_PLUGIN_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/plugins/platforms
+      exec "\$@"
+      EOF
+      chmod +x $SNAPCRAFT_PART_INSTALL/bin/snap-command-wrapper
 
   # copy icons to snap
   desktop-gui:
@@ -51,43 +85,3 @@ parts:
       '*.svg' : bin/icons/
     stage:
       - bin/icons/
-
-
-# https://github.com/snapcrafters/arduino/blob/master/snapcraft.yaml
-apps:
-  tauno-serial-plotter:
-    extensions: [ gnome ] # Provides the runtime environment
-    #command: bin/desktop-launch tauno-serial-plotter.py
-    command: bin/tauno-serial-plotter.py
-      command-chain: [ bin/snap-command-wrapper ]
-    #environment:
-      # Fallback to XWayland if running in a Wayland session.
-      #DISABLE_WAYLAND: 1
-    plugs:
-    #- unity7
-    - home
-    - removable-media
-    - network
-    - serial-port
-    - raw-usb
-    - desktop
-    - desktop-legacy
-    - x11
-    - wayland
-    - opengl
-    - network-bind
-    - hardware-observe
-
-desktop-wrapper:
-  plugin: nil
-  override-build: |
-    mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-    cat <<EOF > $SNAPCRAFT_PART_INSTALL/bin/snap-command-wrapper
-    #!/bin/sh
-    export XDG_DATA_DIRS=\$SNAP/qt6/usr/share:\$XDG_DATA_DIRS
-    export QT_PLUGIN_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/plugins
-    export QML2_IMPORT_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/qml
-    export QTCHOICE_PLATFORM_PLUGIN_PATH=\$SNAP/qt6/usr/lib/\$CRAFT_ARCH_TRIPLET/qt6/plugins/platforms
-    exec "\$@"
-    EOF
-    chmod +x $SNAPCRAFT_PART_INSTALL/bin/snap-command-wrapper
