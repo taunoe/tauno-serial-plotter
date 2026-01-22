@@ -53,7 +53,8 @@ parts:
     python-requirements: ['requirements.txt']
     stage-packages:
       - python3-pyqt6
-      - qtwayland6
+      - qt6-wayland
+      - libserialport0
     override-build: |
       craftctl default
       # Ensure the script is in the bin folder and executable
