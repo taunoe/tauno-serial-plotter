@@ -1,4 +1,5 @@
 name: tauno-serial-plotter
+title: Tauno Serial Plotter
 base: core24
 grade: stable
 confinement: strict
@@ -12,6 +13,9 @@ description: |
   sudo snap connect tauno-serial-plotter:raw-usb
   sudo snap connect tauno-serial-plotter:serial-port
 compression: lzo
+license: GNU General Public License v3.0 
+contacts:
+  - email: sedumacre@gmail.com
 
 platforms:
   amd64:
@@ -54,7 +58,6 @@ parts:
     stage-packages:
       - python3-pyqt6
       - qt6-wayland
-      - libserialport0
     override-build: |
       craftctl default
       # Ensure the script is in the bin folder and executable
