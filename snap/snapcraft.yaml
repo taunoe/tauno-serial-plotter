@@ -14,8 +14,7 @@ description: |
   sudo snap connect tauno-serial-plotter:serial-port
 compression: lzo
 license: GNU General Public License v3.0 
-contacts:
-  - email: sedumacre@gmail.com
+contact: sedumacre@gmail.com
 
 platforms:
   amd64:
