@@ -13,8 +13,17 @@ description: |
   sudo snap connect tauno-serial-plotter:raw-usb
   sudo snap connect tauno-serial-plotter:serial-port
 compression: lzo
-license: GNU General Public License v3.0 
+license: GPL-3.0
 contact: sedumacre@gmail.com
+website:
+  - https://github.com/taunoe/tauno-serial-plotter
+issues:
+  - sedumacre@gmail.com
+  - https://github.com/taunoe/tauno-serial-plotter/issues
+donation:
+  - sedumacre@gmail.com
+source-code:
+  - https://github.com/taunoe/tauno-serial-plotter
 
 platforms:
   amd64:
