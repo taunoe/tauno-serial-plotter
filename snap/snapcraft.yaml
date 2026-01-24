@@ -74,6 +74,9 @@ parts:
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
       cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
+    # This removes specific files from the final snap
+    prime:
+      - -usr/lib/*/libicutest* ```
 
   desktop-wrapper:
     plugin: nil
