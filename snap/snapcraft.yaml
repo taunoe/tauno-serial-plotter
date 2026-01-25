@@ -15,26 +15,20 @@ description: |
 compression: lzo
 license: GPL-3.0
 contact: sedumacre@gmail.com
-website:
-  - https://github.com/taunoe/tauno-serial-plotter
-issues:
-  - sedumacre@gmail.com
-  - https://github.com/taunoe/tauno-serial-plotter/issues
-donation:
-  - sedumacre@gmail.com
-source-code:
-  - https://github.com/taunoe/tauno-serial-plotter
+website: https://github.com/taunoe/tauno-serial-plotter
+issues: https://github.com/taunoe/tauno-serial-plotter/issues
+source-code: https://github.com/taunoe/tauno-serial-plotter
 
 platforms:
   amd64:
   arm64:
 
-slots:
-  qt6-content:
-    interface: content
-    content: qt6
-    default-provider: qt6-core24
-    target: $SNAP/qt6
+#slots:
+#  qt6-content:
+#    interface: content
+#    content: qt6
+#    default-provider: qt6-core24
+#    target: $SNAP/qt6
 
 apps:
   tauno-serial-plotter:
@@ -42,9 +36,9 @@ apps:
     command: bin/tauno-serial-plotter.py
     command-chain: [ bin/snap-command-wrapper ]
     common-id: tauno-serial-plotter.desktop
-    environment:
+    #environment:
       # Tells Python to look in the system folder for PyQt6
-      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      #PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
     plugs:
     - home
     - removable-media
@@ -67,8 +61,15 @@ parts:
     plugin: python
     python-requirements: ['requirements.txt']
     stage-packages:
-      - python3-pyqt6
-      - qt6-wayland
+      #- python3-pyqt6
+      #- qt6-wayland
+      - libserialport0
+      - libxkbcommon0
+      - libgl1
+      - libegl1
+      - libdbus-1-3
+      - libxcb-cursor0
+      - libproxy1v5
     override-build: |
       craftctl default
       # Ensure the script is in the bin folder and executable
