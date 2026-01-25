@@ -81,7 +81,7 @@ parts:
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
 
       # Point icon to the correct location
-      sed -i.bak -e 's|Icon=art.taunoerik.tauno-serial-plotterr|Icon=/usr/share/src/icons/art.taunoerik.tauno-serial-plotter.svg|g' $CRAFT_PART_SRC/data/art.taunoerik.tauno-serial-plotter.desktop.in
+      sed -i.bak -e 's|Icon=art.taunoerik.tauno-serial-plotter|Icon=/usr/share/src/icons/art.taunoerik.tauno-serial-plotter.svg|g' $CRAFT_PART_SRC/data/art.taunoerik.tauno-serial-plotter.desktop.in
     # This removes specific files from the final snap
     prime:
       - -usr/lib/*/libicutest* ```

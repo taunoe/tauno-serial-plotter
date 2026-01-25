@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Tauno Serial Plotter
-Exec=tauno-monitor
+Exec=tauno-serial-plotter
 Icon=art.taunoerik.tauno-serial-plotter
 Terminal=false
 Type=Application
