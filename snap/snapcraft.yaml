@@ -42,6 +42,9 @@ apps:
     command: bin/tauno-serial-plotter.py
     command-chain: [ bin/snap-command-wrapper ]
     common-id: tauno-serial-plotter.desktop
+    environment:
+      # Tells Python to look in the system folder for PyQt6
+      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
     plugs:
     - home
     - removable-media
