@@ -35,7 +35,8 @@ apps:
     extensions: [ gnome ]
     command: bin/tauno-serial-plotter.py
     command-chain: [ bin/snap-command-wrapper ]
-    common-id: tauno-serial-plotter.desktop
+    desktop: usr/share/applications/art.taunoerik.tauno-serial-plotter.desktop
+    common-id: art.taunoerik.tauno-serial-plotter
     #environment:
       # Tells Python to look in the system folder for PyQt6
       #PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
@@ -78,8 +79,9 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/bin
       cp -av src/tauno-serial-plotter.py $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/
-      cp -f src/icons/tauno-plotter.svg $SNAPCRAFT_PART_INSTALL/usr/share/icons/tauno-plotter.svg
+
+      # Point icon to the correct location
+      sed -i.bak -e 's|Icon=art.taunoerik.tauno-serial-plotterr|Icon=/usr/share/src/icons/art.taunoerik.tauno-serial-plotter.svg|g' $CRAFT_PART_SRC/data/art.taunoerik.tauno-serial-plotter.desktop.in
     # This removes specific files from the final snap
     prime:
       - -usr/lib/*/libicutest* ```
