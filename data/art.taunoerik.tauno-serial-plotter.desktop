@@ -1,8 +1,9 @@
 [Desktop Entry]
-Name=Tauno Serial Plotter
-Exec=tauno-serial-plotter
-Icon=art.taunoerik.tauno-serial-plotter
-Terminal=false
+Version=1.0
 Type=Application
-Categories=Development;Utility;Debugger;
+Name=Tauno Serial Plotter
+Comment=Simple serial plotter
+Exec=tauno-serial-plotter
+Icon=/usr/share/icons/hicolor/scalable/apps/art.taunoerik.tauno-serial-plotter.svg
+Categories=Utility;
 Keywords=Serial

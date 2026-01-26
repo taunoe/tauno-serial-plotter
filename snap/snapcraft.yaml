@@ -80,8 +80,15 @@ parts:
       cp -av src/tauno-serial-plotter.py $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
 
-      # Point icon to the correct location
-      sed -i.bak -e 's|Icon=art.taunoerik.tauno-serial-plotter|Icon=/usr/share/src/icons/art.taunoerik.tauno-serial-plotter.svg|g' $CRAFT_PART_SRC/data/art.taunoerik.tauno-serial-plotter.desktop
+      # 2. Install the Icon to the standard system path
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/
+      cp -f src/icons/art.taunoerik.tauno-serial-plotter.svg \
+            $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/
+
+      # 3. Install the Desktop file to the standard system path
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/applications/
+      cp -f art.taunoerik.tauno-serial-plotter.desktop \
+            $CRAFT_PART_INSTALL/usr/share/applications/
     # This removes specific files from the final snap
     prime:
       - -usr/lib/*/libicutest* ```
