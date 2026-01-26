@@ -5,6 +5,6 @@ Name=Tauno Serial Plotter
 Comment=Simple serial plotter
 TryExec=tauno-serial-plotter
 Exec=tauno-serial-plotter.py
-Icon=art.taunoerik.tauno-serial-plotter
+Icon=art.taunoerik.tauno-serial-plotter.svg
 Categories=Utility;
 Keywords=Serial
