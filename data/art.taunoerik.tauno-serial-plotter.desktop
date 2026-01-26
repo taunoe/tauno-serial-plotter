@@ -4,6 +4,6 @@ Type=Application
 Name=Tauno Serial Plotter
 Comment=Simple serial plotter
 Exec=tauno-serial-plotter
-Icon=/usr/share/applications/art.taunoerik.tauno-serial-plotter.svg
+Icon=/usr/share/icons/hicolor/scalable/apps/art.taunoerik.tauno-serial-plotter.svg
 Categories=Utility;
 Keywords=Serial
