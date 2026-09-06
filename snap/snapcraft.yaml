@@ -3,7 +3,7 @@ title: Tauno Serial Plotter
 base: core24
 grade: stable
 confinement: strict
-version: '1.20.4'
+version: '1.20.6'
 summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.

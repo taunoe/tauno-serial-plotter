@@ -3,7 +3,7 @@
     File:    Tauno-Serial-Plotter.py
     Author:  Tauno Erik
     Started: 07.03.2020
-    Edited:  10.01.2026
+    Edited:  06.09.2026
 """
 import sys
 import re
@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.20.5'
+VERSION = '1.20.6'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 
