@@ -9,20 +9,17 @@ import sys
 import re
 import os
 import logging
-import time
 import serial
 import serial.tools.list_ports
 from PyQt6 import QtWidgets, QtCore, QtGui
-from PyQt6.QtCore import Qt, QRunnable, QThreadPool
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.20.4'
+VERSION = '1.20.5'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
-
-stop_port_scan = False # To kill port scan thread when sys.exit
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -279,33 +276,35 @@ QDoubleSpinBox::down-arrow {{
 
 """
 
-# 1. Subclass QRunnable
-# https://realpython.com/python-pyqt-qthread/
-# https://www.learnpyqt.com/tutorials/multithreading-pyqt-applications-qthreadpool/
-class ForeverWorker(QRunnable):
+class PortScanner(QtCore.QObject):
     """
-    It put function to run forever on background.
-    I use it to scan the avaible serial ports.
+    Scan serial ports in a worker thread and publish results to the GUI.
     """
-    def __init__(self, fn):
-        super(ForeverWorker, self).__init__()
-        self.fn = fn
-        self.is_working = True
+    ports_found = pyqtSignal(list)
 
-    def __del__(self):
-        self.is_working = False #True
-        #self.wait()
+    def __init__(self, interval=10, parent=None):
+        super().__init__(parent)
+        self.interval = interval
+        self.timer = None
 
-    def run(self):
-        """ Forever running task """
-        while self.is_working:
-            logging.debug("ForeverWorker.Run while loop")
-            self.fn()
-            time.sleep(10) # seconds
-            if stop_port_scan:
-               self.is_working = False
+    @pyqtSlot()
+    def start(self):
+        """Start periodic scanning after the worker thread's event loop starts."""
+        self.timer = QtCore.QTimer(self)
+        self.timer.setInterval(self.interval * 1000)
+        self.timer.timeout.connect(self.scan)
+        self.scan()
+        self.timer.start()
 
-
+    @pyqtSlot()
+    def scan(self):
+        """Scan ports without touching any GUI objects."""
+        ports = []
+        try:
+            ports = [port.device for port in serial.tools.list_ports.comports()]
+        except OSError:
+            logging.exception("Unable to scan serial ports")
+        self.ports_found.emit(ports)
 
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
@@ -535,10 +534,13 @@ class MainWindow(QWidget):
 
         self.init_baudrates()   # Baud Rates on dropdown menu
 
-        # TODO: How to exit thread when mainwindow is closed??
-        self.threadpool = QThreadPool()
-        self.thread_find_ports()
-        #self.find_ports() # while threads disabled!
+        self.port_scanner_thread = QThread(self)
+        self.port_scanner = PortScanner()
+        self.port_scanner.moveToThread(self.port_scanner_thread)
+        self.port_scanner_thread.started.connect(self.port_scanner.start)
+        self.port_scanner.ports_found.connect(self.update_ports)
+        self.port_scanner_thread.finished.connect(self.port_scanner.deleteLater)
+        self.port_scanner_thread.start()
 
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
@@ -552,13 +554,6 @@ class MainWindow(QWidget):
         self.aboutbox = QMessageBox()
 
 
-
-    def thread_find_ports(self):
-        """ Runs on background forewer. """
-        # Pass the function to execute
-        worker = ForeverWorker(self.find_ports)
-        # Execute
-        self.threadpool.start(worker)
 
     def init_timer(self):
         self.timer = QtCore.QTimer()
@@ -583,9 +578,10 @@ class MainWindow(QWidget):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def find_ports(self):
+    @pyqtSlot(list)
+    def update_ports(self, ports):
         """
-        Find avaible ports/devices and add to self.ports
+        Update port controls on the GUI thread.
         """
         logging.debug("self.plot_exist %s", self.plot_exist)
         logging.debug("self.is_button_connected %s", self.is_button_connected)
@@ -593,37 +589,21 @@ class MainWindow(QWidget):
         before_selected_port = self.selected_port
         logging.debug("before_selected_port %s", before_selected_port)
 
-        try:
-            if not self.plot_exist or not self.is_button_connected:
-            # Kui plot on olemas siis me ei skänni!
-                self.ports.clear() # clear the devices list
-                self.controls.select_port.clear() # clear dropdown menu
+        if self.plot_exist and self.is_button_connected:
+            return
 
-                logging.debug("self.ports: %s", len(self.ports))
-                ports = list(serial.tools.list_ports.comports())
-                logging.debug("find_ports: %s", len(ports))
+        self.ports = ports
+        self.controls.select_port.blockSignals(True)
+        self.controls.select_port.clear()
+        self.controls.select_port.addItems(self.ports)
 
-                for port in ports:
-                    #print(port[0]) # /dev/ttyACM0
-                    #print(port[1]) # USB2.0-Serial
-                    #print(port[2]) # USB VID:PID=2341:0043
-                                    # SER=9563430343235150C281
-                                    # LOCATION=1-1.4.4:1.0
-                    self.ports.append(port[0]) # add devices to list
-
-                # add devices to dropdown menu
-                self.controls.select_port.addItems(self.ports)
-
-                if len(ports) > 0:
-                    # Et valitud port ei muutuks
-                    if before_selected_port in self.ports:
-                        index = self.ports.index(before_selected_port)
-                    else:
-                        index = 0
-                    self.controls.select_port.setCurrentIndex(index)
-                    self.selected_port = self.ports[index]
-        except IOError:
-            logging.error("find_ports IOError")
+        if self.ports:
+            index = self.ports.index(before_selected_port) if before_selected_port in self.ports else 0
+            self.controls.select_port.setCurrentIndex(index)
+            self.selected_port = self.ports[index]
+        else:
+            self.selected_port = ''
+        self.controls.select_port.blockSignals(False)
 
     def init_baudrates(self):
         self.controls.select_baud.addItems(self.baudrates)
@@ -976,6 +956,14 @@ class MainWindow(QWidget):
             self.showNormal()
             self.is_fullscreen = False
 
+    def closeEvent(self, event):
+        """Stop background work before the window is destroyed."""
+        self.close_serial()
+        self.port_scanner_thread.requestInterruption()
+        self.port_scanner_thread.quit()
+        self.port_scanner_thread.wait()
+        event.accept()
+
     #def mouseClickEvent(self, event):
         #print("clicked")
 
@@ -995,10 +983,5 @@ if __name__ == '__main__':
     window = MainWindow(app)
     window.show()
 
-    try:
-        exit_code = app.exec()
-        print(exit_code)
-        sys.exit(exit_code)
-    except SystemExit:
-        stop_port_scan = True # Kill port scan thread
-        print(SystemExit)
+    exit_code = app.exec()
+    sys.exit(exit_code)
