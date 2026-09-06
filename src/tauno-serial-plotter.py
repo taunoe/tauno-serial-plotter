@@ -12,7 +12,7 @@ import logging
 import serial
 import serial.tools.list_ports
 from PyQt6 import QtWidgets, QtCore, QtGui
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, QMetaObject, QThread, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
@@ -306,6 +306,88 @@ class PortScanner(QtCore.QObject):
             logging.exception("Unable to scan serial ports")
         self.ports_found.emit(ports)
 
+
+class SerialWorker(QtCore.QObject):
+    """Own the serial connection and perform all serial I/O off the GUI thread."""
+    connected = pyqtSignal(int, list)
+    data_received = pyqtSignal(str)
+    connection_failed = pyqtSignal(str)
+    disconnected = pyqtSignal()
+    stopped = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.serial = None
+        self.timer = None
+        self.probing = False
+        self.probe_attempts = 0
+        self.probe_limit = 7500
+
+    @pyqtSlot()
+    def start(self):
+        self.timer = QtCore.QTimer(self)
+        self.timer.setInterval(10)
+        self.timer.timeout.connect(self.read_serial)
+        self.timer.start()
+
+    @pyqtSlot(str, int)
+    def connect_to(self, port, baudrate):
+        self.disconnect_from_serial()
+        try:
+            self.serial = serial.Serial(port, baudrate, timeout=0)
+            self.serial.reset_input_buffer()
+            self.probing = True
+            self.probe_attempts = 0
+        except (OSError, serial.SerialException) as error:
+            self.serial = None
+            self.connection_failed.emit(str(error))
+
+    @pyqtSlot()
+    def disconnect_from_serial(self):
+        self.probing = False
+        if self.serial is not None:
+            self.serial.close()
+            self.serial = None
+        self.disconnected.emit()
+
+    @pyqtSlot()
+    def read_serial(self):
+        if self.serial is None or not self.serial.is_open:
+            return
+
+        try:
+            if self.serial.in_waiting == 0:
+                if self.probing:
+                    self.probe_attempts += 1
+                    if self.probe_attempts >= self.probe_limit:
+                        self.disconnect_from_serial()
+                        self.connection_failed.emit("No numeric data received")
+                return
+
+            line = self.serial.readline().decode("utf8", errors="replace")
+            if not line:
+                return
+
+            if self.probing:
+                numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', line)
+                if not numbers:
+                    return
+                labels = re.findall(r'[-+]?[a-zA-Z]*\.?[a-zA-Z]+', line)
+                self.probing = False
+                self.connected.emit(len(numbers), labels)
+            self.data_received.emit(line)
+        except (OSError, serial.SerialException, UnicodeError) as error:
+            self.disconnect_from_serial()
+            self.connection_failed.emit(str(error))
+
+    @pyqtSlot()
+    def stop(self):
+        if self.timer is not None:
+            self.timer.stop()
+        self.disconnect_from_serial()
+        self.stopped.emit()
+
+
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
     def __init__(self, nr_plot_lines='1', labels=["sensor1"]):
@@ -478,6 +560,9 @@ class MainWindow(QWidget):
     """
     Define MainWindow
     """
+    serial_connect_requested = pyqtSignal(str, int)
+    serial_disconnect_requested = pyqtSignal()
+
     def __init__(self, app, parent=None):
         super(MainWindow, self).__init__(parent=parent)
 
@@ -515,7 +600,6 @@ class MainWindow(QWidget):
         logging.debug("self.selected_baudrate =")
         logging.debug(self.selected_baudrate)
 
-        self.max_tryes = 75 # how_many_lines()
         self.number_of_lines = 0
         self.error_counter = 0
         self.plot_data_size = TIMESCALESIZE #?
@@ -524,9 +608,6 @@ class MainWindow(QWidget):
         self.init_ui()
         self.center_mainwindow()
         self.horizontal_layout = QVBoxLayout(self) #QHBoxLayout(self)
-
-        self.init_timer()
-        self.ser = serial.Serial()
 
         # Controlls
         self.controls = Controls(parent=self)
@@ -542,6 +623,19 @@ class MainWindow(QWidget):
         self.port_scanner_thread.finished.connect(self.port_scanner.deleteLater)
         self.port_scanner_thread.start()
 
+        self.serial_thread = QThread(self)
+        self.serial_worker = SerialWorker()
+        self.serial_worker.moveToThread(self.serial_thread)
+        self.serial_thread.started.connect(self.serial_worker.start)
+        self.serial_connect_requested.connect(self.serial_worker.connect_to)
+        self.serial_disconnect_requested.connect(self.serial_worker.disconnect_from_serial)
+        self.serial_worker.connected.connect(self.serial_connected)
+        self.serial_worker.data_received.connect(self.handle_serial_data)
+        self.serial_worker.connection_failed.connect(self.serial_connection_failed)
+        self.serial_worker.stopped.connect(self.serial_thread.quit)
+        self.serial_thread.finished.connect(self.serial_worker.deleteLater)
+        self.serial_thread.start()
+
         # Controll selct and button calls
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
@@ -554,11 +648,6 @@ class MainWindow(QWidget):
         self.aboutbox = QMessageBox()
 
 
-
-    def init_timer(self):
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(10)
-        self.timer.start()
 
     def init_ui(self):
         self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
@@ -619,7 +708,8 @@ class MainWindow(QWidget):
         logging.info("Main selected baud index changed:")
         logging.info(self.selected_baudrate)
         self.equal_x_and_y()
-        self.open_serial()
+        if self.is_button_connected:
+            self.request_serial_connection()
 
     def equal_x_and_y(self):
         if self.plot_exist:
@@ -643,7 +733,6 @@ class MainWindow(QWidget):
             except Exception as ex:
                 logging.debug(ex)
                 self.error_counter += 1
-                self.error_status()
 
             except SystemExit:  
                 logging.debug(sys.exc_info())
@@ -677,12 +766,8 @@ class MainWindow(QWidget):
     def connect_stop(self):
         """ Connected or Pause button press? """
         if not self.is_button_connected:
-            self.is_button_connected = True
             logging.debug('--> Connect Button.')
             self.connect()
-            # Enable Clear Data button
-            self.controls.btn_clear.setEnabled(True)
-            self.controls.btn_clear.setStyleSheet(btn_icon_style)
         else:
             self.is_button_connected = False
             logging.debug('--> Pause Button.')
@@ -695,7 +780,7 @@ class MainWindow(QWidget):
     def connect(self):
         """ When we press button Connect. """
         # Change button txt
-        self.controls.connect.setText('Pause')
+        self.controls.connect.setText('Connecting...')
         # Disable button
         self.controls.select_port.setEnabled(False)
         self.controls.select_baud.setEnabled(False)
@@ -703,26 +788,11 @@ class MainWindow(QWidget):
         self.controls.select_port.setStyleSheet(dropdown_style_disabled)
         self.controls.select_baud.setStyleSheet(dropdown_style_disabled)
 
-        if not self.plot_exist:
-            logging.debug("connect: create plot")
-            self.number_of_lines = self.how_many_lines()
-
-            if self.number_of_lines is not None:
-                # Init plot
-                self.plot = Plot(self.number_of_lines, self.labels)
-                self.horizontal_layout.addWidget(self.plot)
-                self.open_serial()
-                self.plot_exist = True
-                self.timer.timeout.connect(self.read_serial_data)
-            else:
-                logging.debug("connect: None!")
-        else:
-            #self.equal_x_and_y()
-            self.open_serial()
+        self.request_serial_connection()
 
     def disconnect(self):
         """ When we press Pause button """
-        self.close_serial()
+        self.serial_disconnect_requested.emit()
         #self.clear_data() # ??
         # Change button txt
         self.controls.connect.setText('Resume')
@@ -732,6 +802,54 @@ class MainWindow(QWidget):
         # Change button style
         self.controls.select_port.setStyleSheet(dropdown_style)
         self.controls.select_baud.setStyleSheet(dropdown_style)
+
+    def request_serial_connection(self):
+        self.serial_connect_requested.emit(
+            self.selected_port, int(self.selected_baudrate))
+
+    @pyqtSlot(int, list)
+    def serial_connected(self, number_of_lines, labels):
+        self.number_of_lines = number_of_lines
+        self.labels = labels or ["label"]
+        if not self.plot_exist:
+            self.plot = Plot(self.number_of_lines, self.labels)
+            self.horizontal_layout.addWidget(self.plot)
+            self.plot_exist = True
+        self.is_button_connected = True
+        self.controls.connect.setText('Pause')
+        self.controls.btn_clear.setEnabled(True)
+        self.controls.btn_clear.setStyleSheet(btn_icon_style)
+
+    @pyqtSlot(str)
+    def serial_connection_failed(self, error):
+        logging.error("Serial connection failed: %s", error)
+        self.is_button_connected = False
+        self.controls.connect.setText('Connect')
+        self.controls.select_port.setEnabled(True)
+        self.controls.select_baud.setEnabled(True)
+        self.controls.select_port.setStyleSheet(dropdown_style)
+        self.controls.select_baud.setStyleSheet(dropdown_style)
+
+    @pyqtSlot(str)
+    def handle_serial_data(self, incoming_data):
+        if not self.plot_exist:
+            return
+        try:
+            numbers = self.get_numbers(incoming_data)
+            while len(numbers) > len(self.plot.y_axis):
+                self.plot.y_axis.append([0])
+
+            for count, value in enumerate(numbers[:self.number_of_lines]):
+                self.add_numbers(count, value, self.plot_data_size)
+
+            self.add_time(self.plot_data_size)
+            for i in range(self.number_of_lines):
+                if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
+                    self.plot.y_axis[i].insert(0, 0.0)
+                self.plot.data_lines[i].setData(
+                    self.plot.x_axis, self.plot.y_axis[i])
+        except (ValueError, IndexError) as error:
+            logging.error("Error processing serial data: %s", error)
 
     def clear_data(self):
         """ Button clear data """
@@ -793,139 +911,6 @@ class MainWindow(QWidget):
         # Add a new value 1 higher than the last to end
         self.plot.x_axis.append(self.plot.x_axis[-1] + 1)
 
-    def open_serial(self):
-        try:
-            logging.debug("0 Open serial: %s %s", self.selected_port, self.selected_baudrate)
-            if self.ser.is_open:
-                self.ser.close()
-            self.ser = serial.Serial(self.selected_port, int(self.selected_baudrate), timeout=1)
-            self.ser.reset_input_buffer()## 09.02.2022
-            logging.debug("1 Open serial: %s %s", self.ser.name, self.ser.baudrate)
-        except IOError:
-            logging.error("open_serial IOError")
-
-    def close_serial(self):
-        """ Close serial connection. """
-        logging.debug("Close serial.")
-        self.ser.close()
-
-    def error_status(self):
-        """
-        If we have to many errors close serial connection.
-        Example:
-            self.error_counter += 1
-            self.error_status()
-        """
-        if self.error_counter > 9:
-            self.close_serial()
-            self.error_counter = 0
-
-    """
-    Read serial data from serial port.
-    """
-    def read_serial_data(self):
-
-        if self.ser.is_open:
-            # Check if there is data in the input buffer
-            if self.ser.in_waiting > 0:
-                try:
-                    incoming_data = self.ser.readline().decode('utf8')
-
-                    if incoming_data:
-                        logging.info("read_serial_dat: Incoming data: %s", incoming_data)
-
-                        numbers = self.get_numbers(incoming_data)
-                        logging.debug("numbers: %s", len(numbers))
-
-                        # mitu data punkti tuleb sisse?
-                        while len(numbers) > len(self.plot.y_axis):
-                            self.plot.y_axis.append([0])
-
-                        for count, value in enumerate(numbers):
-                            self.add_numbers(count, value, self.plot_data_size)
-                            logging.debug("value: %s", value)
-
-                        self.add_time(self.plot_data_size) # x axis
-
-                        for i in range(self.number_of_lines):
-                            logging.debug("for loop %s", i)
-                            logging.debug("plot.x_axis %s", self.plot.x_axis)
-                            logging.debug("plot.y_axis[i] %s", self.plot.y_axis[i])
-                            if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
-                                # At beginning append 0.0
-                                self.plot.y_axis[i].insert(0, 0.0)
-                            self.plot.data_lines[i].setData(self.plot.x_axis, self.plot.y_axis[i])
-                except Exception as ex:
-                    logging.debug(ex)
-                    logging.debug("Error read_serial_data!!!")
-                    self.error_counter += 1
-                    self.error_status()
-                    self.equal_x_and_y()
-                
-                except SystemExit:  
-                    logging.debug(sys.exc_info())
-
-
-    def how_many_lines(self):
-        """
-            Return number of different incoming data lines.
-            Example: data:454something45t=454-\n == 3
-        """
-        logging.debug("How_many_lines?")
-        self.open_serial()
-        if self.ser.is_open:
-            try:
-                # This may be half of data
-                # [:-2] removes the new-line chars.
-                broken_data = self.ser.readline()#[:-2].decode('ascii')
-                logging.debug("try broken_data %s", broken_data)
-                # Full data is between two \n chars
-                incoming_data = self.ser.readline().decode('utf8')
-                
-                logging.debug("try incoming_data %s", incoming_data)
-                
-                i = 0
-                while not incoming_data:
-                    input = self.ser.readline().decode('utf8')
-                    for c in input:
-                        if c.isdigit():
-                            incoming_data = input
-
-                    #incoming_data = self.ser.readline().decode('utf8') #readline()[:-1]
-                    if i > self.max_tryes:
-                        break
-                    logging.debug("i = %s", i)
-                    logging.debug("while not incoming_data %s", incoming_data)
-                    i = i+1
-                    
-
-                if incoming_data:
-                    logging.debug("if Incoming data %s", incoming_data)
-                    numbers = self.get_numbers(incoming_data)
-                    logging.debug("Found: %s lines", len(numbers))
-
-                    labels = self.get_labels(incoming_data)
-                    logging.debug("Found: %s labels", len(labels))
-                    for i, label in enumerate(labels):
-                        if i == 0: 
-                            self.labels[i] = label
-                        else:
-                           self.labels.append(label)
-                        logging.debug(i)
-                        logging.debug(label)
-
-                    return len(numbers)
-                
-
-            except Exception as ex:
-                logging.debug(ex)
-                logging.debug("Error how_many_lines")
-                self.ser.close()
-                
-            except SystemExit:  
-                logging.debug(sys.exc_info())
-
-
     def keyPressEvent(self, event):
         """
             Detect keypress and runs function
@@ -958,10 +943,16 @@ class MainWindow(QWidget):
 
     def closeEvent(self, event):
         """Stop background work before the window is destroyed."""
-        self.close_serial()
         self.port_scanner_thread.requestInterruption()
         self.port_scanner_thread.quit()
         self.port_scanner_thread.wait()
+        if self.serial_thread.isRunning():
+            QMetaObject.invokeMethod(
+                self.serial_worker,
+                "stop",
+                Qt.ConnectionType.BlockingQueuedConnection)
+        self.serial_thread.quit()
+        self.serial_thread.wait()
         event.accept()
 
     #def mouseClickEvent(self, event):
