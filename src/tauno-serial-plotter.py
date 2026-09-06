@@ -9,6 +9,7 @@ import sys
 import re
 import os
 import logging
+from enum import Enum, auto
 import serial
 import serial.tools.list_ports
 from PyQt6 import QtWidgets, QtCore, QtGui
@@ -20,6 +21,14 @@ import platform
 
 VERSION = '1.20.5'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
+
+
+class ConnectionState(Enum):
+    """States in the serial connection lifecycle."""
+    DISCONNECTED = auto()
+    CONNECTING = auto()
+    CONNECTED = auto()
+    ERROR = auto()
 
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
@@ -332,7 +341,7 @@ class SerialWorker(QtCore.QObject):
 
     @pyqtSlot(str, int)
     def connect_to(self, port, baudrate):
-        self.disconnect_from_serial()
+        self._close_serial()
         try:
             self.serial = serial.Serial(port, baudrate, timeout=0)
             self.serial.reset_input_buffer()
@@ -344,11 +353,14 @@ class SerialWorker(QtCore.QObject):
 
     @pyqtSlot()
     def disconnect_from_serial(self):
+        self._close_serial()
+        self.disconnected.emit()
+
+    def _close_serial(self):
         self.probing = False
         if self.serial is not None:
             self.serial.close()
             self.serial = None
-        self.disconnected.emit()
 
     @pyqtSlot()
     def read_serial(self):
@@ -603,7 +615,7 @@ class MainWindow(QWidget):
         self.number_of_lines = 0
         self.error_counter = 0
         self.plot_data_size = TIMESCALESIZE #?
-        self.is_button_connected = False
+        self.connection_state = ConnectionState.DISCONNECTED
 
         self.init_ui()
         self.center_mainwindow()
@@ -632,6 +644,7 @@ class MainWindow(QWidget):
         self.serial_worker.connected.connect(self.serial_connected)
         self.serial_worker.data_received.connect(self.handle_serial_data)
         self.serial_worker.connection_failed.connect(self.serial_connection_failed)
+        self.serial_worker.disconnected.connect(self.serial_disconnected)
         self.serial_worker.stopped.connect(self.serial_thread.quit)
         self.serial_thread.finished.connect(self.serial_worker.deleteLater)
         self.serial_thread.start()
@@ -673,12 +686,12 @@ class MainWindow(QWidget):
         Update port controls on the GUI thread.
         """
         logging.debug("self.plot_exist %s", self.plot_exist)
-        logging.debug("self.is_button_connected %s", self.is_button_connected)
+        logging.debug("self.connection_state %s", self.connection_state.name)
 
         before_selected_port = self.selected_port
         logging.debug("before_selected_port %s", before_selected_port)
 
-        if self.plot_exist and self.is_button_connected:
+        if self.plot_exist and self.connection_state == ConnectionState.CONNECTED:
             return
 
         self.ports = ports
@@ -708,7 +721,7 @@ class MainWindow(QWidget):
         logging.info("Main selected baud index changed:")
         logging.info(self.selected_baudrate)
         self.equal_x_and_y()
-        if self.is_button_connected:
+        if self.connection_state == ConnectionState.CONNECTED:
             self.request_serial_connection()
 
     def equal_x_and_y(self):
@@ -765,20 +778,19 @@ class MainWindow(QWidget):
 
     def connect_stop(self):
         """ Connected or Pause button press? """
-        if not self.is_button_connected:
+        if self.connection_state in (
+                ConnectionState.DISCONNECTED, ConnectionState.ERROR):
             logging.debug('--> Connect Button.')
             self.connect()
-        else:
-            self.is_button_connected = False
+        elif self.connection_state in (
+                ConnectionState.CONNECTING, ConnectionState.CONNECTED):
             logging.debug('--> Pause Button.')
             self.disconnect()
-            # Diable Clear Data button
-            self.controls.btn_clear.setEnabled(False)
-            self.controls.btn_clear.setStyleSheet(btn_icon_style_disabled)
 
 
     def connect(self):
         """ When we press button Connect. """
+        self.set_connection_state(ConnectionState.CONNECTING)
         # Change button txt
         self.controls.connect.setText('Connecting...')
         # Disable button
@@ -793,29 +805,62 @@ class MainWindow(QWidget):
     def disconnect(self):
         """ When we press Pause button """
         self.serial_disconnect_requested.emit()
-        #self.clear_data() # ??
+        self.set_connection_state(ConnectionState.DISCONNECTED)
         # Change button txt
-        self.controls.connect.setText('Resume')
+        self.controls.connect.setText('Connect')
         # Enable buttons
         self.controls.select_port.setEnabled(True)
         self.controls.select_baud.setEnabled(True)
         # Change button style
         self.controls.select_port.setStyleSheet(dropdown_style)
         self.controls.select_baud.setStyleSheet(dropdown_style)
+        self.controls.btn_clear.setEnabled(False)
+        self.controls.btn_clear.setStyleSheet(btn_icon_style_disabled)
 
     def request_serial_connection(self):
         self.serial_connect_requested.emit(
             self.selected_port, int(self.selected_baudrate))
 
+    def set_connection_state(self, state):
+        """Apply a valid connection transition and update shared state."""
+        valid_transitions = {
+            ConnectionState.DISCONNECTED: {
+                ConnectionState.CONNECTING, ConnectionState.ERROR},
+            ConnectionState.CONNECTING: {
+                ConnectionState.CONNECTED, ConnectionState.DISCONNECTED,
+                ConnectionState.ERROR},
+            ConnectionState.CONNECTED: {
+                ConnectionState.CONNECTING, ConnectionState.DISCONNECTED,
+                ConnectionState.ERROR},
+            ConnectionState.ERROR: {
+                ConnectionState.CONNECTING, ConnectionState.DISCONNECTED},
+        }
+        if state != self.connection_state and state not in valid_transitions[self.connection_state]:
+            logging.warning(
+                "Ignoring invalid connection transition: %s -> %s",
+                self.connection_state.name, state.name)
+            return False
+        self.connection_state = state
+        logging.info("Connection state: %s", state.name)
+        return True
+
+    @pyqtSlot()
+    def serial_disconnected(self):
+        if self.connection_state != ConnectionState.DISCONNECTED:
+            self.set_connection_state(ConnectionState.DISCONNECTED)
+
     @pyqtSlot(int, list)
     def serial_connected(self, number_of_lines, labels):
+        if self.connection_state != ConnectionState.CONNECTING:
+            logging.debug("Ignoring stale serial connection result")
+            return
         self.number_of_lines = number_of_lines
         self.labels = labels or ["label"]
         if not self.plot_exist:
             self.plot = Plot(self.number_of_lines, self.labels)
             self.horizontal_layout.addWidget(self.plot)
             self.plot_exist = True
-        self.is_button_connected = True
+        self.set_connection_state(ConnectionState.CONNECTED)
         self.controls.connect.setText('Pause')
         self.controls.btn_clear.setEnabled(True)
         self.controls.btn_clear.setStyleSheet(btn_icon_style)
@@ -823,29 +868,37 @@ class MainWindow(QWidget):
     @pyqtSlot(str)
     def serial_connection_failed(self, error):
         logging.error("Serial connection failed: %s", error)
-        self.is_button_connected = False
+        self.set_connection_state(ConnectionState.ERROR)
         self.controls.connect.setText('Connect')
         self.controls.select_port.setEnabled(True)
         self.controls.select_baud.setEnabled(True)
         self.controls.select_port.setStyleSheet(dropdown_style)
         self.controls.select_baud.setStyleSheet(dropdown_style)
+        self.controls.btn_clear.setEnabled(False)
+        self.controls.btn_clear.setStyleSheet(btn_icon_style_disabled)
+        QMessageBox.critical(
+            self,
+            "Serial connection failed",
+            error or "Unable to connect to the selected serial port.")
 
     @pyqtSlot(str)
     def handle_serial_data(self, incoming_data):
-        if not self.plot_exist:
+        if (not self.plot_exist
+                or self.connection_state != ConnectionState.CONNECTED):
             return
         try:
             numbers = self.get_numbers(incoming_data)
-            while len(numbers) > len(self.plot.y_axis):
-                self.plot.y_axis.append([0])
 
             for count, value in enumerate(numbers[:self.number_of_lines]):
                 self.add_numbers(count, value, self.plot_data_size)
 
             self.add_time(self.plot_data_size)
             for i in range(self.number_of_lines):
+                if len(self.plot.y_axis[i]) > len(self.plot.x_axis):
+                    self.plot.y_axis[i] = self.plot.y_axis[i][-len(self.plot.x_axis):]
                 if len(self.plot.x_axis) > len(self.plot.y_axis[i]):
-                    self.plot.y_axis[i].insert(0, 0.0)
+                    missing = len(self.plot.x_axis) - len(self.plot.y_axis[i])
+                    self.plot.y_axis[i][0:0] = [0.0] * missing
                 self.plot.data_lines[i].setData(
                     self.plot.x_axis, self.plot.y_axis[i])
         except (ValueError, IndexError) as error:
