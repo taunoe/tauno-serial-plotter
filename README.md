@@ -108,13 +108,14 @@ Once the plot (graph) is created it is possible to change the additional plot se
 
 ## Screenshots
 
-Tested on Ubuntu 20.10.
+Light theme
 
-![Screenshot on ubuntu](./img/screenshot.png)
+![Screenshot on ubuntu](./img/art.taunoerik.tauno-serial-plotter_light.png)
 
-And on Windows 10
+Dark theme
 
-![Screenshot on ubuntu](./img/screenshot_win10.png)
+![Screenshot on ubuntu](./img/art.taunoerik.tauno-serial-plotter_dark.png)
+
 
 ## Dialout group
 

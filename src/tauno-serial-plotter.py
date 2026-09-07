@@ -3,7 +3,7 @@
     File:    Tauno-Serial-Plotter.py
     Author:  Tauno Erik
     Started: 07.03.2020
-    Edited:  06.09.2026
+    Edited:  07.09.2026
 """
 import sys
 import re
@@ -110,7 +110,7 @@ if dark_theme:
     colors = {
         'oranz': "#FF6F00",
         'accent': system_accent_color(True),
-        'dark': "#263238",
+        'dark': "#1d1d20",
         'hall': "#B0BEC5",
         'black': "#212121",
         'foreground': "#B0BEC5",
