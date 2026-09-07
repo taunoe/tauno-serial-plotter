@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
-   id="Layer_1"
-   width="256"
-   height="256"
-   data-name="Layer 1"
+   width="128.00002"
+   height="127.99999"
+   viewBox="0 0 33.866671 33.866665"
    version="1.1"
-   viewBox="0 0 256 256"
-   sodipodi:docname="art.taunoerik.tauno-serial-plotter.svg"
+   id="svg1"
    inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   sodipodi:docname="art.taunoerik.tauno-serial-plotter.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -16,91 +17,30 @@
   <sodipodi:namedview
      id="namedview1"
      pagecolor="#ffffff"
-     bordercolor="#999999"
-     borderopacity="1"
+     bordercolor="currentColor"
+     borderopacity="0.25"
      inkscape:showpageshadow="2"
-     inkscape:pageopacity="0"
+     inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.2167208"
-     inkscape:cx="13.56104"
-     inkscape:cy="176.29352"
+     inkscape:document-units="px"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="41.277358"
+     inkscape:cy="65.672542"
      inkscape:window-width="1920"
      inkscape:window-height="1043"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="Layer_1" />
-  <title
-     id="title820">Tauno Serial Plotter</title>
-  <metadata
-     id="metadata13" />
+     inkscape:current-layer="layer1"
+     showguides="true" />
   <defs
-     id="defs4">
-    <style
-       id="style2" />
-    <linearGradient
-       id="SVGID_2_"
-       x1="1.792"
-       x2="1.792"
-       y1="768.495"
-       y2="767.795"
-       gradientTransform="matrix(448,0,0,-448,-447,344513)"
-       gradientUnits="userSpaceOnUse">
-      <stop
-         id="stop27"
-         offset="0"
-         style="stop-color:#4d4d4d" />
-      <stop
-         id="stop29"
-         offset="1"
-         style="stop-color:#444" />
-    </linearGradient>
-    <linearGradient
-       id="SVGID_3_"
-       x1="1.987"
-       x2="2.047"
-       y1="767.586"
-       y2="767.887"
-       gradientTransform="matrix(256,0,0,-170.6667,-159,131463.47)"
-       gradientUnits="userSpaceOnUse">
-      <stop
-         id="stop38"
-         offset="0"
-         style="stop-color:#ff9700" />
-      <stop
-         id="stop40"
-         offset=".53"
-         style="stop-color:#f48e00" />
-      <stop
-         id="stop42"
-         offset="1"
-         style="stop-color:#ce6e00" />
-    </linearGradient>
-    <linearGradient
-       id="SVGID_3_-2"
-       x1="1.987"
-       x2="2.047"
-       y1="767.586"
-       y2="767.887"
-       gradientTransform="matrix(256,0,0,-170.6667,62.587857,131236.34)"
-       gradientUnits="userSpaceOnUse">
-      <stop
-         id="stop38-9"
-         offset="0"
-         style="stop-color:#ff9700" />
-      <stop
-         id="stop40-1"
-         offset=".53"
-         style="stop-color:#f48e00" />
-      <stop
-         id="stop42-2"
-         offset="1"
-         style="stop-color:#ce6e00" />
-    </linearGradient>
-  </defs>
+     id="defs1" />
   <g
-     id="g3">
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-32.279167,-138.64166)">
     <g
        stroke="none"
        stroke-width="1"
@@ -108,12 +48,12 @@
        fill-rule="evenodd"
        sketch:type="MSPage"
        id="g2"
-       transform="matrix(2.8444444,0,0,2.8444444,-14.22222,-14.22222)"
+       transform="matrix(0.35204283,0,0,0.35204283,31.610361,137.97285)"
        style="fill:#f7941d;fill-opacity:1">
       <g
          sketch:type="MSArtboardGroup"
          fill="#000000"
-         id="g1"
+         id="g1-2"
          style="fill:#f7941d;fill-opacity:1">
         <path
            d="M 50,5 C 14,5 5,14 5,50 5,86 14,95 50,95 86,95 95,86 95,50 95,14 86,5 50,5 Z"
@@ -123,8 +63,8 @@
       </g>
     </g>
     <path
-       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;vector-effect:none;fill:#494949;stroke-linecap:round;stroke-linejoin:round;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
-       d="M 76.692807,37.649048 A 8.50085,8.50085 0 0 0 66.526791,41.557251 L 19.743588,125.53382 a 8.5,8.5 0 0 0 3.289063,11.56249 8.5,8.5 0 0 0 11.5625,-3.28906 L 74.280698,62.572876 166.94281,214.72717 a 8.50085,8.50085 0 0 0 14.66992,-0.25781 l 54.62891,-97.27148 a 8.5,8.5 0 0 0 -3.24805,-11.57422 8.5,8.5 0 0 0 -11.57422,3.25 L 173.9057,193.47522 81.212338,41.272095 a 8.50085,8.50085 0 0 0 -4.519531,-3.623047 z"
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#494949;stroke-width:0.113206;stroke-linecap:round;stroke-linejoin:round;enable-background:accumulate;stop-color:#000000"
+       d="m 43.404233,145.34675 a 0.96234575,0.96234575 0 0 0 -1.150852,0.44242 l -5.296132,9.50663 a 0.96224953,0.96224953 0 0 0 0.372341,1.30895 0.96224953,0.96224953 0 0 0 1.308943,-0.37235 l 4.492635,-8.06413 10.489891,17.22474 a 0.96234575,0.96234575 0 0 0 1.660721,-0.0292 l 6.184311,-11.0117 a 0.96224953,0.96224953 0 0 0 -0.367698,-1.31026 0.96224953,0.96224953 0 0 0 -1.310269,0.36792 l -5.378825,9.57741 -10.493428,-17.23029 a 0.96234575,0.96234575 0 0 0 -0.511638,-0.41014 z"
        id="path2" />
   </g>
 </svg>
