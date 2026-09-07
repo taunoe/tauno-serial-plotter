@@ -31,9 +31,12 @@
 
   <screenshots>
     <screenshot type="default">
-      <caption>The main window</caption>
-      <image>https://raw.githubusercontent.com/taunoe/tauno-serial-plotter/master/img/screenshot.png</image>
+      <caption>Light mode</caption>
+      <image>https://raw.githubusercontent.com/taunoe/tauno-serial-plotter/master/img/art.taunoerik.tauno-serial-plotter_light.png</image>
     </screenshot>
+    <screenshot>
+      <caption>Dark mode</caption>
+      <image>https://raw.githubusercontent.com/taunoe/tauno-serial-plotter/master/img/art.taunoerik.tauno-serial-plotter_dark.png</image>
     <screenshot>
       <caption>Exporting the data</caption>
       <image>https://raw.githubusercontent.com/taunoe/tauno-serial-plotter/master/img/graph-settings.png</image>
