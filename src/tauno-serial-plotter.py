@@ -9,17 +9,19 @@ import sys
 import re
 import os
 import logging
+import subprocess
 from enum import Enum, auto
 import serial
 import serial.tools.list_ports
 from PyQt6 import QtWidgets, QtCore, QtGui
-from PyQt6.QtCore import Qt, QMetaObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import (QSettings, Qt, QMetaObject, QThread, pyqtSignal,
+                          pyqtSlot)
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.20.6'
+VERSION = '1.20.7'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 
@@ -53,14 +55,75 @@ else:
     icon_clean = os.path.join(os.path.dirname(__file__), 'icons/larger-brush-symbolic.svg')
     icon_size = os.path.join(os.path.dirname(__file__), 'icons/ruler-end-horizontal-left-symbolic.svg')
 
-# GUI colours
-colors =  {
-    'oranz':"#FF6F00",
-    'green':"#9CCC65",
-    'dark' :"#263238",
-    'hall' :"#B0BEC5",
-	'black':"#212121"
-}
+def system_theme():
+    """Return the GNOME color scheme, or a platform-neutral light fallback."""
+    try:
+        result = subprocess.run(
+            ["gsettings", "get", "org.gnome.desktop.interface", "color-scheme"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=1,
+        )
+        scheme = result.stdout.strip().strip("'")
+        if scheme == "prefer-dark":
+            return "dark"
+        if scheme == "prefer-light":
+            return "light"
+    except (OSError, subprocess.SubprocessError):
+        logging.debug("GNOME color scheme is unavailable", exc_info=True)
+    return "light"
+
+
+def system_accent_color(dark):
+    """Return the GNOME accent color as a stylesheet-compatible hex value."""
+    accent_colors = {
+        "blue": ("#62A0EA", "#3584E4"),
+        "teal": ("#5BC8AF", "#2190A4"),
+        "green": ("#57E389", "#33D17A"),
+        "yellow": ("#F8E45C", "#F6D32D"),
+        "orange": ("#FFBE6F", "#FF7800"),
+        "red": ("#FF7B63", "#E01B24"),
+        "pink": ("#DC8ADD", "#C061CB"),
+        "purple": ("#C061CB", "#9141AC"),
+        "slate": ("#949390", "#5E5C64"),
+    }
+    try:
+        result = subprocess.run(
+            ["gsettings", "get", "org.gnome.desktop.interface", "accent-color"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=1,
+        )
+        accent = result.stdout.strip().strip("'")
+        if accent in accent_colors:
+            return accent_colors[accent][0 if dark else 1]
+    except (OSError, subprocess.SubprocessError):
+        logging.debug("GNOME accent color is unavailable", exc_info=True)
+    return "#9CCC65" if dark else "#62A0EA"
+
+
+# GUI colours, matching GNOME's dark and light Adwaita palettes.
+dark_theme = system_theme() == "dark"
+if dark_theme:
+    colors = {
+        'oranz': "#FF6F00",
+        'accent': system_accent_color(True),
+        'dark': "#263238",
+        'hall': "#B0BEC5",
+        'black': "#212121",
+        'foreground': "#B0BEC5",
+    }
+else:
+    colors = {
+        'oranz': "#C64600",
+        'accent': system_accent_color(False),
+        'dark': "#F6F5F4",
+        'hall': "#FFFFFF",
+        'black': "#2E3436",
+        'foreground': "#2E3436",
+    }
 
 # PLOT colors
 plot_colors = [
@@ -88,7 +151,7 @@ BORDER_RADIUS = '5px'
 # Graph style
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', colors['dark'])
-pg.setConfigOption('foreground', colors['hall'])
+pg.setConfigOption('foreground', colors['foreground'])
 
 btn_icon_style = f"""
 QPushButton{{
@@ -102,7 +165,7 @@ QPushButton{{
 }}
 
 QPushButton::hover{{
-    background-color: {colors['green']};
+    background-color: {colors['accent']};
     color: {colors['black']};
 }}
 
@@ -134,7 +197,7 @@ QPushButton{{
 }}
 
 QPushButton::hover{{
-    background-color: {colors['green']};
+    background-color: {colors['accent']};
     color: {colors['black']};
 }}
 
@@ -156,7 +219,7 @@ QPushButton{{
 
 label_style = f"""
 QLabel{{
-    color: {colors['hall']};
+    color: {colors['foreground']};
     font: {FONTSIZE};
     margin-top: 0px;
 }}
@@ -164,7 +227,7 @@ QLabel{{
 
 Qinfo_text_style = f"""
 QLabel{{
-    color: {colors['hall']};
+    color: {colors['foreground']};
     font: {FONTSIZE};
     margin-top: 0px;
 }}
@@ -182,19 +245,22 @@ QComboBox:editable, QComboBox{{
 }}
 
 QComboBox::hover{{
-    background-color: {colors['green']};
+    background-color: {colors['accent']};
     color: {colors['black']}; /* tekst*/
 }}
 
 QComboBox:editable:on, QComboBox:on {{ /* shift the text when the popup opens */
     padding-left: 10px;
-    background-color: {colors['green']};
+    background-color: {colors['accent']};
     color: {colors['dark']};
 }}
 
 QComboBox::drop-down {{ /* shift the text when the popup opens */
     background-color: {colors['dark']}; /* noole tagune */
-    color: {colors['green']};
+    color: {colors['accent']};
+    border: none;
+    border-top-right-radius: {BORDER_RADIUS};
+    border-bottom-right-radius: {BORDER_RADIUS};
     width: 24px;
 }}
 
@@ -203,6 +269,13 @@ QComboBox::down-arrow {{
     image: url({icon_arrow_down});
     width: 24px;
     height: 24px;
+}}
+
+QComboBox QAbstractItemView {{
+    background-color: {colors['hall']};
+    color: {colors['black']};
+    border: 1px solid {colors['black']};
+    border-radius: {BORDER_RADIUS};
 }}
 """
 
@@ -218,7 +291,10 @@ QComboBox:editable, QComboBox{{
 
 QComboBox::drop-down {{ /* shift the text when the popup opens */
     background-color: {colors['dark']}; /* noole tagune */
-    color: {colors['green']};
+    color: {colors['accent']};
+    border: none;
+    border-top-right-radius: {BORDER_RADIUS};
+    border-bottom-right-radius: {BORDER_RADIUS};
     width: 24px;
 }}
 
@@ -227,6 +303,13 @@ QComboBox::down-arrow {{
     image: url({icon_arrow_down});
     width: 24px;
     height: 24px;
+}}
+
+QComboBox QAbstractItemView {{
+    background-color: {colors['dark']};
+    color: {colors['black']};
+    border: 1px solid {colors['black']};
+    border-radius: {BORDER_RADIUS};
 }}
 """
 
@@ -242,7 +325,7 @@ QDoubleSpinBox{{
 }}
 
 QDoubleSpinBox::hover{{
-    background-color: {colors['green']};
+    background-color: {colors['accent']};
     color: {colors['black']}; /* tekst*/
 }}
 
@@ -252,9 +335,8 @@ QDoubleSpinBox::up-button{{
     background-color: {colors['dark']};
     border: 1px solid {colors['black']};
     border-top-right-radius: {BORDER_RADIUS};
-    border-bottom-right-radius: {BORDER_RADIUS};
     width: 25px;
-    height:25px;
+    height: 12px;
     margin:0px;
     /*padding-bottom: 1px;*/
 }}
@@ -262,25 +344,24 @@ QDoubleSpinBox::up-button{{
 QDoubleSpinBox::down-button{{
     subcontrol-origin: border;
     background-color: {colors['dark']};
-    subcontrol-position: top left;
+    subcontrol-position: bottom right;
     border: 1px solid {colors['black']};
-    border-top-left-radius: {BORDER_RADIUS};
-    border-bottom-left-radius: {BORDER_RADIUS};
+    border-bottom-right-radius: {BORDER_RADIUS};
     width: 25px;
-    height:25px;
+    height: 12px;
     /*padding-bottom: 1px;*/
 }}
 
 QDoubleSpinBox::up-arrow {{
     image: url({icon_plus});
-    width: 25px;
-    height: 25px;
+    width: 16px;
+    height: 12px;
 }}
 
 QDoubleSpinBox::down-arrow {{
     image: url({icon_minus});
-    width: 25px;
-    height: 25px;
+    width: 16px;
+    height: 12px;
 }}
 
 """
@@ -579,12 +660,13 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__(parent=parent)
 
         self.app = app
+        self.settings = QSettings("TaunoErik", "TaunoSerialPlotter")
         self.plot_exist = False
         self.is_fullscreen = False
 
         self.labels = ["label"]
         self.ports = [''] # list of avablie devices
-        self.selected_port = self.ports[0] # '/dev/ttyACM0'
+        self.selected_port = self.settings.value("serial/port", self.ports[0], type=str)
         self.baudrates = [
                           '150', # 0
                           '200', # 1
@@ -608,7 +690,11 @@ class MainWindow(QWidget):
                        '500000',
                        '576000']
         self.default_baud_index = 8
-        self.selected_baudrate = self.baudrates[self.default_baud_index] # default selected baud rate
+        saved_baudrate = self.settings.value(
+            "serial/baudrate", self.baudrates[self.default_baud_index], type=str)
+        if saved_baudrate not in self.baudrates:
+            saved_baudrate = self.baudrates[self.default_baud_index]
+        self.selected_baudrate = saved_baudrate
         logging.debug("self.selected_baudrate =")
         logging.debug(self.selected_baudrate)
 
@@ -663,7 +749,9 @@ class MainWindow(QWidget):
 
 
     def init_ui(self):
-        self.setStyleSheet(f"MainWindow {{ background-color: {colors['dark']}; }}")
+        self.setObjectName("mainWindow")
+        self.setStyleSheet(
+            f"QWidget#mainWindow {{ background-color: {colors['dark']}; }}")
         self.setWindowTitle("Tauno Serial Plotter")
         self.setWindowIcon(QtGui.QIcon(icon_logo))
         self.setMinimumSize(900,550)
@@ -709,15 +797,20 @@ class MainWindow(QWidget):
 
     def init_baudrates(self):
         self.controls.select_baud.addItems(self.baudrates)
-        self.controls.select_baud.setCurrentIndex(self.default_baud_index)
+        self.controls.select_baud.setCurrentIndex(
+            self.baudrates.index(self.selected_baudrate))
 
     def selected_port_changed(self, i):
+        if i < 0 or i >= len(self.ports):
+            return
         self.selected_port = self.ports[i]
+        self.settings.setValue("serial/port", self.selected_port)
         logging.info("Main selected port changed:")
         logging.info(self.selected_port)
 
     def selected_baud_changed(self, i):
         self.selected_baudrate = self.baudrates[i]
+        self.settings.setValue("serial/baudrate", self.selected_baudrate)
         logging.info("Main selected baud index changed:")
         logging.info(self.selected_baudrate)
         self.equal_x_and_y()
@@ -996,6 +1089,10 @@ class MainWindow(QWidget):
 
     def closeEvent(self, event):
         """Stop background work before the window is destroyed."""
+        if self.selected_port:
+            self.settings.setValue("serial/port", self.selected_port)
+        self.settings.setValue("serial/baudrate", self.selected_baudrate)
+        self.settings.sync()
         self.port_scanner_thread.requestInterruption()
         self.port_scanner_thread.quit()
         self.port_scanner_thread.wait()
