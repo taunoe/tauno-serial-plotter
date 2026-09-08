@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.20.8'
+VERSION = '1.20.9'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 
@@ -39,7 +39,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # GUI Icons
 if platform.system() == 'Windows' :
-    icon_logo = "./icons/tauno-plotter.svg"
+    icon_logo = "./icons/tauno-serial-plotter.svg"
     icon_minus = "./icons/minus.svg"
     icon_plus = "./icons/plus.svg"
     icon_arrow_down = "./icons/arrow_down.svg"
@@ -47,7 +47,7 @@ if platform.system() == 'Windows' :
     icon_clean = "./icons/larger-brush-symbolic.svg"
     icon_size = "./icons/ruler-end-horizontal-left-symbolic.svg"
 else:
-    icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-plotter.svg')
+    icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-serial-plotter.svg')
     icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
     icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
     icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
