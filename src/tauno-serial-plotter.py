@@ -24,6 +24,15 @@ import platform
 VERSION = '1.21.0'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
+if __name__ == '__main__':
+    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+    if hasattr(Qt, 'AA_Use96Dpi'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi, True)
+    app = QApplication(sys.argv)
+
 
 class ConnectionState(Enum):
     """States in the serial connection lifecycle."""
@@ -56,22 +65,14 @@ else:
     icon_size = os.path.join(os.path.dirname(__file__), 'icons/ruler-end-horizontal-left-symbolic.svg')
 
 def system_theme():
-    """Return the GNOME color scheme, or a platform-neutral light fallback."""
-    try:
-        result = subprocess.run(
-            ["gsettings", "get", "org.gnome.desktop.interface", "color-scheme"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=1,
-        )
-        scheme = result.stdout.strip().strip("'")
-        if scheme == "prefer-dark":
+    """Return the platform color scheme, or a platform-neutral light fallback."""
+    app = QtWidgets.QApplication.instance()
+    if app is not None:
+        scheme = app.styleHints().colorScheme()
+        if scheme == QtCore.Qt.ColorScheme.Dark:
             return "dark"
-        if scheme == "prefer-light":
+        if scheme == QtCore.Qt.ColorScheme.Light:
             return "light"
-    except (OSError, subprocess.SubprocessError):
-        logging.debug("GNOME color scheme is unavailable", exc_info=True)
     return "light"
 
 
@@ -1111,16 +1112,6 @@ class MainWindow(QWidget):
 # END of class MainWindow --------------------------------------------
 
 if __name__ == '__main__':
-
-    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-    if hasattr(Qt, 'AA_Use96Dpi'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi, True)
-
-
-    app = QApplication(sys.argv)
     window = MainWindow(app)
     window.show()
 
