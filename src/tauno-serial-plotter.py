@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
 import pyqtgraph as pg
 import platform
 
-VERSION = '1.20.9'
+VERSION = '1.21.0'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 
