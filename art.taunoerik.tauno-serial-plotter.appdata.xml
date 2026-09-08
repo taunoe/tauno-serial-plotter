@@ -53,6 +53,13 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="1.20.8" date="2026-09-08">
+     <description>
+       <ul>
+         <li>Bug fixes.</li>
+       </ul>
+     </description>
+    </release>
     <release version="1.20.7" date="2026-09-07">
      <description>
        <ul>
