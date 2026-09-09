@@ -14,6 +14,7 @@ description: |
   sudo snap connect tauno-serial-plotter:serial-port
 compression: lzo
 license: GPL-3.0
+icon: src/icons/art.taunoerik.tauno-serial-plotter.svg
 contact: sedumacre@gmail.com
 website: https://github.com/taunoe/tauno-serial-plotter
 issues: https://github.com/taunoe/tauno-serial-plotter/issues
