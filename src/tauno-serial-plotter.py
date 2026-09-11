@@ -7,9 +7,7 @@
 """
 import sys
 import re
-import os
 import logging
-import subprocess
 from enum import Enum, auto
 import serial
 import serial.tools.list_ports
@@ -19,9 +17,9 @@ from PyQt6.QtCore import (QSettings, Qt, QMetaObject, QThread, pyqtSignal,
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
-import platform
+from theme import create_theme
 
-VERSION = '1.21.1'
+VERSION = '1.21.2'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 if __name__ == '__main__':
@@ -32,6 +30,16 @@ if __name__ == '__main__':
     if hasattr(Qt, 'AA_Use96Dpi'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi, True)
     app = QApplication(sys.argv)
+    theme = create_theme(app)
+    colors = theme.colors
+    plot_colors = theme.plot_colors
+    icon_logo = theme.icons["logo"]
+    icon_minus = theme.icons["minus"]
+    icon_plus = theme.icons["plus"]
+    icon_arrow_down = theme.icons["arrow_down"]
+    icon_about = theme.icons["about"]
+    icon_clean = theme.icons["clean"]
+    icon_size = theme.icons["size"]
 
 
 class ConnectionState(Enum):
@@ -45,105 +53,6 @@ class ConnectionState(Enum):
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
 
-
-# GUI Icons
-if platform.system() == 'Windows' :
-    icon_logo = "./icons/tauno-serial-plotter.svg"
-    icon_minus = "./icons/minus.svg"
-    icon_plus = "./icons/plus.svg"
-    icon_arrow_down = "./icons/arrow_down.svg"
-    icon_about = "./icons/help-about-symbolic.svg"
-    icon_clean = "./icons/larger-brush-symbolic.svg"
-    icon_size = "./icons/ruler-end-horizontal-left-symbolic.svg"
-else:
-    icon_logo = os.path.join(os.path.dirname(__file__), 'icons/tauno-serial-plotter.svg')
-    icon_minus = os.path.join(os.path.dirname(__file__), 'icons/minus.svg')
-    icon_plus = os.path.join(os.path.dirname(__file__), 'icons/plus.svg')
-    icon_arrow_down = os.path.join(os.path.dirname(__file__), 'icons/arrow_down.svg')
-    icon_about = os.path.join(os.path.dirname(__file__), 'icons/help-about-symbolic.svg')
-    icon_clean = os.path.join(os.path.dirname(__file__), 'icons/larger-brush-symbolic.svg')
-    icon_size = os.path.join(os.path.dirname(__file__), 'icons/ruler-end-horizontal-left-symbolic.svg')
-
-def system_theme():
-    """Return the platform color scheme, or a platform-neutral light fallback."""
-    app = QtWidgets.QApplication.instance()
-    if app is not None:
-        scheme = app.styleHints().colorScheme()
-        if scheme == QtCore.Qt.ColorScheme.Dark:
-            return "dark"
-        if scheme == QtCore.Qt.ColorScheme.Light:
-            return "light"
-    return "light"
-
-
-def system_accent_color(dark):
-    """Return the GNOME accent color as a stylesheet-compatible hex value."""
-    accent_colors = {
-        "blue": ("#62A0EA", "#3584E4"),
-        "teal": ("#5BC8AF", "#2190A4"),
-        "green": ("#57E389", "#33D17A"),
-        "yellow": ("#F8E45C", "#F6D32D"),
-        "orange": ("#FFBE6F", "#FF7800"),
-        "red": ("#FF7B63", "#E01B24"),
-        "pink": ("#DC8ADD", "#C061CB"),
-        "purple": ("#C061CB", "#9141AC"),
-        "slate": ("#949390", "#5E5C64"),
-    }
-    try:
-        result = subprocess.run(
-            ["gsettings", "get", "org.gnome.desktop.interface", "accent-color"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=1,
-        )
-        accent = result.stdout.strip().strip("'")
-        if accent in accent_colors:
-            return accent_colors[accent][0 if dark else 1]
-    except (OSError, subprocess.SubprocessError):
-        logging.debug("GNOME accent color is unavailable", exc_info=True)
-    return "#9CCC65" if dark else "#62A0EA"
-
-
-# GUI colours, matching GNOME's dark and light Adwaita palettes.
-dark_theme = system_theme() == "dark"
-if dark_theme:
-    colors = {
-        'oranz': "#FF6F00",
-        'accent': system_accent_color(True),
-        'dark': "#1d1d20",
-        'hall': "#B0BEC5",
-        'black': "#212121",
-        'foreground': "#B0BEC5",
-    }
-else:
-    colors = {
-        'oranz': "#C64600",
-        'accent': system_accent_color(False),
-        'dark': "#F6F5F4",
-        'hall': "#FFFFFF",
-        'black': "#2E3436",
-        'foreground': "#2E3436",
-    }
-
-# PLOT colors
-plot_colors = [
-    "#ba8310", # Kollane
-    "#00BCD4", # syan
-    "#3F51B5", # indigo
-    "#E91E63", # pink
-    "#FF9800", # orange
-    "#9C27B0", # purple
-    "#4CAF50", # green
-    "#FFC107", # amber
-    "#f44336", # red
-    "#03A9F4", # light blue
-    "#FFEB3B", # yellow
-    "#CDDC39", # lime
-    "#2196F3", # blue
-    "#8BC34A", # light green
-    "#009688"  # teal
-    ]
 
 # STYLING
 FONTSIZE = '16px'
