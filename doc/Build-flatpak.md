@@ -4,6 +4,18 @@ Official Flatpak repository is [github.com/flathub/art.taunoerik.tauno-serial-pl
 
 The Flatpak app [maintenance guide](https://github.com/flathub/flathub/wiki/App-Maintenance).
 
+The manifest must install both Python modules next to the launcher:
+
+```yaml
+build-commands:
+  - install -D src/tauno-serial-plotter.py /app/bin/tauno-serial-plotter.py
+  - install -D src/theme.py /app/bin/theme.py
+```
+
+`tauno-serial-plotter.py` imports `theme` at runtime. If the Flatpak
+manifest installs only the launcher, the application will fail with
+`ModuleNotFoundError: No module named 'theme'`.
+
 ## Some commands
 
 Build localy:
