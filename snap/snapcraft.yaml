@@ -78,7 +78,7 @@ parts:
       craftctl default
       # Ensure the script is in the bin folder and executable
       mkdir -p $CRAFT_PART_INSTALL/bin
-      cp -av src/tauno-serial-plotter.py src/theme.py \
+      cp -av src/tauno-serial-plotter.py src/parser.py src/theme.py \
             $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
 
