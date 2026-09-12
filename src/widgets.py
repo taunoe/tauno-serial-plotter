@@ -141,7 +141,7 @@ def create_styles(theme):
     dropdown_style_disabled = f"""
     QComboBox:editable, QComboBox{{
         background-color: {colors['dark']};
-        color: {colors['black']};
+        color: {colors['hall']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
         padding: 5px 25p 5px 5px;
