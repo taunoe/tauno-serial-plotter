@@ -12,9 +12,10 @@ build-commands:
   - install -D src/parser.py /app/bin/parser.py
   - install -D src/serial_workers.py /app/bin/serial_workers.py
   - install -D src/theme.py /app/bin/theme.py
+  - install -D src/widgets.py /app/bin/widgets.py
 ```
 
-`tauno-serial-plotter.py` imports `parser`, `serial_workers`, and `theme` at runtime. If the
+`tauno-serial-plotter.py` imports `parser`, `serial_workers`, `theme`, and `widgets` at runtime. If the
 Flatpak manifest installs only the launcher, the application will fail with
 `ModuleNotFoundError`.
 
