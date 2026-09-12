@@ -6,7 +6,6 @@
     Edited:  08.09.2026
 """
 import sys
-import re
 import logging
 from enum import Enum, auto
 import serial
@@ -17,6 +16,7 @@ from PyQt6.QtCore import (QSettings, Qt, QMetaObject, QThread, pyqtSignal,
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
+from parser import parse_labels, parse_numbers
 from theme import create_theme
 
 VERSION = '1.21.2'
@@ -397,10 +397,10 @@ class SerialWorker(QtCore.QObject):
                 return
 
             if self.probing:
-                numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', line)
+                numbers = parse_numbers(line)
                 if not numbers:
                     return
-                labels = re.findall(r'[-+]?[a-zA-Z]*\.?[a-zA-Z]+', line)
+                labels = parse_labels(line)
                 self.probing = False
                 self.connected.emit(len(numbers), labels)
             self.data_received.emit(line)
@@ -915,7 +915,7 @@ class MainWindow(QWidget):
                 or self.connection_state != ConnectionState.CONNECTED):
             return
         try:
-            numbers = self.get_numbers(incoming_data)
+            numbers = parse_numbers(incoming_data)
 
             for count, value in enumerate(numbers[:self.number_of_lines]):
                 self.add_numbers(count, value, self.plot_data_size)
@@ -954,21 +954,6 @@ class MainWindow(QWidget):
             Tauno Erik<br/><br/>\
             2021-2026".format(VERSION))
         self.aboutbox.exec()
-
-    def get_numbers(self, string):
-        """
-        Function to extract all the numbers from the given string
-        https://www.regular-expressions.info/floatingpoint.html
-        """
-        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)
-        return numbers
-    
-    def get_labels(self, string):
-        """
-        Function to extract all the labels from the given string
-        """
-        labels = re.findall(r'[-+]?[a-zA-Z]*\.?[a-zA-Z]+', string)
-        return labels
 
     def add_numbers(self, i, number, plot_data_size):
         """
