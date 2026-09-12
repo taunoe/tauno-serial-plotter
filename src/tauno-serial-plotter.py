@@ -17,7 +17,7 @@ from serial_workers import PortScanner, SerialWorker
 from theme import create_theme
 from widgets import Controls, Plot, create_styles
 
-VERSION = '1.21.2'
+VERSION = '1.21.3'
 TIMESCALESIZE = 400  # = self.plot_timescale and self.plot_data_size
 
 class ConnectionState(Enum):
