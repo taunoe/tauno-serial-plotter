@@ -8,15 +8,14 @@
 import sys
 import logging
 from enum import Enum, auto
-import serial
-import serial.tools.list_ports
 from PyQt6 import QtWidgets, QtCore, QtGui
 from PyQt6.QtCore import (QSettings, Qt, QMetaObject, QThread, pyqtSignal,
                           pyqtSlot)
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QVBoxLayout,
                             QLabel, QWidget, QMessageBox)
 import pyqtgraph as pg
-from parser import parse_labels, parse_numbers
+from parser import parse_numbers
+from serial_workers import PortScanner, SerialWorker
 from theme import create_theme
 
 VERSION = '1.21.2'
@@ -48,26 +47,6 @@ class ConnectionState(Enum):
     CONNECTING = auto()
     CONNECTED = auto()
     ERROR = auto()
-
-
-def include_serial_port(port):
-    """Hide metadata-free legacy UARTs while retaining real hardware ports."""
-    device = getattr(port, "device", "")
-    if not device.startswith("/dev/ttyS"):
-        return True
-
-    metadata_fields = (
-        "manufacturer",
-        "serial_number",
-        "product",
-        "interface",
-        "location",
-    )
-    if any(getattr(port, field, None) for field in metadata_fields):
-        return True
-    if getattr(port, "vid", None) is not None or getattr(port, "pid", None) is not None:
-        return True
-    return "USB" in (getattr(port, "hwid", "") or "").upper()
 
 
 # Set debuge level
@@ -296,125 +275,6 @@ QDoubleSpinBox::down-arrow {{
 }}
 
 """
-
-class PortScanner(QtCore.QObject):
-    """
-    Scan serial ports in a worker thread and publish results to the GUI.
-    """
-    ports_found = pyqtSignal(list)
-
-    def __init__(self, interval=10, parent=None):
-        super().__init__(parent)
-        self.interval = interval
-        self.timer = None
-
-    @pyqtSlot()
-    def start(self):
-        """Start periodic scanning after the worker thread's event loop starts."""
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(self.interval * 1000)
-        self.timer.timeout.connect(self.scan)
-        self.scan()
-        self.timer.start()
-
-    @pyqtSlot()
-    def scan(self):
-        """Scan ports without touching any GUI objects."""
-        ports = []
-        try:
-            ports = [
-                port.device
-                for port in serial.tools.list_ports.comports()
-                if include_serial_port(port)
-            ]
-        except OSError:
-            logging.exception("Unable to scan serial ports")
-        self.ports_found.emit(ports)
-
-
-class SerialWorker(QtCore.QObject):
-    """Own the serial connection and perform all serial I/O off the GUI thread."""
-    connected = pyqtSignal(int, list)
-    data_received = pyqtSignal(str)
-    connection_failed = pyqtSignal(str)
-    disconnected = pyqtSignal()
-    stopped = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.serial = None
-        self.timer = None
-        self.probing = False
-        self.probe_attempts = 0
-        self.probe_limit = 7500
-
-    @pyqtSlot()
-    def start(self):
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(10)
-        self.timer.timeout.connect(self.read_serial)
-        self.timer.start()
-
-    @pyqtSlot(str, int)
-    def connect_to(self, port, baudrate):
-        self._close_serial()
-        try:
-            self.serial = serial.Serial(port, baudrate, timeout=0)
-            self.serial.reset_input_buffer()
-            self.probing = True
-            self.probe_attempts = 0
-        except (OSError, serial.SerialException) as error:
-            self.serial = None
-            self.connection_failed.emit(str(error))
-
-    @pyqtSlot()
-    def disconnect_from_serial(self):
-        self._close_serial()
-        self.disconnected.emit()
-
-    def _close_serial(self):
-        self.probing = False
-        if self.serial is not None:
-            self.serial.close()
-            self.serial = None
-
-    @pyqtSlot()
-    def read_serial(self):
-        if self.serial is None or not self.serial.is_open:
-            return
-
-        try:
-            if self.serial.in_waiting == 0:
-                if self.probing:
-                    self.probe_attempts += 1
-                    if self.probe_attempts >= self.probe_limit:
-                        self.disconnect_from_serial()
-                        self.connection_failed.emit("No numeric data received")
-                return
-
-            line = self.serial.readline().decode("utf8", errors="replace")
-            if not line:
-                return
-
-            if self.probing:
-                numbers = parse_numbers(line)
-                if not numbers:
-                    return
-                labels = parse_labels(line)
-                self.probing = False
-                self.connected.emit(len(numbers), labels)
-            self.data_received.emit(line)
-        except (OSError, serial.SerialException, UnicodeError) as error:
-            self.disconnect_from_serial()
-            self.connection_failed.emit(str(error))
-
-    @pyqtSlot()
-    def stop(self):
-        if self.timer is not None:
-            self.timer.stop()
-        self.disconnect_from_serial()
-        self.stopped.emit()
-
 
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
