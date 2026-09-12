@@ -10,10 +10,11 @@ The manifest must install all Python modules next to the launcher:
 build-commands:
   - install -D src/tauno-serial-plotter.py /app/bin/tauno-serial-plotter.py
   - install -D src/parser.py /app/bin/parser.py
+  - install -D src/serial_workers.py /app/bin/serial_workers.py
   - install -D src/theme.py /app/bin/theme.py
 ```
 
-`tauno-serial-plotter.py` imports `parser` and `theme` at runtime. If the
+`tauno-serial-plotter.py` imports `parser`, `serial_workers`, and `theme` at runtime. If the
 Flatpak manifest installs only the launcher, the application will fail with
 `ModuleNotFoundError`.
 
