@@ -23,6 +23,9 @@ snapcraft init
 
 ## Build
 
+The snap build must include `src/widgets.py` alongside the launcher, parser, serial worker,
+and theme modules. If the manifest copies source files explicitly, add it to that copy command.
+
 For local testing check those lines in file snap/snapcraft.yaml:
 
 ```Bash
