@@ -49,6 +49,27 @@ class ConnectionState(Enum):
     CONNECTED = auto()
     ERROR = auto()
 
+
+def include_serial_port(port):
+    """Hide metadata-free legacy UARTs while retaining real hardware ports."""
+    device = getattr(port, "device", "")
+    if not device.startswith("/dev/ttyS"):
+        return True
+
+    metadata_fields = (
+        "manufacturer",
+        "serial_number",
+        "product",
+        "interface",
+        "location",
+    )
+    if any(getattr(port, field, None) for field in metadata_fields):
+        return True
+    if getattr(port, "vid", None) is not None or getattr(port, "pid", None) is not None:
+        return True
+    return "USB" in (getattr(port, "hwid", "") or "").upper()
+
+
 # Set debuge level
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
@@ -301,7 +322,11 @@ class PortScanner(QtCore.QObject):
         """Scan ports without touching any GUI objects."""
         ports = []
         try:
-            ports = [port.device for port in serial.tools.list_ports.comports()]
+            ports = [
+                port.device
+                for port in serial.tools.list_ports.comports()
+                if include_serial_port(port)
+            ]
         except OSError:
             logging.exception("Unable to scan serial ports")
         self.ports_found.emit(ports)
