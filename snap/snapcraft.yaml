@@ -3,7 +3,7 @@ title: Tauno Serial Plotter
 base: core24
 grade: stable
 confinement: strict
-version: '1.21.3'
+version: '1.21.4'
 summary: Simple serial plotter
 description: |
   Tauno Serial Plotter is simple serial plotter for Arduino and others.
@@ -78,7 +78,7 @@ parts:
       craftctl default
       # Ensure the script is in the bin folder and executable
       mkdir -p $CRAFT_PART_INSTALL/bin
-      cp -av src/tauno-serial-plotter.py src/parser.py src/serial_workers.py src/theme.py src/widgets.py \
+      cp -av src/tauno-serial-plotter.py src/tauno_serial_plotter.py src/parser.py src/app_model.py src/serial_workers.py src/theme.py src/widgets.py \
             $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/tauno-serial-plotter.py
 

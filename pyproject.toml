@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tauno-serial-plotter"
+version = "1.21.4"
+description = "A simple serial plotter."
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [
+    {name = "Tauno Erik", email = "sedumacre@gmail.com"},
+]
+dependencies = [
+    "pyserial",
+    "pyqtgraph",
+    "PyQt6",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/taunoe/tauno-serial-plotter"
+
+[project.scripts]
+tauno-serial-plotter = "src.tauno_serial_plotter:main"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.setuptools.package-data]
+src = ["icons/*"]

@@ -141,36 +141,32 @@ sudo service udev restart
 
 More info: https://docs.platformio.org/en/latest/faq.html#faq-udev-rules
 
-## Run Python script
+## Run from Python
 
 ### Requirements
 
-Requirements if you use python script to run it.
-
-Python 3.7, PyQt6, pyserial, pyqtgraph
+Python 3.7 or newer is required. The recommended installation uses a virtual
+environment and installs the project with its declared dependencies.
 
 ```Bash
 sudo apt install python3-pip
-
-pip install PyQt6
-
-pip install pyserial pyqtgraph
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install .
 ```
 
-### Run
+Start the installed application with:
 
 ```Bash
-cd src/
-
-chmod +x tauno-serial-plotter.py
-
-./tauno-serial-plotter.py
+tauno-serial-plotter
 ```
 
-or
+For development, the source launcher can be run directly after installing the
+dependencies:
 
 ```Bash
-python3 ./tauno-serial-plotter.py
+python3 -m pip install -r requirements.txt
+python3 src/tauno-serial-plotter.py
 ```
 
  ___

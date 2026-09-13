@@ -15,7 +15,7 @@ def create_styles(theme):
     btn_icon_style = f"""
     QPushButton{{
         color: {colors['black']};
-        background-color: {colors['hall']};
+        background-color: {colors['gray']};
         border: 1px solid {colors['dark']};
         border-radius: {BORDER_RADIUS};
         padding: 5px;
@@ -29,8 +29,8 @@ def create_styles(theme):
     }}
 
     QPushButton::pressed{{
-        border: 1px solid {colors['oranz']};
-        background-color: {colors['hall']};
+        border: 1px solid {colors['orange']};
+        background-color: {colors['gray']};
     }}"""
 
     btn_icon_style_disabled = f"""
@@ -47,7 +47,7 @@ def create_styles(theme):
     btn_style = f"""
     QPushButton{{
         color: {colors['black']};
-        background-color: {colors['hall']};
+        background-color: {colors['gray']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
         padding: 5px;
@@ -61,8 +61,8 @@ def create_styles(theme):
     }}
 
     QPushButton::pressed{{
-        border: 1px solid {colors['oranz']};
-        background-color: {colors['hall']};
+        border: 1px solid {colors['orange']};
+        background-color: {colors['gray']};
     }}"""
 
     btn_style_disabled = f"""
@@ -95,11 +95,11 @@ def create_styles(theme):
 
     dropdown_style = f"""
     QComboBox:editable, QComboBox{{
-        background-color: {colors['hall']};
+        background-color: {colors['gray']};
         color: {colors['black']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
-        padding: 5px 25p 5px 5px;
+        padding: 5px 25px 5px 5px;
         font: {FONTSIZE};
     }}
 
@@ -131,7 +131,7 @@ def create_styles(theme):
     }}
 
     QComboBox QAbstractItemView {{
-        background-color: {colors['hall']};
+        background-color: {colors['gray']};
         color: {colors['black']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
@@ -141,10 +141,10 @@ def create_styles(theme):
     dropdown_style_disabled = f"""
     QComboBox:editable, QComboBox{{
         background-color: {colors['dark']};
-        color: {colors['hall']};
+        color: {colors['gray']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
-        padding: 5px 25p 5px 5px;
+        padding: 5px 25px 5px 5px;
         font: {FONTSIZE};
     }}
 
@@ -175,7 +175,7 @@ def create_styles(theme):
 
     QDoubleSpinBox_style = f"""
     QDoubleSpinBox{{
-        background-color: {colors['hall']};
+        background-color: {colors['gray']};
         color: {colors['black']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
