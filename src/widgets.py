@@ -99,7 +99,7 @@ def create_styles(theme):
         color: {colors['black']};
         border: 1px solid {colors['black']};
         border-radius: {BORDER_RADIUS};
-        padding: 5px 25px 5px 5px;
+        padding: 5px 0px 5px 5px;
         font: {FONTSIZE};
     }}
 
@@ -330,6 +330,7 @@ class Controls(QWidget):
         
 
         # Label Port
+        self.menu_top.addSpacing(10)
         self.device_label = QLabel(self)
         self.menu_top.addWidget(self.device_label)
         self.device_label.setText("Port:")
@@ -341,6 +342,7 @@ class Controls(QWidget):
         self.select_port.setFixedWidth(150)
 
         # Button Connect
+        self.menu_top.addSpacing(10)
         self.connect = QtWidgets.QPushButton('Connect', parent=self)
         self.menu_top.addWidget(self.connect)
         self.connect.setFixedWidth(100)
