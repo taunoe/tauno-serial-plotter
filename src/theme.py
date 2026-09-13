@@ -68,19 +68,19 @@ def create_theme(app):
     dark = _system_theme(app) == "dark"
     if dark:
         colors = {
-            "oranz": "#FF6F00",
+            "orange": "#FF6F00",
             "accent": _system_accent_color(True),
             "dark": "#1d1d20",
-            "hall": "#B0BEC5",
+            "gray": "#B0BEC5",
             "black": "#212121",
             "foreground": "#B0BEC5",
         }
     else:
         colors = {
-            "oranz": "#C64600",
+            "orange": "#C64600",
             "accent": _system_accent_color(False),
             "dark": "#F6F5F4",
-            "hall": "#FFFFFF",
+            "gray": "#FFFFFF",
             "black": "#2E3436",
             "foreground": "#2E3436",
         }

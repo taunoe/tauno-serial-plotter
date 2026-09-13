@@ -5,7 +5,10 @@ import serial
 import serial.tools.list_ports
 from PyQt6 import QtCore
 
-from parser import parse_labels, parse_numbers
+try:
+    from .parser import parse_labels, parse_numbers
+except ImportError:
+    from parser import parse_labels, parse_numbers
 
 
 def include_serial_port(port):
