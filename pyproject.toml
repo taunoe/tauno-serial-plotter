@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tauno-serial-plotter"
-version = "1.21.4"
+version = "1.21.5"
 description = "A simple serial plotter."
 readme = "README.md"
 requires-python = ">=3.7"
