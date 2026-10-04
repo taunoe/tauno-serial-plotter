@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/taunoe/tauno-serial-plotter/refs/heads/master/data/art.taunoerik.tauno-serial-plotter.svg" align="center">
+
 # Tauno Serial Plotter
 
 [![tauno-serial-plotter](https://snapcraft.io/tauno-serial-plotter/badge.svg)](https://snapcraft.io/tauno-serial-plotter)
