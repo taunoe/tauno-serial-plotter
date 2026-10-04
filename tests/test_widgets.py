@@ -21,6 +21,12 @@ class WidgetTests(unittest.TestCase):
         self.assertEqual(controls.select_baud.currentText(), "")
         self.assertEqual(controls.select_port.count(), 0)
         self.assertEqual(controls.connect.text(), "Connect")
+        self.assertEqual(
+            [controls.select_graph_type.itemData(i)
+             for i in range(controls.select_graph_type.count())],
+            ["line", "scatter"],
+        )
+        self.assertEqual(controls.select_graph_type.currentData(), "line")
         self.assertEqual(controls.time_scale_spin.value(), 400)
         self.assertFalse(controls.btn_clear.isEnabled())
         self.assertFalse(controls.about.icon().isNull())
@@ -56,6 +62,23 @@ class WidgetTests(unittest.TestCase):
 
         self.assertEqual(len(plot.data_lines), 1)
         self.assertEqual(plot.data_lines[0].name(), "label")
+
+    def test_plot_switches_graph_type_without_losing_data(self):
+        plot = Plot(2, ["temperature", "humidity"], theme=self.theme)
+        x_axis = [0, 1]
+        y_axis = [[0, 21.5], [0, 50.0]]
+
+        plot.set_data(x_axis, y_axis)
+        plot.set_graph_type("scatter")
+
+        self.assertEqual(plot.graph_type, "scatter")
+        self.assertEqual(plot.x_axis, x_axis)
+        self.assertEqual(plot.y_axis, y_axis)
+        self.assertEqual(len(plot.data_lines), 2)
+        self.assertEqual(list(plot.data_lines[0].getData()[1]), y_axis[0])
+
+        with self.assertRaises(ValueError):
+            plot.set_graph_type("bar")
 
 
 if __name__ == "__main__":

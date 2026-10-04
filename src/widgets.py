@@ -238,7 +238,10 @@ def create_styles(theme):
 
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
-    def __init__(self, nr_plot_lines='1', labels=["sensor1"], theme=None):
+    GRAPH_TYPES = ("line", "scatter")
+
+    def __init__(self, nr_plot_lines='1', labels=["sensor1"], theme=None,
+                 graph_type="line"):
         super(Plot,self).__init__(parent=None)
         plot_colors = theme.plot_colors if theme else []
         if theme:
@@ -247,7 +250,9 @@ class Plot(pg.GraphicsLayoutWidget):
             pg.setConfigOption("foreground", theme.colors["foreground"])
 
         self.nr_plot_lines = nr_plot_lines
-        self.data_labels =labels
+        self.data_labels = labels
+        self.plot_colors = plot_colors
+        self.graph_type = graph_type
 
         if self.nr_plot_lines is None:
             logging.debug("nr_plot_lines is None!")
@@ -259,7 +264,7 @@ class Plot(pg.GraphicsLayoutWidget):
         self.serialplot.setLabel('left', 'Data')
         self.serialplot.setLabel('bottom', 'Time')
         self.serialplot.showGrid(x=True, y=True)
-        self.serialplot.addLegend()
+        self.legend = self.serialplot.addLegend()
 
         # Place to hold data
         self.x_axis = [0]  # Time
@@ -268,26 +273,58 @@ class Plot(pg.GraphicsLayoutWidget):
 
         # List of all data lines
         self.data_lines = []
+        self._create_data_lines()
 
+    def _series_name(self, index):
+        if len(self.data_labels) == len(self.y_axis):
+            return self.data_labels[index]
+        return None
+
+    def _series_color(self, index):
+        if self.plot_colors:
+            return self.plot_colors[index % len(self.plot_colors)]
+        return pg.intColor(index)
+
+    def _create_data_lines(self):
         for i in range(self.nr_plot_lines):
-            if i >= len(plot_colors):
-                # If we have more data than colors
-                color_i = i - len(plot_colors)
-            else:
-                color_i = i
+            color = self._series_color(i)
+            name = self._series_name(i)
+            pen = pg.mkPen(color=color, width=3)
+            brush = pg.mkBrush(color=color)
 
-            pen = pg.mkPen(color=(plot_colors[color_i]), width=3)
-
-            brush = pg.mkBrush(color=(plot_colors[color_i]))
-            # Quick fix:
-            # https://github.com/taunoe/tauno-serial-plotter/issues/71#issuecomment-1769499968
-            if len(self.data_labels) == len(self.y_axis):
-                line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i], name=self.data_labels[i],
-                                       pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
+            if self.graph_type == "line":
+                line = self.serialplot.plot(
+                    x=self.x_axis, y=self.y_axis[i], name=name,
+                    pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
+            elif self.graph_type == "scatter":
+                line = self.serialplot.plot(
+                    x=self.x_axis, y=self.y_axis[i], name=name,
+                    pen=None, symbol='o', symbolBrush=brush, symbolSize=5)
             else:
-                line = self.serialplot.plot(x=self.x_axis, y=self.y_axis[i],
-                                       pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
+                raise ValueError(f"Unsupported graph type: {self.graph_type}")
             self.data_lines.append(line)
+
+    def set_graph_type(self, graph_type):
+        """Change the rendering style without discarding buffered samples."""
+        if graph_type not in self.GRAPH_TYPES:
+            raise ValueError(f"Unsupported graph type: {graph_type}")
+        if graph_type == self.graph_type:
+            return
+
+        for line in self.data_lines:
+            self.serialplot.removeItem(line)
+        self.legend.clear()
+        self.data_lines.clear()
+        self.graph_type = graph_type
+        self._create_data_lines()
+
+    def set_data(self, x_axis, y_axis):
+        """Update every series using the current rendering style."""
+        self.x_axis = list(x_axis)
+        self.y_axis = [list(values) for values in y_axis]
+
+        for i, line in enumerate(self.data_lines):
+            line.setData(self.x_axis, self.y_axis[i])
 # END of class Plot ------------------------------------------------------
 
 
@@ -361,6 +398,16 @@ class Controls(QWidget):
         # Bottom menu
         self.menu_left = QHBoxLayout()#QVBoxLayout()
         self.menu_left.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        self.graph_type_label = QLabel("Graph:", self)
+        self.graph_type_label.setStyleSheet(styles["label_style"])
+        self.menu_left.addWidget(self.graph_type_label)
+        self.select_graph_type = QtWidgets.QComboBox(parent=self)
+        self.select_graph_type.addItem("Line", "line")
+        self.select_graph_type.addItem("Scatter", "scatter")
+        self.select_graph_type.setStyleSheet(styles["dropdown_style"])
+        self.select_graph_type.setFixedWidth(110)
+        self.menu_left.addWidget(self.select_graph_type)
 
         # Select Time scale size
         ## Time scale txt

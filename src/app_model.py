@@ -48,11 +48,11 @@ class PlotBuffer:
         self.equalize()
 
     def equalize(self) -> None:
+        common_size = min(
+            [len(self.x_axis), *(len(values) for values in self.y_axis)])
+        del self.x_axis[:len(self.x_axis) - common_size]
         for values in self.y_axis:
-            if len(self.x_axis) > len(values):
-                del self.x_axis[:len(self.x_axis) - len(values)]
-            elif len(values) > len(self.x_axis):
-                del values[:len(values) - len(self.x_axis)]
+            del values[:len(values) - common_size]
 
     def resize(self, data_size: int) -> None:
         old_size = self.data_size

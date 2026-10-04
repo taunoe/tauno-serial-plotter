@@ -14,6 +14,7 @@ Serial Plotter for Arduino and other embedded devices.
 - Can plot negative values
 - Auto-scrolls the Time scale (X axis)
 - Auto-resizes the Data scale (Y axis)
+- Selectable line and scatter graph styles (line by default)
 - Labels
 
 ## Example Arduino code
@@ -103,6 +104,8 @@ flatpak uninstall art.taunoerik.tauno-serial-plotter
 ## Plot settings
 
 Once the plot (graph) is created it is possible to change the additional plot settings. Like to disable auto-resize on x or-axis y-axis. Or to export data.
+
+Use the **Graph** selector to switch between line and scatter styles. Line is selected by default.
 
 **Right-click** on the plot area.
 
