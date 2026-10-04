@@ -4,9 +4,9 @@ base: core24
 grade: stable
 confinement: strict
 version: '1.21.5'
-summary: Simple serial plotter
+summary: Serial plotter
 description: |
-  Tauno Serial Plotter is simple serial plotter for Arduino and others.
+  Simple serial plotter for Arduino and others.
 
   Note: For serial port access, run:
   sudo usermod -a -G dialout $USER
@@ -23,6 +23,7 @@ source-code: https://github.com/taunoe/tauno-serial-plotter
 platforms:
   amd64:
   arm64:
+  riscv64:
 
 #slots:
 #  qt6-content:
