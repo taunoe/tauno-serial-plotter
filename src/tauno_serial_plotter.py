@@ -23,7 +23,7 @@ except ImportError:
     from theme import create_theme
     from widgets import Controls, Plot, create_styles
 
-VERSION = '1.21.4'
+VERSION = '1.21.5'
 # Set debug level
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
