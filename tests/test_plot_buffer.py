@@ -89,6 +89,17 @@ class PlotBufferTests(unittest.TestCase):
         self.assertEqual(buffer.x_axis, [1, 2])
         self.assertEqual(buffer.y_axis[0], [10, 20])
 
+    def test_equalize_trims_all_series_to_shortest_axis(self):
+        buffer = PlotBuffer(data_size=10)
+        buffer.configure(2)
+        buffer.x_axis = [0, 1, 2]
+        buffer.y_axis = [[10, 20, 30], [100, 200]]
+
+        buffer.equalize()
+
+        self.assertEqual(buffer.x_axis, [1, 2])
+        self.assertEqual(buffer.y_axis, [[20, 30], [100, 200]])
+
     def test_clear_preserves_one_point(self):
         buffer = PlotBuffer(data_size=10)
         buffer.configure(1)

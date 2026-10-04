@@ -23,7 +23,7 @@ except ImportError:
     from theme import create_theme
     from widgets import Controls, Plot, create_styles
 
-VERSION = '1.21.5'
+VERSION = '1.21.6'
 # Set debug level
 logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(level=logging.CRITICAL)
@@ -84,6 +84,8 @@ class MainWindow(QWidget):
         self.controls.select_port.currentIndexChanged.connect(self.selected_port_changed)
         self.controls.select_baud.currentIndexChanged.connect(self.selected_baud_changed)
         self.controls.time_scale_spin.valueChanged.connect(self.time_scale_changed)
+        self.controls.select_graph_type.currentIndexChanged.connect(
+            self.graph_type_changed)
         self.controls.connect.pressed.connect(self.connect_stop)
         self.controls.btn_clear.pressed.connect(self.clear_data)
         self.controls.about.pressed.connect(self.about)
@@ -229,7 +231,8 @@ class MainWindow(QWidget):
             self.plot = Plot(
                 self.model.plot.number_of_lines,
                 self.model.labels,
-                theme=self.theme)
+                theme=self.theme,
+                graph_type=self.controls.select_graph_type.currentData())
             self.horizontal_layout.addWidget(self.plot)
             self.plot_exist = True
         self.model.set_connection_state(ConnectionState.CONNECTED)
@@ -262,11 +265,14 @@ class MainWindow(QWidget):
             numbers = parse_numbers(incoming_data)
 
             self.model.add_data(numbers)
-            for i in range(self.model.plot.number_of_lines):
-                self.plot.data_lines[i].setData(
-                    self.model.plot.x_axis, self.model.plot.y_axis[i])
+            self.plot.set_data(self.model.plot.x_axis, self.model.plot.y_axis)
         except (ValueError, IndexError) as error:
             logging.error("Error processing serial data: %s", error)
+
+    def graph_type_changed(self, _index=None):
+        if self.plot_exist:
+            self.plot.set_graph_type(
+                self.controls.select_graph_type.currentData())
 
     def clear_data(self):
         """ Button clear data """
@@ -275,6 +281,8 @@ class MainWindow(QWidget):
         size = len(self.model.plot.x_axis)
         logging.debug("x_axis: %s", size)
         self.model.clear_data()
+        if self.plot_exist:
+            self.plot.set_data(self.model.plot.x_axis, self.model.plot.y_axis)
 
     def about(self):
         """ Button About """

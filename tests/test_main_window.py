@@ -80,6 +80,25 @@ class MainWindowIntegrationTests(unittest.TestCase):
             [[0, 1.5], [0, 2.5]],
         )
 
+    def test_graph_type_changes_keep_live_plot_data(self):
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(2, ["x", "y"])
+        self.window.handle_serial_data("1.5, 2.5\n")
+
+        self.window.controls.select_graph_type.setCurrentIndex(1)
+
+        self.assertEqual(self.window.plot.graph_type, "scatter")
+        self.assertEqual(self.window.plot.x_axis, [0, 1])
+        self.assertEqual(self.window.plot.y_axis, [[0, 1.5], [0, 2.5]])
+
+        self.window.handle_serial_data("3.5, 4.5\n")
+        self.assertEqual(self.window.plot.x_axis, [0, 1, 2])
+        self.assertEqual(self.window.plot.y_axis, [[0, 1.5, 3.5], [0, 2.5, 4.5]])
+
+        self.window.clear_data()
+        self.assertEqual(self.window.plot.x_axis, [2])
+        self.assertEqual(self.window.plot.y_axis, [[3.5], [4.5]])
+
     def test_stale_connection_signal_is_ignored(self):
         self.window.serial_connected(1, ["value"])
 
