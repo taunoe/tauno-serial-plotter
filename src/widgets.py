@@ -238,7 +238,7 @@ def create_styles(theme):
 
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
-    GRAPH_TYPES = ("line", "scatter")
+    GRAPH_TYPES = ("line", "scatter", "bar")
 
     def __init__(self, nr_plot_lines='1', labels=["sensor1"], theme=None,
                  graph_type="line"):
@@ -265,6 +265,7 @@ class Plot(pg.GraphicsLayoutWidget):
         self.serialplot.setLabel('bottom', 'Time')
         self.serialplot.showGrid(x=True, y=True)
         self.legend = self.serialplot.addLegend()
+        self.legend.setVisible(self.graph_type != "bar")
 
         # Place to hold data
         self.x_axis = [0]  # Time
@@ -280,12 +281,32 @@ class Plot(pg.GraphicsLayoutWidget):
             return self.data_labels[index]
         return None
 
+    def _bar_label(self, index):
+        return self._series_name(index) or f"Series {index + 1}"
+
     def _series_color(self, index):
         if self.plot_colors:
             return self.plot_colors[index % len(self.plot_colors)]
         return pg.intColor(index)
 
     def _create_data_lines(self):
+        if self.graph_type == "bar":
+            self.serialplot.setLabel('bottom', 'Label')
+            self.serialplot.getAxis('bottom').setTicks([[
+                (i, self._bar_label(i)) for i in range(self.nr_plot_lines)
+            ]])
+            for i in range(self.nr_plot_lines):
+                value = self.y_axis[i][-1] if self.y_axis[i] else 0
+                bar = pg.BarGraphItem(
+                    x=[i], y0=[0], height=[value], width=0.7,
+                    brush=self._series_color(i),
+                    pen=pg.mkPen(color=self._series_color(i)))
+                self.serialplot.addItem(bar)
+                self.data_lines.append(bar)
+            return
+
+        self.serialplot.setLabel('bottom', 'Time')
+        self.serialplot.getAxis('bottom').setTicks(None)
         for i in range(self.nr_plot_lines):
             color = self._series_color(i)
             name = self._series_name(i)
@@ -300,8 +321,6 @@ class Plot(pg.GraphicsLayoutWidget):
                 line = self.serialplot.plot(
                     x=self.x_axis, y=self.y_axis[i], name=name,
                     pen=None, symbol='o', symbolBrush=brush, symbolSize=5)
-            else:
-                raise ValueError(f"Unsupported graph type: {self.graph_type}")
             self.data_lines.append(line)
 
     def set_graph_type(self, graph_type):
@@ -314,6 +333,7 @@ class Plot(pg.GraphicsLayoutWidget):
         for line in self.data_lines:
             self.serialplot.removeItem(line)
         self.legend.clear()
+        self.legend.setVisible(graph_type != "bar")
         self.data_lines.clear()
         self.graph_type = graph_type
         self._create_data_lines()
@@ -323,8 +343,13 @@ class Plot(pg.GraphicsLayoutWidget):
         self.x_axis = list(x_axis)
         self.y_axis = [list(values) for values in y_axis]
 
-        for i, line in enumerate(self.data_lines):
-            line.setData(self.x_axis, self.y_axis[i])
+        if self.graph_type == "bar":
+            for i, bar in enumerate(self.data_lines):
+                value = self.y_axis[i][-1] if self.y_axis[i] else 0
+                bar.setOpts(x=[i], y0=[0], height=[value])
+        else:
+            for i, line in enumerate(self.data_lines):
+                line.setData(self.x_axis, self.y_axis[i])
 # END of class Plot ------------------------------------------------------
 
 
@@ -405,6 +430,7 @@ class Controls(QWidget):
         self.select_graph_type = QtWidgets.QComboBox(parent=self)
         self.select_graph_type.addItem("Line", "line")
         self.select_graph_type.addItem("Scatter", "scatter")
+        self.select_graph_type.addItem("Bar", "bar")
         self.select_graph_type.setStyleSheet(styles["dropdown_style"])
         self.select_graph_type.setFixedWidth(110)
         self.menu_left.addWidget(self.select_graph_type)

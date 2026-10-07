@@ -99,6 +99,24 @@ class MainWindowIntegrationTests(unittest.TestCase):
         self.assertEqual(self.window.plot.x_axis, [2])
         self.assertEqual(self.window.plot.y_axis, [[3.5], [4.5]])
 
+    def test_bar_graph_uses_latest_value_for_each_label(self):
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(2, ["x", "y"])
+        self.window.controls.select_graph_type.setCurrentIndex(2)
+
+        self.window.handle_serial_data("1.5, -2.5\n")
+        self.window.handle_serial_data("3.5, -4.5\n")
+
+        self.assertEqual(self.window.plot.graph_type, "bar")
+        self.assertEqual(
+            [bar.opts["height"][0] for bar in self.window.plot.data_lines],
+            [3.5, -4.5],
+        )
+        self.assertEqual(
+            self.window.plot.serialplot.getAxis("bottom")._tickLevels[0],
+            [(0, "x"), (1, "y")],
+        )
+
     def test_stale_connection_signal_is_ignored(self):
         self.window.serial_connected(1, ["value"])
 
