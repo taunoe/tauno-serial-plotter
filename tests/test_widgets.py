@@ -24,7 +24,7 @@ class WidgetTests(unittest.TestCase):
         self.assertEqual(
             [controls.select_graph_type.itemData(i)
              for i in range(controls.select_graph_type.count())],
-            ["line", "scatter"],
+            ["line", "scatter", "bar"],
         )
         self.assertEqual(controls.select_graph_type.currentData(), "line")
         self.assertEqual(controls.time_scale_spin.value(), 400)
@@ -77,8 +77,26 @@ class WidgetTests(unittest.TestCase):
         self.assertEqual(len(plot.data_lines), 2)
         self.assertEqual(list(plot.data_lines[0].getData()[1]), y_axis[0])
 
+        plot.set_graph_type("bar")
+        self.assertEqual(plot.graph_type, "bar")
+        self.assertEqual(len(plot.data_lines), 2)
+        self.assertEqual(
+            [bar.opts["height"][0] for bar in plot.data_lines],
+            [21.5, 50.0],
+        )
+
+        plot.set_data([0, 1, 2], [[0, 21.5, -3], [0, 50.0, 9]])
+        self.assertEqual(
+            [bar.opts["height"][0] for bar in plot.data_lines],
+            [-3, 9],
+        )
+        self.assertEqual(
+            plot.serialplot.getAxis("bottom")._tickLevels[0],
+            [(0, "temperature"), (1, "humidity")],
+        )
+
         with self.assertRaises(ValueError):
-            plot.set_graph_type("bar")
+            plot.set_graph_type("invalid")
 
 
 if __name__ == "__main__":
