@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
-   sodipodi:docname="art.taunoerik.taunp-plotter.svg"
+   sodipodi:docname="tauno-serial-plotter.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,8 +25,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      inkscape:zoom="2.8284271"
-     inkscape:cx="18.915106"
-     inkscape:cy="71.948115"
+     inkscape:cx="19.091883"
+     inkscape:cy="71.948116"
      inkscape:window-width="1920"
      inkscape:window-height="1043"
      inkscape:window-x="0"
@@ -44,58 +44,47 @@
   <g
      inkscape:groupmode="layer"
      id="layer2"
-     inkscape:label="Layer 2"
-     sodipodi:insensitive="true">
+     inkscape:label="Layer 2">
     <g
-       id="g1"
-       transform="matrix(0.94131886,0,0,0.94131886,0.99366744,1.0835218)"
-       style="display:inline;enable-background:new">
+       id="g5"
+       transform="translate(36.2563,0.21124496)">
       <g
          stroke="none"
          stroke-width="1"
          fill="none"
          fill-rule="evenodd"
          sketch:type="MSPage"
-         id="g2-9"
-         transform="matrix(0.35204283,0,0,0.32848354,-0.66880599,0.84924486)"
+         id="g2-9-5-2"
+         transform="matrix(0.33138456,0,0,0.30920775,-35.892192,1.409128)"
          style="fill:#e5a50a;fill-opacity:1">
         <g
            sketch:type="MSArtboardGroup"
            fill="#000000"
-           id="g1-2-1"
+           id="g1-2-1-6-0"
            style="fill:#e5a50a;fill-opacity:1">
           <path
              d="M 50,5 C 14,5 5,14 5,50 5,86 14,95 50,95 86,95 95,86 95,50 95,14 86,5 50,5 Z"
              sketch:type="MSShapeGroup"
-             id="path1-2"
+             id="path1-2-2-2"
              style="fill:#e5a50a;fill-opacity:1" />
         </g>
       </g>
-      <g
-         stroke="none"
-         stroke-width="1"
-         fill="none"
-         fill-rule="evenodd"
-         sketch:type="MSPage"
-         id="g2"
-         transform="matrix(0.35204283,0,0,0.31956853,-0.66880599,0.02272915)"
-         style="fill:#f5c211;fill-opacity:1">
-        <g
-           sketch:type="MSArtboardGroup"
-           fill="#000000"
-           id="g1-2"
-           style="fill:#f5c211;fill-opacity:1">
-          <path
-             d="M 50,5 C 14,5 5,14 5,50 5,86 14,95 50,95 86,95 95,86 95,50 95,14 86,5 50,5 Z"
-             sketch:type="MSShapeGroup"
-             id="path1"
-             style="fill:#f5c211;fill-opacity:1" />
-        </g>
-      </g>
       <path
-         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#241f31;fill-opacity:1;stroke-width:0.113206;stroke-linecap:round;stroke-linejoin:round;enable-background:accumulate;stop-color:#000000"
-         d="m 11.125066,6.1759232 a 0.96234575,0.96234575 0 0 0 -1.1508518,0.44242 l -5.296132,9.5066298 a 0.96224953,0.96224953 0 0 0 0.372341,1.30895 0.96224953,0.96224953 0 0 0 1.308943,-0.37235 L 10.852001,8.9974432 21.341892,26.222183 a 0.96234575,0.96234575 0 0 0 1.660721,-0.0292 l 6.184311,-11.0117 a 0.96224953,0.96224953 0 0 0 -0.367698,-1.31026 0.96224953,0.96224953 0 0 0 -1.310269,0.36792 L 22.130132,23.816353 11.636704,6.5860632 a 0.96234575,0.96234575 0 0 0 -0.511638,-0.41014 z"
-         id="path2" />
+         d="m -19.322964,2.6603108 c -11.929844,0 -14.912268,2.7077864 -14.912268,13.5371582 0,10.829371 2.982424,13.536641 14.912268,13.536641 11.9298439,0 14.9122679,-2.70727 14.9122679,-13.536641 0,-10.8293718 -2.982424,-13.5371582 -14.9122679,-13.5371582 z m 0,1.0293944 c 11.1396629,0 13.9247309,2.501582 13.9247309,12.5077638 0,10.006181 -2.785068,12.507764 -13.9247309,12.507764 -11.139663,0 -13.924732,-2.501583 -13.924732,-12.507764 0,-10.0061818 2.785069,-12.5077638 13.924732,-12.5077638 z"
+         style="fill:#f6d32d;stroke-width:2.43021;stroke-linecap:round;paint-order:fill markers stroke"
+         id="path3-9" />
+      <path
+         d="m -19.322963,3.7049412 c -11.139663,0 -13.924732,2.501582 -13.924732,12.5077638 0,10.006181 2.785068,12.507764 13.924732,12.507764 11.1396629,0 13.9247309,-2.501583 13.9247309,-12.507764 0,-10.0061818 -2.785068,-12.5077638 -13.9247309,-12.5077638 z"
+         style="fill:#e5a50a;fill-opacity:1;stroke-width:2.43021;stroke-linecap:round;paint-order:fill markers stroke"
+         id="path4" />
+      <path
+         d="m -19.322964,4.4292212 c -11.139663,0 -13.924732,2.429153 -13.924732,12.1456238 0,9.71647 2.785069,12.145624 13.924732,12.145624 11.1396629,0 13.9247309,-2.429154 13.9247309,-12.145624 0,-9.7164708 -2.785068,-12.1456238 -13.9247309,-12.1456238 z"
+         style="fill:#f5c211;stroke-width:2.39477;stroke-linecap:round;paint-order:fill markers stroke"
+         id="path4-1" />
+      <path
+         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#241f31;fill-opacity:1;stroke-width:0.106563;stroke-linecap:round;stroke-linejoin:round;enable-background:accumulate;stop-color:#000000"
+         d="m -24.790398,6.8317892 a 0.9058742,0.9058742 0 0 0 -1.083318,0.416459 l -4.985349,8.9487698 a 0.90578363,0.90578363 0 0 0 0.350492,1.232139 0.90578363,0.90578363 0 0 0 1.232132,-0.3505 l 4.229002,-7.5909178 9.874332,16.2139728 a 0.9058742,0.9058742 0 0 0 1.563268,-0.02749 l 5.8214089,-10.365521 a 0.90578363,0.90578363 0 0 0 -0.346121,-1.233372 0.90578363,0.90578363 0 0 0 -1.233381,0.34633 l -5.0631889,9.015397 -9.877662,-16.2191968 a 0.9058742,0.9058742 0 0 0 -0.481615,-0.386073 z"
+         id="path2-0-8" />
     </g>
   </g>
 </svg>
