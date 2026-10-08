@@ -285,12 +285,12 @@ class Plot(pg.GraphicsLayoutWidget):
 
     def __init__(self, nr_plot_lines='1', labels=["sensor1"], theme=None,
                  graph_type="line"):
-        super(Plot,self).__init__(parent=None)
-        plot_colors = theme.plot_colors if theme else []
         if theme:
             pg.setConfigOptions(antialias=True)
             pg.setConfigOption("background", theme.colors["dark"])
             pg.setConfigOption("foreground", theme.colors["foreground"])
+        super(Plot,self).__init__(parent=None)
+        plot_colors = theme.plot_colors if theme else []
 
         self.nr_plot_lines = nr_plot_lines
         self.data_labels = labels
