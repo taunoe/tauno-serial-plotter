@@ -15,13 +15,13 @@ try:
     from .app_model import AppModel, ConnectionState
     from .serial_workers import PortScanner, SerialWorker
     from .theme import create_theme
-    from .widgets import Controls, Plot, create_styles
+    from .widgets import Controls, DataSidebar, Plot, create_styles
 except ImportError:
     from parser import parse_numbers
     from app_model import AppModel, ConnectionState
     from serial_workers import PortScanner, SerialWorker
     from theme import create_theme
-    from widgets import Controls, Plot, create_styles
+    from widgets import Controls, DataSidebar, Plot, create_styles
 
 VERSION = '1.21.7'
 # Set debug level
@@ -55,6 +55,15 @@ class MainWindow(QWidget):
         # Controls
         self.controls = Controls(parent=self, theme=self.theme)
         self.horizontal_layout.addWidget(self.controls)
+        self.plot_container = QWidget(self)
+        self.plot_layout = QtWidgets.QHBoxLayout(self.plot_container)
+        self.plot_layout.setContentsMargins(0, 0, 0, 0)
+        self.data_sidebar = DataSidebar(theme=self.theme, parent=self.plot_container)
+        self.data_sidebar.hide()
+        self.data_sidebar.close_button.clicked.connect(
+            lambda: self.controls.btn_data_view.setChecked(False))
+        self.plot_layout.addWidget(self.data_sidebar)
+        self.horizontal_layout.addWidget(self.plot_container, 1)
 
         self.init_baudrates()   # Baud Rates on dropdown menu
 
@@ -88,6 +97,7 @@ class MainWindow(QWidget):
             self.graph_type_changed)
         self.controls.connect.pressed.connect(self.connect_stop)
         self.controls.btn_clear.pressed.connect(self.clear_data)
+        self.controls.btn_data_view.toggled.connect(self.toggle_data_sidebar)
         self.controls.about.pressed.connect(self.about)
 
         # Init About window
@@ -233,7 +243,7 @@ class MainWindow(QWidget):
                 self.model.labels,
                 theme=self.theme,
                 graph_type=self.controls.select_graph_type.currentData())
-            self.horizontal_layout.addWidget(self.plot)
+            self.plot_layout.insertWidget(0, self.plot, 1)
             self.plot_exist = True
         self.model.set_connection_state(ConnectionState.CONNECTED)
         self.controls.connect.setText('Pause')
@@ -261,6 +271,7 @@ class MainWindow(QWidget):
         if (not self.plot_exist
                 or self.model.connection_state != ConnectionState.CONNECTED):
             return
+        self.data_sidebar.append_text(incoming_data)
         try:
             numbers = parse_numbers(incoming_data)
 
@@ -274,6 +285,10 @@ class MainWindow(QWidget):
             self.plot.set_graph_type(
                 self.controls.select_graph_type.currentData())
 
+    def toggle_data_sidebar(self, opened):
+        """Show or hide the raw serial data sidebar."""
+        self.data_sidebar.setVisible(opened)
+
     def clear_data(self):
         """ Button clear data """
         logging.debug('--> Clear data Button.')
@@ -281,6 +296,7 @@ class MainWindow(QWidget):
         size = len(self.model.plot.x_axis)
         logging.debug("x_axis: %s", size)
         self.model.clear_data()
+        self.data_sidebar.clear()
         if self.plot_exist:
             self.plot.set_data(self.model.plot.x_axis, self.model.plot.y_axis)
 

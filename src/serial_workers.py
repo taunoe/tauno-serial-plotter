@@ -79,6 +79,7 @@ class SerialWorker(QtCore.QObject):
         self.probing = False
         self.probe_attempts = 0
         self.probe_limit = 7500
+        self._serial_buffer = b""
 
     @QtCore.pyqtSlot()
     def start(self):
@@ -93,6 +94,7 @@ class SerialWorker(QtCore.QObject):
         try:
             self.serial = serial.Serial(port, baudrate, timeout=0)
             self.serial.reset_input_buffer()
+            self._serial_buffer = b""
             self.probing = True
             self.probe_attempts = 0
         except (OSError, serial.SerialException) as error:
@@ -106,6 +108,7 @@ class SerialWorker(QtCore.QObject):
 
     def _close_serial(self):
         self.probing = False
+        self._serial_buffer = b""
         if self.serial is not None:
             self.serial.close()
             self.serial = None
@@ -124,18 +127,23 @@ class SerialWorker(QtCore.QObject):
                         self.connection_failed.emit("No numeric data received")
                 return
 
-            line = self.serial.readline().decode("utf8", errors="replace")
-            if not line:
+            bytes_available = self.serial.in_waiting
+            self._serial_buffer += self.serial.read(bytes_available)
+            if b"\n" not in self._serial_buffer:
                 return
 
-            if self.probing:
-                numbers = parse_numbers(line)
-                if not numbers:
-                    return
-                labels = parse_labels(line)
-                self.probing = False
-                self.connected.emit(len(numbers), labels)
-            self.data_received.emit(line)
+            lines = self._serial_buffer.split(b"\n")
+            self._serial_buffer = lines.pop()
+            for raw_line in lines:
+                line = (raw_line + b"\n").decode("utf8", errors="replace")
+                if self.probing:
+                    numbers = parse_numbers(line)
+                    if not numbers:
+                        continue
+                    labels = parse_labels(line)
+                    self.probing = False
+                    self.connected.emit(len(numbers), labels)
+                self.data_received.emit(line)
         except (OSError, serial.SerialException, UnicodeError) as error:
             self.disconnect_from_serial()
             self.connection_failed.emit(str(error))

@@ -2,7 +2,7 @@
 import logging
 from PyQt6 import QtWidgets, QtCore, QtGui
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPlainTextEdit, QWidget
 import pyqtgraph as pg
 
 def create_styles(theme):
@@ -236,6 +236,49 @@ def create_styles(theme):
         "QDoubleSpinBox_style": QDoubleSpinBox_style,
     }
 
+class DataSidebar(QWidget):
+    """Read-only view of the raw serial data received by the plotter."""
+
+    def __init__(self, theme, parent=None):
+        super().__init__(parent=parent)
+        colors = theme.colors
+        layout = QtWidgets.QVBoxLayout(self)
+        heading = QHBoxLayout()
+        title = QLabel("Data", self)
+        title.setStyleSheet(
+            f"color: {colors['foreground']}; font: bold 16px;")
+        self.close_button = QtWidgets.QToolButton(self)
+        self.close_button.setText("×")
+        self.close_button.setToolTip("Close data view")
+        self.close_button.setStyleSheet(
+            f"color: {colors['foreground']}; font: 18px;")
+        heading.addWidget(title)
+        heading.addStretch()
+        heading.addWidget(self.close_button)
+        layout.addLayout(heading)
+
+        self.text_view = QPlainTextEdit(self)
+        self.text_view.setReadOnly(True)
+        self.text_view.setMaximumBlockCount(1000)
+        self.text_view.setStyleSheet(
+            f"QPlainTextEdit {{ background-color: {colors['gray']}; "
+            f"color: {colors['black']}; border: 1px solid {colors['black']}; }}")
+        layout.addWidget(self.text_view)
+        self.setMinimumWidth(220)
+        self.setMaximumWidth(400)
+
+    def append_text(self, text):
+        """Append received serial text and keep the newest data in view."""
+        cursor = self.text_view.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.MoveOperation.End)
+        cursor.insertText(text)
+        self.text_view.setTextCursor(cursor)
+        self.text_view.ensureCursorVisible()
+
+    def clear(self):
+        self.text_view.clear()
+
+
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
     GRAPH_TYPES = ("line", "scatter", "bar")
@@ -462,6 +505,11 @@ class Controls(QWidget):
         self.btn_clear.setEnabled(False)
 
         self.menu_left.addWidget(self.btn_clear)
+
+        self.btn_data_view = QtWidgets.QPushButton("Data", self)
+        self.btn_data_view.setCheckable(True)
+        self.btn_data_view.setStyleSheet(styles["btn_style"])
+        self.menu_left.addWidget(self.btn_data_view)
 
         # Button: About
         self.about = QtWidgets.QPushButton(

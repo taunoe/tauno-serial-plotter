@@ -79,6 +79,17 @@ class MainWindowIntegrationTests(unittest.TestCase):
             self.window.model.plot.y_axis,
             [[0, 1.5], [0, 2.5]],
         )
+        self.assertEqual(self.window.data_sidebar.text_view.toPlainText(), "1.5, 2.5\n")
+
+    def test_data_sidebar_can_be_opened_and_closed(self):
+        self.assertTrue(self.window.data_sidebar.isHidden())
+
+        self.window.controls.btn_data_view.setChecked(True)
+
+        self.assertFalse(self.window.data_sidebar.isHidden())
+        self.window.data_sidebar.close_button.click()
+        self.assertTrue(self.window.data_sidebar.isHidden())
+        self.assertFalse(self.window.controls.btn_data_view.isChecked())
 
     def test_graph_type_changes_keep_live_plot_data(self):
         self.window.model.set_connection_state(ConnectionState.CONNECTING)

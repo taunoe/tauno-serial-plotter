@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from PyQt6.QtWidgets import QApplication
 
-from src.serial_workers import PortScanner, include_serial_port
+from src.serial_workers import PortScanner, SerialWorker, include_serial_port
 
 
 class SerialPortFilteringTests(unittest.TestCase):
@@ -114,6 +114,41 @@ class PortScannerTests(unittest.TestCase):
         self.assertEqual(scanner.timer.interval(), 3000)
         scanner.timer.stop()
         scanner.deleteLater()
+
+
+class SerialWorkerTests(unittest.TestCase):
+    class FakeSerial:
+        def __init__(self):
+            self.buffer = b""
+            self.is_open = True
+
+        @property
+        def in_waiting(self):
+            return len(self.buffer)
+
+        def read(self, size):
+            result, self.buffer = self.buffer[:size], self.buffer[size:]
+            return result
+
+    def test_waits_for_complete_lines_before_parsing_serial_data(self):
+        worker = SerialWorker()
+        worker.serial = self.FakeSerial()
+        worker.probing = True
+        connected = []
+        received = []
+        worker.connected.connect(lambda count, labels: connected.append((count, labels)))
+        worker.data_received.connect(received.append)
+
+        worker.serial.buffer = b"x = 1"
+        worker.read_serial()
+        self.assertEqual(connected, [])
+        self.assertEqual(received, [])
+
+        worker.serial.buffer = b"0, kass = 9, koer = 3\n"
+        worker.read_serial()
+
+        self.assertEqual(connected, [(3, ["x", "kass", "koer"])])
+        self.assertEqual(received, ["x = 10, kass = 9, koer = 3\n"])
 
 
 if __name__ == "__main__":
