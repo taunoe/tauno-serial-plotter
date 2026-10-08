@@ -111,7 +111,7 @@ class MainWindow(QWidget):
             f"QWidget#mainWindow {{ background-color: {self.theme.colors['dark']}; }}")
         self.setWindowTitle("Tauno Serial Plotter")
         self.setWindowIcon(QtGui.QIcon(self.theme.icons["logo"]))
-        self.setMinimumSize(900,550)
+        self.setMinimumSize(980,600)
 
     def center_mainwindow(self):
         """ Center window on startup. """

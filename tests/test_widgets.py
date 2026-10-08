@@ -1,6 +1,7 @@
 """Offscreen widget tests for the plotter controls and plot."""
 
 import unittest
+from unittest.mock import patch
 
 from PyQt6.QtWidgets import QApplication
 
@@ -62,6 +63,18 @@ class WidgetTests(unittest.TestCase):
 
         self.assertEqual(len(plot.data_lines), 1)
         self.assertEqual(plot.data_lines[0].name(), "label")
+
+    def test_plot_background_matches_light_theme(self):
+        with patch("src.theme._system_theme", return_value="light"), \
+                patch("src.theme._system_accent_color", return_value="#123456"):
+            theme = create_theme(self.application)
+
+        plot = Plot(1, ["value"], theme=theme)
+
+        self.assertEqual(
+            plot.backgroundBrush().color().name().lower(),
+            theme.colors["dark"].lower(),
+        )
 
     def test_plot_switches_graph_type_without_losing_data(self):
         plot = Plot(2, ["temperature", "humidity"], theme=self.theme)
