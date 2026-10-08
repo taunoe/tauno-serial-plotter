@@ -16,6 +16,7 @@ Serial Plotter for Arduino and other embedded devices.
 - Auto-resizes the Data scale (Y axis)
 - Selectable line, scatter, and bar graph styles (line by default)
 - Labels
+- Optional sidebar showing the incoming serial data as text
 
 ## Example Arduino code
 
