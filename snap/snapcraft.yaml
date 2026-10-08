@@ -23,7 +23,6 @@ source-code: https://github.com/taunoe/tauno-serial-plotter
 platforms:
   amd64:
   arm64:
-  riscv64:
 
 #slots:
 #  qt6-content:
