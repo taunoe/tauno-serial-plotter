@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
 import logging
-from typing import Iterable, List, Optional
+from typing import List, Optional, Sequence
 
 from PyQt6.QtCore import QSettings
 
@@ -35,7 +35,7 @@ class PlotBuffer:
         self.x_axis = [0]
         self.y_axis = [[0] for _ in range(number_of_lines)]
 
-    def add_numbers(self, values: Iterable[float]) -> None:
+    def add_numbers(self, values: Sequence[float]) -> None:
         for i, value in enumerate(values[:self.number_of_lines]):
             if len(self.y_axis[i]) > self.data_size:
                 self.y_axis[i] = self.y_axis[i][1:]
@@ -132,9 +132,19 @@ class AppModel:
         self.labels = labels or ["label"]
         self.plot.configure(number_of_lines)
 
-    def add_data(self, values: Iterable[float]) -> None:
+    def add_data(self, values: Sequence[float]) -> bool:
+        """Append one sample per series; return False if the line was dropped.
+
+        A line with too few values is dropped whole. Appending it to only
+        some series would shift the others in time.
+        """
+        if not values or len(values) < self.plot.number_of_lines:
+            logging.debug("Dropping line with %d of %d values",
+                          len(values), self.plot.number_of_lines)
+            return False
         self.plot.add_numbers(values)
         self.plot.add_time()
+        return True
 
     def update_data_size(self, value: int) -> None:
         self.plot.resize(value)

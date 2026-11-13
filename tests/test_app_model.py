@@ -110,6 +110,28 @@ class AppModelTests(unittest.TestCase):
             self.assertEqual(model.labels, ["label"])
             self.assertEqual(model.plot.number_of_lines, 1)
 
+    def test_short_line_is_dropped_and_series_stay_aligned(self):
+        with tempfile.TemporaryDirectory() as directory:
+            model = AppModel(self.make_settings(directory))
+            model.configure_plot(2, ["a", "b"])
+
+            self.assertTrue(model.add_data(["1", "10"]))
+            self.assertFalse(model.add_data(["2"]))
+            self.assertFalse(model.add_data([]))
+            self.assertTrue(model.add_data(["3", "30"]))
+
+            self.assertEqual(model.plot.x_axis, [0, 1, 2])
+            self.assertEqual(model.plot.y_axis, [[0, 1.0, 3.0], [0, 10.0, 30.0]])
+
+    def test_extra_values_are_ignored(self):
+        with tempfile.TemporaryDirectory() as directory:
+            model = AppModel(self.make_settings(directory))
+            model.configure_plot(1, ["a"])
+
+            self.assertTrue(model.add_data(["1", "99"]))
+
+            self.assertEqual(model.plot.y_axis, [[0, 1.0]])
+
 
 if __name__ == "__main__":
     unittest.main()
