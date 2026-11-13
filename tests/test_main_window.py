@@ -181,7 +181,7 @@ class MainWindowIntegrationTests(unittest.TestCase):
         self.window.model.set_connection_state(ConnectionState.CONNECTING)
         self.window.serial_connected(1, ["value"])
 
-        self.window.disconnect()
+        self.window.disconnect_serial()
 
         self.assertEqual(
             self.window.model.connection_state,
@@ -192,11 +192,15 @@ class MainWindowIntegrationTests(unittest.TestCase):
         self.assertTrue(self.window.controls.select_baud.isEnabled())
         self.assertFalse(self.window.controls.btn_clear.isEnabled())
 
+    def test_qobject_connect_api_is_not_shadowed(self):
+        self.assertNotIn("disconnect", vars(MainWindow))
+        self.assertNotIn("connect", vars(MainWindow))
+
     def test_connect_updates_ui_without_starting_real_serial_connection(self):
         self.window.model.selected_port = "/dev/ttyUSB0"
         self.window.model.selected_baudrate = "115200"
         with patch.object(self.window, "request_serial_connection") as request:
-            self.window.connect()
+            self.window.connect_serial()
 
         self.assertEqual(
             self.window.model.connection_state,

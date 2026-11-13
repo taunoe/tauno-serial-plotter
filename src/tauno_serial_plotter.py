@@ -186,14 +186,14 @@ class MainWindow(QWidget):
         if self.model.connection_state in (
                 ConnectionState.DISCONNECTED, ConnectionState.ERROR):
             logging.debug('--> Connect Button.')
-            self.connect()
+            self.connect_serial()
         elif self.model.connection_state in (
                 ConnectionState.CONNECTING, ConnectionState.CONNECTED):
             logging.debug('--> Pause Button.')
-            self.disconnect()
+            self.disconnect_serial()
 
 
-    def connect(self):
+    def connect_serial(self):
         """ When we press button Connect. """
         self.model.set_connection_state(ConnectionState.CONNECTING)
         # Change button txt
@@ -207,7 +207,7 @@ class MainWindow(QWidget):
 
         self.request_serial_connection()
 
-    def disconnect(self):
+    def disconnect_serial(self):
         """ When we press Pause button """
         self.serial_disconnect_requested.emit()
         self.model.set_connection_state(ConnectionState.DISCONNECTED)
