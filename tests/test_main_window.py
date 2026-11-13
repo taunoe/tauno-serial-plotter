@@ -68,6 +68,46 @@ class MainWindowIntegrationTests(unittest.TestCase):
         self.assertEqual(self.window.controls.connect.text(), "Pause")
         self.assertTrue(self.window.controls.btn_clear.isEnabled())
 
+    def reconnect(self, number_of_lines, labels):
+        self.window.model.set_connection_state(ConnectionState.DISCONNECTED)
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(number_of_lines, labels)
+
+    def test_reconnect_with_other_series_count_rebuilds_plot(self):
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(3, ["a", "b", "c"])
+        first_plot = self.window.plot
+
+        self.reconnect(1, ["x"])
+        self.assertIs(self.window.plot, first_plot)
+        self.assertEqual(len(self.window.plot.data_lines), 1)
+        self.assertEqual(self.window.plot.data_lines[0].name(), "x")
+        self.window.handle_serial_data("5\n")
+        self.assertEqual(self.window.model.plot.y_axis, [[0, 5.0]])
+        self.assertEqual(self.window.plot.y_axis, [[0, 5.0]])
+        self.assertEqual(list(self.window.plot.data_lines[0].getData()[1]), [0, 5.0])
+
+        self.reconnect(5, list("abcde"))
+        self.assertEqual(len(self.window.plot.data_lines), 5)
+        self.assertEqual(
+            [item.text for _sample, item in self.window.plot.legend.items],
+            list("abcde"),
+        )
+
+    def test_reconnect_keeps_selected_graph_type(self):
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(2, ["x", "y"])
+        self.window.controls.select_graph_type.setCurrentIndex(2)
+
+        self.reconnect(3, ["x", "y", "z"])
+
+        self.assertEqual(self.window.plot.graph_type, "bar")
+        self.assertEqual(len(self.window.plot.data_lines), 3)
+        self.assertEqual(
+            self.window.plot.serialplot.getAxis("bottom")._tickLevels[0],
+            [(0, "x"), (1, "y"), (2, "z")],
+        )
+
     def test_incoming_data_updates_plot_buffers(self):
         self.window.model.set_connection_state(ConnectionState.CONNECTING)
         self.window.serial_connected(2, ["x", "y"])

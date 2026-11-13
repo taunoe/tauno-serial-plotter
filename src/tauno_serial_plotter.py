@@ -245,6 +245,11 @@ class MainWindow(QWidget):
                 graph_type=self.controls.select_graph_type.currentData())
             self.plot_layout.insertWidget(0, self.plot, 1)
             self.plot_exist = True
+        else:
+            # The device may now send a different number of values or
+            # other labels than on the previous connection.
+            self.plot.configure(
+                self.model.plot.number_of_lines, self.model.labels)
         self.model.set_connection_state(ConnectionState.CONNECTED)
         self.controls.connect.setText('Pause')
         self.controls.btn_clear.setEnabled(True)

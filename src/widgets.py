@@ -283,7 +283,7 @@ class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
     GRAPH_TYPES = ("line", "scatter", "bar")
 
-    def __init__(self, nr_plot_lines='1', labels=["sensor1"], theme=None,
+    def __init__(self, nr_plot_lines=1, labels=None, theme=None,
                  graph_type="line"):
         if theme:
             pg.setConfigOptions(antialias=True)
@@ -293,12 +293,9 @@ class Plot(pg.GraphicsLayoutWidget):
         plot_colors = theme.plot_colors if theme else []
 
         self.nr_plot_lines = nr_plot_lines
-        self.data_labels = labels
+        self.data_labels = list(labels) if labels else []
         self.plot_colors = plot_colors
         self.graph_type = graph_type
-
-        if self.nr_plot_lines is None:
-            logging.debug("nr_plot_lines is None!")
 
         logging.debug("Init Plot class. With %i plot lines.", self.nr_plot_lines)
 
@@ -366,6 +363,21 @@ class Plot(pg.GraphicsLayoutWidget):
                     pen=None, symbol='o', symbolBrush=brush, symbolSize=5)
             self.data_lines.append(line)
 
+    def _remove_data_lines(self):
+        for line in self.data_lines:
+            self.serialplot.removeItem(line)
+        self.legend.clear()
+        self.data_lines.clear()
+
+    def configure(self, nr_plot_lines, labels):
+        """Rebuild the series for a new channel count or label set."""
+        self._remove_data_lines()
+        self.nr_plot_lines = nr_plot_lines
+        self.data_labels = list(labels) if labels else []
+        self.x_axis = [0]
+        self.y_axis = [[0] for _ in range(nr_plot_lines)]
+        self._create_data_lines()
+
     def set_graph_type(self, graph_type):
         """Change the rendering style without discarding buffered samples."""
         if graph_type not in self.GRAPH_TYPES:
@@ -373,11 +385,8 @@ class Plot(pg.GraphicsLayoutWidget):
         if graph_type == self.graph_type:
             return
 
-        for line in self.data_lines:
-            self.serialplot.removeItem(line)
-        self.legend.clear()
+        self._remove_data_lines()
         self.legend.setVisible(graph_type != "bar")
-        self.data_lines.clear()
         self.graph_type = graph_type
         self._create_data_lines()
 
