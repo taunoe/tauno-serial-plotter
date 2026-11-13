@@ -38,6 +38,9 @@ class MainWindow(QWidget):
     serial_connect_requested = pyqtSignal(str, int)
     serial_disconnect_requested = pyqtSignal()
 
+    # The plot is redrawn at most this often, however fast lines arrive.
+    PLOT_REFRESH_MS = 33
+
     def __init__(self, app, theme=None, parent=None):
         super(MainWindow, self).__init__(parent=parent)
 
@@ -99,6 +102,12 @@ class MainWindow(QWidget):
         self.controls.btn_clear.pressed.connect(self.clear_data)
         self.controls.btn_data_view.toggled.connect(self.toggle_data_sidebar)
         self.controls.about.pressed.connect(self.about)
+
+        # Redraw on a timer instead of once per received line.
+        self._plot_dirty = False
+        self.plot_timer = QtCore.QTimer(self)
+        self.plot_timer.setInterval(self.PLOT_REFRESH_MS)
+        self.plot_timer.timeout.connect(self.refresh_plot)
 
         # Init About window
         self.aboutbox = QMessageBox()
@@ -252,6 +261,8 @@ class MainWindow(QWidget):
                 self.model.plot.number_of_lines, self.model.labels)
         self.model.set_connection_state(ConnectionState.CONNECTED)
         self.controls.connect.setText('Pause')
+        self._plot_dirty = True
+        self.plot_timer.start()
         self.controls.btn_clear.setEnabled(True)
         self.controls.btn_clear.setStyleSheet(self.styles["btn_icon_style"])
 
@@ -278,15 +289,23 @@ class MainWindow(QWidget):
             return
         self.data_sidebar.append_text(incoming_data)
         try:
-            numbers = parse_numbers(incoming_data)
-
-            self.model.add_data(numbers)
-            self.plot.set_data(self.model.plot.x_axis, self.model.plot.y_axis)
+            if self.model.add_data(parse_numbers(incoming_data)):
+                self._plot_dirty = True
         except (ValueError, IndexError) as error:
             logging.error("Error processing serial data: %s", error)
 
+    @pyqtSlot()
+    def refresh_plot(self):
+        """Draw buffered samples; stops itself once the stream has ended."""
+        if self._plot_dirty and self.plot_exist:
+            self._plot_dirty = False
+            self.plot.set_data(self.model.plot.x_axis, self.model.plot.y_axis)
+        elif self.model.connection_state != ConnectionState.CONNECTED:
+            self.plot_timer.stop()
+
     def graph_type_changed(self, _index=None):
         if self.plot_exist:
+            self.refresh_plot()
             self.plot.set_graph_type(
                 self.controls.select_graph_type.currentData())
 
@@ -302,6 +321,7 @@ class MainWindow(QWidget):
         logging.debug("x_axis: %s", size)
         self.model.clear_data()
         self.data_sidebar.clear()
+        self._plot_dirty = False
         if self.plot_exist:
             self.plot.set_data(self.model.plot.x_axis, self.model.plot.y_axis)
 
@@ -351,6 +371,7 @@ class MainWindow(QWidget):
     def closeEvent(self, event):
         """Stop background work before the window is destroyed."""
         self.model.save_settings()
+        self.plot_timer.stop()
         self.port_scanner_thread.requestInterruption()
         self.port_scanner_thread.quit()
         self.port_scanner_thread.wait()

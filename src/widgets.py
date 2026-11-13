@@ -282,6 +282,10 @@ class DataSidebar(QWidget):
 class Plot(pg.GraphicsLayoutWidget):
     """ Plot definition """
     GRAPH_TYPES = ("line", "scatter", "bar")
+    LINE_WIDTH = 3
+    # Qt strokes antialiased lines wider than 1 px on a slow path: a redraw
+    # took roughly 8x longer in testing. Axes and symbols stay antialiased.
+    ANTIALIAS_LINES = False
 
     def __init__(self, nr_plot_lines=1, labels=None, theme=None,
                  graph_type="line"):
@@ -350,13 +354,14 @@ class Plot(pg.GraphicsLayoutWidget):
         for i in range(self.nr_plot_lines):
             color = self._series_color(i)
             name = self._series_name(i)
-            pen = pg.mkPen(color=color, width=3)
+            pen = pg.mkPen(color=color, width=self.LINE_WIDTH)
             brush = pg.mkBrush(color=color)
 
             if self.graph_type == "line":
                 line = self.serialplot.plot(
                     x=self.x_axis, y=self.y_axis[i], name=name,
-                    pen=pen, symbol='o', symbolBrush=brush, symbolSize=3)
+                    pen=pen, symbol='o', symbolBrush=brush, symbolSize=3,
+                    antialias=self.ANTIALIAS_LINES)
             elif self.graph_type == "scatter":
                 line = self.serialplot.plot(
                     x=self.x_axis, y=self.y_axis[i], name=name,

@@ -83,6 +83,7 @@ class MainWindowIntegrationTests(unittest.TestCase):
         self.assertEqual(len(self.window.plot.data_lines), 1)
         self.assertEqual(self.window.plot.data_lines[0].name(), "x")
         self.window.handle_serial_data("5\n")
+        self.window.refresh_plot()
         self.assertEqual(self.window.model.plot.y_axis, [[0, 5.0]])
         self.assertEqual(self.window.plot.y_axis, [[0, 5.0]])
         self.assertEqual(list(self.window.plot.data_lines[0].getData()[1]), [0, 5.0])
@@ -121,6 +122,38 @@ class MainWindowIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(self.window.data_sidebar.text_view.toPlainText(), "1.5, 2.5\n")
 
+    def test_many_lines_cause_one_redraw(self):
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(2, ["x", "y"])
+        self.window.refresh_plot()
+
+        with patch.object(self.window.plot, "set_data",
+                          wraps=self.window.plot.set_data) as set_data:
+            for value in range(200):
+                self.window.handle_serial_data(f"{value}, {value}\n")
+            self.assertEqual(set_data.call_count, 0)
+            self.assertEqual(len(self.window.model.plot.x_axis), 201)
+
+            self.window.refresh_plot()
+            self.window.refresh_plot()
+            self.assertEqual(set_data.call_count, 1)
+
+        self.assertEqual(self.window.plot.y_axis[0][-1], 199.0)
+
+    def test_refresh_timer_runs_only_while_connected(self):
+        self.assertFalse(self.window.plot_timer.isActive())
+
+        self.window.model.set_connection_state(ConnectionState.CONNECTING)
+        self.window.serial_connected(1, ["x"])
+        self.assertTrue(self.window.plot_timer.isActive())
+
+        self.window.handle_serial_data("7\n")
+        self.window.disconnect_serial()
+        self.window.refresh_plot()   # draws the last sample
+        self.assertEqual(self.window.plot.y_axis, [[0, 7.0]])
+        self.window.refresh_plot()   # nothing left: stops
+        self.assertFalse(self.window.plot_timer.isActive())
+
     def test_data_sidebar_can_be_opened_and_closed(self):
         self.assertTrue(self.window.data_sidebar.isHidden())
 
@@ -143,6 +176,7 @@ class MainWindowIntegrationTests(unittest.TestCase):
         self.assertEqual(self.window.plot.y_axis, [[0, 1.5], [0, 2.5]])
 
         self.window.handle_serial_data("3.5, 4.5\n")
+        self.window.refresh_plot()
         self.assertEqual(self.window.plot.x_axis, [0, 1, 2])
         self.assertEqual(self.window.plot.y_axis, [[0, 1.5, 3.5], [0, 2.5, 4.5]])
 
@@ -157,6 +191,7 @@ class MainWindowIntegrationTests(unittest.TestCase):
 
         self.window.handle_serial_data("1.5, -2.5\n")
         self.window.handle_serial_data("3.5, -4.5\n")
+        self.window.refresh_plot()
 
         self.assertEqual(self.window.plot.graph_type, "bar")
         self.assertEqual(
