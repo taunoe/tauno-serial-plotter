@@ -150,6 +150,58 @@ class SerialWorkerTests(unittest.TestCase):
         self.assertEqual(connected, [(3, ["x", "kass", "koer"])])
         self.assertEqual(received, ["x = 10, kass = 9, koer = 3\n"])
 
+    def make_connected_worker(self):
+        worker = SerialWorker()
+        fake = self.FakeSerial()
+        fake.reset_input_buffer = lambda: None
+        fake.close = lambda: None
+        with patch("src.serial_workers.serial.Serial", return_value=fake):
+            worker.connect_to("/dev/ttyUSB0", 9600)
+        connected = []
+        received = []
+        failed = []
+        worker.connected.connect(lambda count, labels: connected.append((count, labels)))
+        worker.data_received.connect(received.append)
+        worker.connection_failed.connect(failed.append)
+        return worker, connected, received, failed
+
+    def test_partial_first_line_does_not_decide_series_count(self):
+        worker, connected, received, _failed = self.make_connected_worker()
+
+        # The port was opened in the middle of "1, 2, 3".
+        worker.serial.buffer = b", 3\n4, 5, 6\n"
+        worker.read_serial()
+
+        self.assertEqual(connected, [(3, [])])
+        self.assertEqual(received, ["4, 5, 6\n"])
+
+    def test_stream_without_newlines_is_bounded(self):
+        worker, connected, received, _failed = self.make_connected_worker()
+        worker.MAX_LINE_BYTES = 100
+
+        for _ in range(10):
+            worker.serial.buffer = b"7" * 60
+            worker.read_serial()
+            self.assertLessEqual(len(worker._serial_buffer), 160)
+
+        # The tail of the oversized run is dropped, then data flows again.
+        worker.serial.buffer = b"777\n1, 2\n"
+        worker.read_serial()
+        self.assertEqual(connected, [(2, [])])
+        self.assertEqual(received, ["1, 2\n"])
+
+    def test_probe_times_out_when_only_text_arrives(self):
+        worker, connected, _received, failed = self.make_connected_worker()
+        worker.probe_limit = 5
+
+        for _ in range(5):
+            worker.serial.buffer = b"still booting\n"
+            worker.read_serial()
+
+        self.assertEqual(connected, [])
+        self.assertEqual(failed, ["No numeric data received"])
+        self.assertIsNone(worker.serial)
+
 
 if __name__ == "__main__":
     unittest.main()

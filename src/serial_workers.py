@@ -72,6 +72,10 @@ class SerialWorker(QtCore.QObject):
     disconnected = QtCore.pyqtSignal()
     stopped = QtCore.pyqtSignal()
 
+    # Longest unterminated line kept in memory. A stream without newlines
+    # (wrong baud rate, binary data) would otherwise grow without limit.
+    MAX_LINE_BYTES = 64 * 1024
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.serial = None
@@ -80,6 +84,7 @@ class SerialWorker(QtCore.QObject):
         self.probe_attempts = 0
         self.probe_limit = 7500
         self._serial_buffer = b""
+        self._skip_partial_line = False
 
     @QtCore.pyqtSlot()
     def start(self):
@@ -97,6 +102,9 @@ class SerialWorker(QtCore.QObject):
             self._serial_buffer = b""
             self.probing = True
             self.probe_attempts = 0
+            # The port is usually opened in the middle of a line. That
+            # fragment must not decide how many series the plot gets.
+            self._skip_partial_line = True
         except (OSError, serial.SerialException) as error:
             self.serial = None
             self.connection_failed.emit(str(error))
@@ -109,6 +117,7 @@ class SerialWorker(QtCore.QObject):
     def _close_serial(self):
         self.probing = False
         self._serial_buffer = b""
+        self._skip_partial_line = False
         if self.serial is not None:
             self.serial.close()
             self.serial = None
@@ -119,21 +128,34 @@ class SerialWorker(QtCore.QObject):
             return
 
         try:
-            if self.serial.in_waiting == 0:
-                if self.probing:
-                    self.probe_attempts += 1
-                    if self.probe_attempts >= self.probe_limit:
-                        self.disconnect_from_serial()
-                        self.connection_failed.emit("No numeric data received")
-                return
+            if self.probing:
+                # Count every tick, so a device that only sends text
+                # without numbers also times out.
+                self.probe_attempts += 1
+                if self.probe_attempts >= self.probe_limit:
+                    self.disconnect_from_serial()
+                    self.connection_failed.emit("No numeric data received")
+                    return
 
             bytes_available = self.serial.in_waiting
+            if bytes_available == 0:
+                return
+
             self._serial_buffer += self.serial.read(bytes_available)
             if b"\n" not in self._serial_buffer:
+                if len(self._serial_buffer) > self.MAX_LINE_BYTES:
+                    logging.warning(
+                        "Discarding %d bytes received without a newline",
+                        len(self._serial_buffer))
+                    self._serial_buffer = b""
+                    self._skip_partial_line = True
                 return
 
             lines = self._serial_buffer.split(b"\n")
             self._serial_buffer = lines.pop()
+            if self._skip_partial_line:
+                self._skip_partial_line = False
+                lines.pop(0)
             for raw_line in lines:
                 line = (raw_line + b"\n").decode("utf8", errors="replace")
                 if self.probing:
