@@ -23,7 +23,7 @@ except ImportError:
     from theme import create_theme
     from widgets import Controls, DataSidebar, Plot, create_styles
 
-VERSION = '1.21.8'
+VERSION = '1.21.9'
 
 
 class MainWindow(QWidget):
