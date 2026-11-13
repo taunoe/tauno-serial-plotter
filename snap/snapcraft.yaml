@@ -3,7 +3,7 @@ title: Tauno Serial Plotter
 base: core24
 grade: stable
 confinement: strict
-version: '1.21.8'
+version: '1.21.9'
 summary: Serial plotter
 description: |
   Simple serial plotter for Arduino and others.
@@ -59,6 +59,8 @@ parts:
   tauno-serial-plotter:
     source: .
     plugin: python
+    build-environment:
+      - PYTHONPATH: $CRAFT_PART_INSTALL/lib/python3.12/site-packages:${PYTHONPATH:-}
     python-requirements: ['requirements.txt']
     stage-packages:
       #- python3-pyqt6
