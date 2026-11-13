@@ -44,7 +44,6 @@ apps:
     plugs:
     - home
     - removable-media
-    - network
     - serial-port
     - raw-usb
     - desktop
@@ -52,7 +51,6 @@ apps:
     - x11
     - wayland
     - opengl
-    - network-bind
     - hardware-observe
 
   
@@ -93,7 +91,7 @@ parts:
             $CRAFT_PART_INSTALL/usr/share/applications/
     # This removes specific files from the final snap
     prime:
-      - -usr/lib/*/libicutest* ```
+      - -usr/lib/*/libicutest*
 
   desktop-wrapper:
     plugin: nil
