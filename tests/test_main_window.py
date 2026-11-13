@@ -1,15 +1,17 @@
 """Offscreen integration tests for MainWindow event routing."""
 
+import logging
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QEvent, QSettings, Qt
+from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import QApplication
 
 from src.app_model import ConnectionState
-from src.tauno_serial_plotter import MainWindow
+from src.tauno_serial_plotter import MainWindow, configure_logging
 from src.theme import create_theme
 
 
@@ -230,6 +232,28 @@ class MainWindowIntegrationTests(unittest.TestCase):
     def test_qobject_connect_api_is_not_shadowed(self):
         self.assertNotIn("disconnect", vars(MainWindow))
         self.assertNotIn("connect", vars(MainWindow))
+
+    def test_f11_and_escape_toggle_fullscreen(self):
+        def press(key):
+            self.window.keyPressEvent(QKeyEvent(
+                QEvent.Type.KeyPress, key, Qt.KeyboardModifier.NoModifier))
+
+        press(Qt.Key.Key_F11)
+        self.assertTrue(self.window.is_fullscreen)
+        press(Qt.Key.Key_Escape)
+        self.assertFalse(self.window.is_fullscreen)
+        press(Qt.Key.Key_F11)
+        press(Qt.Key.Key_F11)
+        self.assertFalse(self.window.is_fullscreen)
+        press(Qt.Key.Key_A)   # other keys are passed on
+
+    def test_debug_flag_selects_log_level_and_is_removed(self):
+        with patch("src.tauno_serial_plotter.logging.basicConfig") as config:
+            self.assertEqual(configure_logging(["app"]), ["app"])
+            config.assert_called_once_with(level=logging.WARNING)
+        with patch("src.tauno_serial_plotter.logging.basicConfig") as config:
+            self.assertEqual(configure_logging(["app", "--debug"]), ["app"])
+            config.assert_called_once_with(level=logging.DEBUG)
 
     def test_connect_updates_ui_without_starting_real_serial_connection(self):
         self.window.model.selected_port = "/dev/ttyUSB0"

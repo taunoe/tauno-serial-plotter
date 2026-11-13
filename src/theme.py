@@ -6,7 +6,7 @@ import platform
 import subprocess
 from dataclasses import dataclass
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore
 
 
 PLOT_COLORS = [

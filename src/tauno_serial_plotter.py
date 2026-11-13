@@ -24,11 +24,6 @@ except ImportError:
     from widgets import Controls, DataSidebar, Plot, create_styles
 
 VERSION = '1.21.8'
-# Set debug level
-logging.basicConfig(level=logging.DEBUG)
-#logging.basicConfig(level=logging.CRITICAL)
-
-
 
 
 class MainWindow(QWidget):
@@ -342,16 +337,12 @@ class MainWindow(QWidget):
         """
             Detect keypress and runs function
         """
-        if event.key() == 32: # Space
-            logging.debug("Space")
-        elif event.key() == 16777219: # Backspace
-            logging.debug("Backspace")
-        elif event.key() == 16777274: # F11
+        if event.key() == Qt.Key.Key_F11:
             self.key_f11()
-        elif event.key() == 16777216: # Esc
+        elif event.key() == Qt.Key.Key_Escape:
             self.key_esc()
         else:
-            logging.debug("Unknown keypress: %s, %s", event.key(),event.text())
+            super().keyPressEvent(event)
 
     def key_f11(self):
         """ F11 on/off fullscreen"""
@@ -389,14 +380,16 @@ class MainWindow(QWidget):
 
 # END of class MainWindow --------------------------------------------
 
+def configure_logging(argv):
+    """Log warnings by default; ``--debug`` turns on everything."""
+    debug = "--debug" in argv
+    logging.basicConfig(level=logging.DEBUG if debug else logging.WARNING)
+    return [argument for argument in argv if argument != "--debug"]
+
+
 def main():
-    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-    if hasattr(Qt, 'AA_Use96Dpi'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi, True)
-    app = QApplication(sys.argv)
+    # Qt 6 enables high-DPI scaling itself; the Qt 5 attributes are gone.
+    app = QApplication(configure_logging(sys.argv))
     theme = create_theme(app)
     window = MainWindow(app, theme=theme)
     window.show()
